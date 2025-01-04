@@ -3,17 +3,19 @@ import { Navigation } from "@/components/Navigation";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[#100c2a]">
+    <div className="min-h-screen bg-[#f8f8f8]">
       <Navigation />
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2 text-center text-white">
+          <h1 className="text-4xl font-bold mb-2 text-center text-gray-900">
             Create Your Opti
           </h1>
-          <p className="text-lg text-gray-400 mb-8 text-center">
+          <p className="text-lg text-gray-600 mb-8 text-center">
             Fill in the form below to log your optimisation
           </p>
-          <OptimizationForm />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <OptimizationForm />
+          </div>
         </div>
       </div>
     </div>

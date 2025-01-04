@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    --background: 240 65% 8%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 97%;
+    --foreground: 0 0% 0%;
 
-    --card: 240 65% 8%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 240 65% 8%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
     --primary: 198 64% 49%;
     --primary-foreground: 0 0% 100%;
@@ -19,8 +19,8 @@
     --secondary: 262 83% 58%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 65% 15%;
-    --muted-foreground: 0 0% 75%;
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 45%;
 
     --accent: 198 64% 49%;
     --accent-foreground: 0 0% 100%;
@@ -28,8 +28,8 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 65% 15%;
-    --input: 240 65% 15%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
     --ring: 198 64% 49%;
 
     --radius: 0.75rem;
@@ -41,7 +41,20 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#100c2a] text-foreground;
+    @apply bg-[#f8f8f8] text-foreground relative;
+  }
+  
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20vh;
+    background: linear-gradient(to right, #60a5fa, #e879f9);
+    opacity: 0.1;
+    z-index: 0;
+    pointer-events: none;
   }
   
   .gradient-bg {

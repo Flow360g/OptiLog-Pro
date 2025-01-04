@@ -29,43 +29,43 @@ const mockData = {
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen bg-[#100c2a]">
+    <div className="min-h-screen bg-[#f8f8f8]">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8 text-white text-center">
+        <h1 className="text-4xl font-bold mb-8 text-gray-900 text-center">
           OptiLog Dashboard
         </h1>
 
         {Object.entries(mockData).map(([client, optimizations]) => (
           <section key={client} className="mb-12">
-            <h2 className="text-2xl font-semibold mb-4 text-white">{client}</h2>
-            <div className="bg-white/5 backdrop-blur-lg rounded-lg border border-white/10 overflow-hidden">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">{client}</h2>
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <Table>
                   <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left p-4 text-white">Campaign</th>
-                      <th className="text-left p-4 text-white">Platform</th>
-                      <th className="text-left p-4 text-white">KPI</th>
-                      <th className="text-left p-4 text-white">Action</th>
-                      <th className="text-left p-4 text-white">Categories</th>
-                      <th className="text-left p-4 text-white">Effort</th>
-                      <th className="text-left p-4 text-white">Impact</th>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="text-left p-4 text-gray-900">Campaign</th>
+                      <th className="text-left p-4 text-gray-900">Platform</th>
+                      <th className="text-left p-4 text-gray-900">KPI</th>
+                      <th className="text-left p-4 text-gray-900">Action</th>
+                      <th className="text-left p-4 text-gray-900">Categories</th>
+                      <th className="text-left p-4 text-gray-900">Effort</th>
+                      <th className="text-left p-4 text-gray-900">Impact</th>
                     </tr>
                   </thead>
                   <tbody>
                     {optimizations.map((opt, index) => (
                       <tr 
                         key={index} 
-                        className="border-b border-white/10 hover:bg-white/5 transition-colors"
+                        className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                       >
-                        <td className="p-4 text-white">{opt.campaign}</td>
-                        <td className="p-4 text-white">{opt.platform}</td>
-                        <td className="p-4 text-white">{opt.kpi}</td>
-                        <td className="p-4 text-white">{opt.recommendedAction}</td>
-                        <td className="p-4 text-white">{opt.categories.join(", ")}</td>
-                        <td className="p-4 text-white">{opt.effort}</td>
-                        <td className="p-4 text-white">{opt.impact}</td>
+                        <td className="p-4 text-gray-700">{opt.campaign}</td>
+                        <td className="p-4 text-gray-700">{opt.platform}</td>
+                        <td className="p-4 text-gray-700">{opt.kpi}</td>
+                        <td className="p-4 text-gray-700">{opt.recommendedAction}</td>
+                        <td className="p-4 text-gray-700">{opt.categories.join(", ")}</td>
+                        <td className="p-4 text-gray-700">{opt.effort}</td>
+                        <td className="p-4 text-gray-700">{opt.impact}</td>
                       </tr>
                     ))}
                   </tbody>
