@@ -140,6 +140,15 @@ export function OptimizationForm() {
           kpisByPlatform={kpisByPlatform}
         />
 
+        <div className="space-y-4">
+          <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
+          <Textarea
+            id="hypothesis"
+            placeholder="What do you think is causing the performance issue?"
+            className="bg-white text-black"
+          />
+        </div>
+
         <RecommendedActionSection
           platform={platform}
           selectedKPI={selectedKPI}
@@ -169,15 +178,6 @@ export function OptimizationForm() {
         </div>
 
         <MetricsSection />
-
-        <div className="space-y-4">
-          <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
-          <Textarea
-            id="hypothesis"
-            placeholder="What do you think is causing the performance issue?"
-            className="bg-white text-black"
-          />
-        </div>
 
         <Button type="submit" className="w-full gradient-bg">
           Submit Optimization
