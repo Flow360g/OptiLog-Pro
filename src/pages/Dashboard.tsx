@@ -1,5 +1,8 @@
 import { Navigation } from "@/components/Navigation";
 import { Table } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Mock data - in a real app, this would come from your backend
 const mockData = {
@@ -28,6 +31,12 @@ const mockData = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  const handleCreateOptimization = (client: string) => {
+    navigate('/', { state: { preselectedClient: client.toLowerCase() } });
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <Navigation />
@@ -38,7 +47,16 @@ const Dashboard = () => {
 
         {Object.entries(mockData).map(([client, optimizations]) => (
           <section key={client} className="mb-12">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">{client}</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold text-gray-900">{client}</h2>
+              <Button 
+                onClick={() => handleCreateOptimization(client)}
+                className="gradient-bg"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create Optimization
+              </Button>
+            </div>
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <Table>

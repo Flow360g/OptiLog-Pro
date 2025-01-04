@@ -7,11 +7,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function ClientSection() {
+export function ClientSection({ preselectedClient }: { preselectedClient?: string }) {
   return (
     <div className="space-y-4">
       <Label htmlFor="client">Client</Label>
-      <Select>
+      <Select defaultValue={preselectedClient}>
         <SelectTrigger className="bg-white text-black">
           <SelectValue placeholder="Select client" />
         </SelectTrigger>

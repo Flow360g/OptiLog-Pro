@@ -14,7 +14,7 @@ import { SuccessDialog } from "./form-sections/SuccessDialog";
 import { Loader2 } from "lucide-react";
 import { categories, kpisByPlatform, optimizationSuggestions } from "@/data/optimizationData";
 
-export function OptimizationForm() {
+export function OptimizationForm({ preselectedClient }: { preselectedClient?: string }) {
   const { toast } = useToast();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isAutoSuggestLoading, setIsAutoSuggestLoading] = useState(false);
@@ -64,9 +64,9 @@ export function OptimizationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-white rounded-lg border border-gray-200">
       <div className="space-y-6">
-        <ClientSection />
+        <ClientSection preselectedClient={preselectedClient} />
         <PlatformSection onPlatformChange={handlePlatformChange} />
         
         <div className="space-y-4">

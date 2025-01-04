@@ -44,19 +44,6 @@
     @apply bg-[#f8f8f8] text-foreground relative;
   }
   
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 20vh;
-    background: linear-gradient(to right, #60a5fa, #e879f9);
-    opacity: 0.1;
-    z-index: 0;
-    pointer-events: none;
-  }
-  
   .gradient-bg {
     @apply bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity;
   }
