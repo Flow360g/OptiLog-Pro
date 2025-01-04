@@ -27,6 +27,17 @@ const mockData = {
       effort: "2",
       impact: "4"
     }
+  ],
+  "GMHBA": [
+    {
+      campaign: "Health Insurance Q2",
+      platform: "Facebook",
+      kpi: "ROAS",
+      recommendedAction: "Adjust targeting parameters",
+      categories: ["Targeting", "Budget"],
+      effort: "3",
+      impact: "5"
+    }
   ]
 };
 

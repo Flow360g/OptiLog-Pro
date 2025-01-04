@@ -30,17 +30,17 @@ export function Navigation() {
           </Link>
           <Link 
             to="/" 
-            className="border-2 border-black rounded-full px-4 py-1 text-gray-600 hover:text-primary flex items-center h-fit"
+            className="border-2 border-primary rounded-full px-4 py-1 text-gray-600 hover:text-primary flex items-center h-fit"
           >
             Create Opti
           </Link>
         </div>
         
         <button 
-          className="w-10 h-10 rounded-full flex items-center justify-center gradient-bg"
-          aria-label="My Profile"
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label="User menu"
         >
-          <User className="w-5 h-5 text-white" />
+          <User className="w-6 h-6 text-gray-600" />
         </button>
       </div>
     </nav>
