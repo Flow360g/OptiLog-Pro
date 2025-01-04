@@ -32,7 +32,6 @@ const categories = [
 const kpisByPlatform = {
   facebook: ["CPC", "CPM", "CTR", "ROAS", "CPA"],
   google: ["CPC", "Impression Share", "Quality Score", "CTR", "Conversion Rate"],
-  linkedin: ["CPC", "CPM", "CTR", "Lead Gen Rate", "Engagement Rate"],
 };
 
 const optimizationSuggestions = {
@@ -47,13 +46,28 @@ const optimizationSuggestions = {
       "Test different ad formats to find most cost-effective option",
       "Optimize bidding strategy based on click-through rate patterns",
     ],
+    CTR: [
+      "Test different ad creatives with compelling call-to-actions",
+      "Refine audience targeting based on engagement metrics",
+      "Optimize ad placement and format for better visibility",
+    ],
     ROAS: [
       "Implement value-based lookalike audiences",
       "Adjust campaign budget based on top-performing demographics",
       "Optimize creative elements based on conversion data",
     ],
+    CPA: [
+      "Optimize targeting based on historical conversion data",
+      "Test different bidding strategies to lower acquisition costs",
+      "Refine audience segments based on conversion propensity",
+    ],
   },
   google: {
+    CPC: [
+      "Improve keyword quality scores through ad relevance",
+      "Optimize bid adjustments based on performance data",
+      "Test different match types for better targeting",
+    ],
     "Quality Score": [
       "Improve ad relevance by aligning keywords with ad copy",
       "Optimize landing page experience for selected keywords",
@@ -64,17 +78,15 @@ const optimizationSuggestions = {
       "Expand budget for high-performing campaigns",
       "Optimize ad scheduling for peak performance periods",
     ],
-  },
-  linkedin: {
-    CPM: [
-      "Refine audience targeting to most relevant job titles",
-      "Test different ad formats for better engagement",
-      "Optimize campaign scheduling for B2B hours",
+    CTR: [
+      "Test different ad copy variations and extensions",
+      "Improve keyword-to-ad relevance",
+      "Optimize ad position through bid adjustments",
     ],
-    "Lead Gen Rate": [
-      "Improve form fields and length for better completion rate",
-      "Test different lead magnet offers",
-      "Optimize targeting based on historical lead quality data",
+    "Conversion Rate": [
+      "Optimize landing page experience for better conversions",
+      "Test different call-to-action variations",
+      "Implement audience targeting based on conversion data",
     ],
   },
 };
@@ -209,12 +221,23 @@ export function OptimizationForm() {
       <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-bold text-center">
+            <AlertDialogTitle className="text-xl font-bold text-black text-center">
               Nice work! 🎉 👏
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-gray-700 text-lg">
               Your optimisation has been successfully logged and is ready for approval. Your team has been notified.
             </AlertDialogDescription>
+            <div className="flex justify-center space-x-4 mt-6">
+              <Button className="gradient-bg">
+                Create New Opti
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-2 border-[#000080] text-[#000080] bg-transparent hover:bg-[#000080] hover:text-white transition-colors"
+              >
+                Back to Dashboard
+              </Button>
+            </div>
           </AlertDialogHeader>
         </AlertDialogContent>
       </AlertDialog>

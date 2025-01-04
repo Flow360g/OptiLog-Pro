@@ -21,8 +21,7 @@ export function PlatformSection({ onPlatformChange }: PlatformSectionProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="facebook">Facebook</SelectItem>
-          <SelectItem value="google">Google</SelectItem>
-          <SelectItem value="linkedin">LinkedIn</SelectItem>
+          <SelectItem value="google">Google Ads</SelectItem>
         </SelectContent>
       </Select>
     </div>
