@@ -13,9 +13,7 @@ const Index = () => {
           <p className="text-lg text-gray-600 mb-8 text-center">
             Fill in the form below to log your optimisation
           </p>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <OptimizationForm />
-          </div>
+          <OptimizationForm />
         </div>
       </div>
     </div>
