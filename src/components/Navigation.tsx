@@ -11,7 +11,7 @@ export function Navigation() {
           <img 
             src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
             alt="OptiLog Pro Logo" 
-            className="h-16 w-auto object-contain" // Increased from h-14 to h-16 (approximately 15% larger)
+            className="h-16 w-auto object-contain"
           />
         </Link>
 
@@ -27,6 +27,12 @@ export function Navigation() {
             className={`text-gray-600 hover:text-primary ${location.pathname === '/dashboard' ? 'font-bold' : ''} flex items-center h-full`}
           >
             Dashboard
+          </Link>
+          <Link 
+            to="/insights" 
+            className={`text-gray-600 hover:text-primary ${location.pathname === '/insights' ? 'font-bold' : ''} flex items-center h-full`}
+          >
+            Insights
           </Link>
           <Link 
             to="/" 
