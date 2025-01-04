@@ -37,10 +37,10 @@ export function Navigation() {
         </div>
         
         <button 
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-full gradient-bg"
           aria-label="User menu"
         >
-          <User className="w-6 h-6 text-gray-600" />
+          <User className="w-6 h-6 text-white" />
         </button>
       </div>
     </nav>

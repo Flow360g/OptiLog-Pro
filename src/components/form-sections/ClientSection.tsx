@@ -15,7 +15,17 @@ export function ClientSection({ preselectedClient }: { preselectedClient?: strin
 
   useEffect(() => {
     if (location.state?.preselectedClient) {
-      setSelectedClient(location.state.preselectedClient);
+      const clientMap: { [key: string]: string } = {
+        'oes': 'oes',
+        '28bsw': '28bsw',
+        'gmhba': 'gmhba',
+        'tgg': 'tgg',
+        'nbn': 'nbn',
+        'abn': 'abn'
+      };
+      
+      const normalizedClient = location.state.preselectedClient.toLowerCase();
+      setSelectedClient(clientMap[normalizedClient] || normalizedClient);
     }
   }, [location.state]);
 
