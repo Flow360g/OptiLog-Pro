@@ -128,17 +128,11 @@ export function OptimizationForm() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold gradient-bg bg-clip-text text-transparent">
-          OptiLog Pro
-        </h1>
-      </div>
-
       <div className="space-y-6">
         <div className="space-y-4">
           <Label htmlFor="client">Client</Label>
           <Select>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white text-black">
               <SelectValue placeholder="Select client" />
             </SelectTrigger>
             <SelectContent>
@@ -152,7 +146,7 @@ export function OptimizationForm() {
         <div className="space-y-4">
           <Label htmlFor="platform">Platform</Label>
           <Select onValueChange={handlePlatformChange}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white text-black">
               <SelectValue placeholder="Select platform" />
             </SelectTrigger>
             <SelectContent>
@@ -170,7 +164,7 @@ export function OptimizationForm() {
             onValueChange={setSelectedKPI}
             disabled={!platform}
           >
-            <SelectTrigger>
+            <SelectTrigger className="bg-white text-black">
               <SelectValue placeholder="Select KPI" />
             </SelectTrigger>
             <SelectContent>
@@ -189,7 +183,7 @@ export function OptimizationForm() {
           <Input
             id="campaign"
             placeholder="Enter campaign name"
-            className="bg-muted"
+            className="bg-white text-black"
           />
         </div>
 
@@ -215,7 +209,7 @@ export function OptimizationForm() {
           <div className="space-y-4">
             <Label htmlFor="effort">Effort Required</Label>
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white text-black">
                 <SelectValue placeholder="Select effort level" />
               </SelectTrigger>
               <SelectContent>
@@ -231,7 +225,7 @@ export function OptimizationForm() {
           <div className="space-y-4">
             <Label htmlFor="impact">Expected Impact</Label>
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white text-black">
                 <SelectValue placeholder="Select impact level" />
               </SelectTrigger>
               <SelectContent>
@@ -250,19 +244,30 @@ export function OptimizationForm() {
           <Textarea
             id="hypothesis"
             placeholder="What do you think is causing the performance issue?"
-            className="bg-muted"
+            className="bg-white text-black"
           />
         </div>
 
-        <OptimizationSuggestions
-          platform={platform}
-          selectedKPI={selectedKPI}
-          isLoading={isAutoSuggestLoading}
-          suggestions={suggestions}
-          selectedSuggestion={recommendedAction}
-          onSuggestionSelect={setRecommendedAction}
-          onAutoSuggest={handleAutoSuggest}
-        />
+        <div className="space-y-4">
+          <Label htmlFor="recommendedAction">Recommended Action</Label>
+          <Textarea
+            id="recommendedAction"
+            value={recommendedAction}
+            onChange={(e) => setRecommendedAction(e.target.value)}
+            placeholder="Enter your recommended action or use auto-suggest below"
+            className="bg-white text-black mb-4"
+          />
+          
+          <OptimizationSuggestions
+            platform={platform}
+            selectedKPI={selectedKPI}
+            isLoading={isAutoSuggestLoading}
+            suggestions={suggestions}
+            selectedSuggestion={recommendedAction}
+            onSuggestionSelect={setRecommendedAction}
+            onAutoSuggest={handleAutoSuggest}
+          />
+        </div>
 
         <Button type="submit" className="w-full gradient-bg">
           Submit Optimization
