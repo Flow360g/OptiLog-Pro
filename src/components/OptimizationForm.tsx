@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Wand2 } from "lucide-react";
+import { OptimizationSuggestions } from "./OptimizationSuggestions";
 
 const categories = [
   "Creative",
@@ -84,6 +84,7 @@ export function OptimizationForm() {
   const [platform, setPlatform] = useState<string>("");
   const [selectedKPI, setSelectedKPI] = useState<string>("");
   const [recommendedAction, setRecommendedAction] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -95,14 +96,9 @@ export function OptimizationForm() {
 
   const handlePlatformChange = (value: string) => {
     setPlatform(value);
-    setSelectedKPI(""); // Reset KPI when platform changes
-  };
-
-  const getRandomSuggestions = (suggestions: string[]) => {
-    if (!suggestions || suggestions.length === 0) return "";
-    const numSuggestions = Math.min(Math.floor(Math.random() * 3) + 1, suggestions.length);
-    const shuffled = [...suggestions].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, numSuggestions).join("\n\n");
+    setSelectedKPI("");
+    setSuggestions([]);
+    setRecommendedAction("");
   };
 
   const handleAutoSuggest = async () => {
@@ -112,9 +108,7 @@ export function OptimizationForm() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     if (platform && selectedKPI && optimizationSuggestions[platform]?.[selectedKPI]) {
-      const suggestions = optimizationSuggestions[platform][selectedKPI];
-      const randomSuggestions = getRandomSuggestions(suggestions);
-      setRecommendedAction(randomSuggestions);
+      setSuggestions(optimizationSuggestions[platform][selectedKPI]);
     }
     
     setIsAutoSuggestLoading(false);
@@ -260,28 +254,15 @@ export function OptimizationForm() {
           />
         </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="action">Recommended Action</Label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAutoSuggest}
-              disabled={isAutoSuggestLoading || !platform || !selectedKPI}
-            >
-              <Wand2 className="w-4 h-4 mr-2" />
-              Auto-suggest
-            </Button>
-          </div>
-          <Textarea
-            id="action"
-            placeholder="What specific changes do you recommend?"
-            className="bg-muted"
-            value={recommendedAction}
-            onChange={(e) => setRecommendedAction(e.target.value)}
-          />
-        </div>
+        <OptimizationSuggestions
+          platform={platform}
+          selectedKPI={selectedKPI}
+          isLoading={isAutoSuggestLoading}
+          suggestions={suggestions}
+          selectedSuggestion={recommendedAction}
+          onSuggestionSelect={setRecommendedAction}
+          onAutoSuggest={handleAutoSuggest}
+        />
 
         <Button type="submit" className="w-full gradient-bg">
           Submit Optimization
