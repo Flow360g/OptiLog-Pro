@@ -11,7 +11,7 @@ export function Navigation() {
           <img 
             src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
             alt="OptiLog Pro Logo" 
-            className="h-14 w-auto object-contain"
+            className="h-16 w-auto object-contain" // Increased from h-14 to h-16 (approximately 15% larger)
           />
         </Link>
 
