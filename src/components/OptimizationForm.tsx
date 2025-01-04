@@ -119,17 +119,11 @@ export function OptimizationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
       <div className="space-y-6">
         <ClientSection />
         <PlatformSection onPlatformChange={handlePlatformChange} />
-        <KPISection
-          platform={platform}
-          selectedKPI={selectedKPI}
-          onKPIChange={setSelectedKPI}
-          kpisByPlatform={kpisByPlatform}
-        />
-
+        
         <div className="space-y-4">
           <Label htmlFor="campaign">Campaign Name</Label>
           <Input
@@ -138,6 +132,23 @@ export function OptimizationForm() {
             className="bg-white text-black"
           />
         </div>
+
+        <KPISection
+          platform={platform}
+          selectedKPI={selectedKPI}
+          onKPIChange={setSelectedKPI}
+          kpisByPlatform={kpisByPlatform}
+        />
+
+        <RecommendedActionSection
+          platform={platform}
+          selectedKPI={selectedKPI}
+          isAutoSuggestLoading={isAutoSuggestLoading}
+          suggestions={suggestions}
+          recommendedAction={recommendedAction}
+          onRecommendedActionChange={setRecommendedAction}
+          onAutoSuggest={handleAutoSuggest}
+        />
 
         <div className="space-y-4">
           <Label>Optimization Categories</Label>
@@ -167,16 +178,6 @@ export function OptimizationForm() {
             className="bg-white text-black"
           />
         </div>
-
-        <RecommendedActionSection
-          platform={platform}
-          selectedKPI={selectedKPI}
-          isAutoSuggestLoading={isAutoSuggestLoading}
-          suggestions={suggestions}
-          recommendedAction={recommendedAction}
-          onRecommendedActionChange={setRecommendedAction}
-          onAutoSuggest={handleAutoSuggest}
-        />
 
         <Button type="submit" className="w-full gradient-bg">
           Submit Optimization
