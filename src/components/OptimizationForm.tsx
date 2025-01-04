@@ -3,12 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ClientSection } from "./form-sections/ClientSection";
 import { PlatformSection } from "./form-sections/PlatformSection";
 import { KPISection } from "./form-sections/KPISection";
 import { MetricsSection } from "./form-sections/MetricsSection";
 import { RecommendedActionSection } from "./form-sections/RecommendedActionSection";
+import { Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const categories = [
   "Creative",
@@ -75,6 +83,8 @@ export function OptimizationForm() {
   const { toast } = useToast();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isAutoSuggestLoading, setIsAutoSuggestLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [platform, setPlatform] = useState<string>("");
   const [selectedKPI, setSelectedKPI] = useState<string>("");
   const [recommendedAction, setRecommendedAction] = useState<string>("");
@@ -110,79 +120,104 @@ export function OptimizationForm() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Optimization Submitted",
-      description: "Your optimization has been logged successfully.",
-    });
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    setIsSubmitting(false);
+    setShowSuccessDialog(true);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
-      <div className="space-y-6">
-        <ClientSection />
-        <PlatformSection onPlatformChange={handlePlatformChange} />
-        
-        <div className="space-y-4">
-          <Label htmlFor="campaign">Campaign Name</Label>
-          <Input
-            id="campaign"
-            placeholder="Enter campaign name"
-            className="bg-white text-black"
-          />
-        </div>
-
-        <KPISection
-          platform={platform}
-          selectedKPI={selectedKPI}
-          onKPIChange={setSelectedKPI}
-          kpisByPlatform={kpisByPlatform}
-        />
-
-        <div className="space-y-4">
-          <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
-          <Textarea
-            id="hypothesis"
-            placeholder="What do you think is causing the performance issue?"
-            className="bg-white text-black"
-          />
-        </div>
-
-        <RecommendedActionSection
-          platform={platform}
-          selectedKPI={selectedKPI}
-          isAutoSuggestLoading={isAutoSuggestLoading}
-          suggestions={suggestions}
-          recommendedAction={recommendedAction}
-          onRecommendedActionChange={setRecommendedAction}
-          onAutoSuggest={handleAutoSuggest}
-        />
-
-        <div className="space-y-4">
-          <Label>Optimization Categories</Label>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={`category-pill border-white ${
-                  selectedCategories.includes(category) ? "selected" : ""
-                }`}
-                onClick={() => toggleCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
+    <>
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
+        <div className="space-y-6">
+          <ClientSection />
+          <PlatformSection onPlatformChange={handlePlatformChange} />
+          
+          <div className="space-y-4">
+            <Label htmlFor="campaign">Campaign Name</Label>
+            <Input
+              id="campaign"
+              placeholder="Enter campaign name"
+              className="bg-white text-black"
+            />
           </div>
+
+          <KPISection
+            platform={platform}
+            selectedKPI={selectedKPI}
+            onKPIChange={setSelectedKPI}
+            kpisByPlatform={kpisByPlatform}
+          />
+
+          <div className="space-y-4">
+            <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
+            <Textarea
+              id="hypothesis"
+              placeholder="What do you think is causing the performance issue?"
+              className="bg-white text-black"
+            />
+          </div>
+
+          <RecommendedActionSection
+            platform={platform}
+            selectedKPI={selectedKPI}
+            isAutoSuggestLoading={isAutoSuggestLoading}
+            suggestions={suggestions}
+            recommendedAction={recommendedAction}
+            onRecommendedActionChange={setRecommendedAction}
+            onAutoSuggest={handleAutoSuggest}
+          />
+
+          <div className="space-y-4">
+            <Label>Optimization Categories</Label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  className={`category-pill border-white ${
+                    selectedCategories.includes(category) ? "selected" : ""
+                  }`}
+                  onClick={() => toggleCategory(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <MetricsSection />
+
+          <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Optimization"
+            )}
+          </Button>
         </div>
+      </form>
 
-        <MetricsSection />
-
-        <Button type="submit" className="w-full gradient-bg">
-          Submit Optimization
-        </Button>
-      </div>
-    </form>
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-center">
+              Nice work! 🎉 👏
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-gray-700 text-lg">
+              Your optimisation has been successfully logged and is ready for approval. Your team has been notified.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

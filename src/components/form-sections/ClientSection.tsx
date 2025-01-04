@@ -16,9 +16,12 @@ export function ClientSection() {
           <SelectValue placeholder="Select client" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="client1">Client 1</SelectItem>
-          <SelectItem value="client2">Client 2</SelectItem>
-          <SelectItem value="client3">Client 3</SelectItem>
+          <SelectItem value="oes">OES</SelectItem>
+          <SelectItem value="28bsw">28 By Sam Wood</SelectItem>
+          <SelectItem value="gmhba">GMHBA</SelectItem>
+          <SelectItem value="tgg">The Good Guys</SelectItem>
+          <SelectItem value="nbn">NBN</SelectItem>
+          <SelectItem value="abn">ABN</SelectItem>
         </SelectContent>
       </Select>
     </div>
