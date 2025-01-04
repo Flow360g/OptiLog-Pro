@@ -64,7 +64,7 @@ export function OptimizationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-8 space-y-8 form-container rounded-xl">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
       <div className="space-y-6">
         <ClientSection />
         <PlatformSection onPlatformChange={handlePlatformChange} />
@@ -74,7 +74,7 @@ export function OptimizationForm() {
           <Input
             id="campaign"
             placeholder="Enter campaign name"
-            className="bg-white/50 border-blue-100 focus:border-blue-500 transition-colors"
+            className="bg-white text-black"
           />
         </div>
 
@@ -90,7 +90,7 @@ export function OptimizationForm() {
           <Textarea
             id="hypothesis"
             placeholder="What do you think is causing the performance issue?"
-            className="bg-white/50 border-blue-100 focus:border-blue-500 transition-colors"
+            className="bg-white text-black"
           />
         </div>
 
