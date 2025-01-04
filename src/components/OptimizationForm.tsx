@@ -9,87 +9,10 @@ import { PlatformSection } from "./form-sections/PlatformSection";
 import { KPISection } from "./form-sections/KPISection";
 import { MetricsSection } from "./form-sections/MetricsSection";
 import { RecommendedActionSection } from "./form-sections/RecommendedActionSection";
+import { CategorySelector } from "./form-sections/CategorySelector";
+import { SuccessDialog } from "./form-sections/SuccessDialog";
 import { Loader2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-const categories = [
-  "Creative",
-  "Targeting",
-  "Bidding Strategy",
-  "Budget Allocation",
-  "Audience",
-  "Conversion Setup",
-  "Ad Copy",
-  "Landing Page",
-];
-
-const kpisByPlatform = {
-  facebook: ["CPC", "CPM", "CTR", "ROAS", "CPA"],
-  google: ["CPC", "Impression Share", "Quality Score", "CTR", "Conversion Rate"],
-};
-
-const optimizationSuggestions = {
-  facebook: {
-    CPM: [
-      "Broaden audience targeting to increase reach and lower CPM",
-      "Optimize ad placements to focus on lower-cost inventory",
-      "Adjust campaign schedule to off-peak hours",
-    ],
-    CPC: [
-      "Improve ad relevance score through better creative-audience matching",
-      "Test different ad formats to find most cost-effective option",
-      "Optimize bidding strategy based on click-through rate patterns",
-    ],
-    CTR: [
-      "Test different ad creatives with compelling call-to-actions",
-      "Refine audience targeting based on engagement metrics",
-      "Optimize ad placement and format for better visibility",
-    ],
-    ROAS: [
-      "Implement value-based lookalike audiences",
-      "Adjust campaign budget based on top-performing demographics",
-      "Optimize creative elements based on conversion data",
-    ],
-    CPA: [
-      "Optimize targeting based on historical conversion data",
-      "Test different bidding strategies to lower acquisition costs",
-      "Refine audience segments based on conversion propensity",
-    ],
-  },
-  google: {
-    CPC: [
-      "Improve keyword quality scores through ad relevance",
-      "Optimize bid adjustments based on performance data",
-      "Test different match types for better targeting",
-    ],
-    "Quality Score": [
-      "Improve ad relevance by aligning keywords with ad copy",
-      "Optimize landing page experience for selected keywords",
-      "Structure ad groups with tighter keyword themes",
-    ],
-    "Impression Share": [
-      "Review and adjust bid strategy for key terms",
-      "Expand budget for high-performing campaigns",
-      "Optimize ad scheduling for peak performance periods",
-    ],
-    CTR: [
-      "Test different ad copy variations and extensions",
-      "Improve keyword-to-ad relevance",
-      "Optimize ad position through bid adjustments",
-    ],
-    "Conversion Rate": [
-      "Optimize landing page experience for better conversions",
-      "Test different call-to-action variations",
-      "Implement audience targeting based on conversion data",
-    ],
-  },
-};
+import { categories, kpisByPlatform, optimizationSuggestions } from "@/data/optimizationData";
 
 export function OptimizationForm() {
   const { toast } = useToast();
@@ -135,112 +58,76 @@ export function OptimizationForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
     setIsSubmitting(false);
     setShowSuccessDialog(true);
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
-        <div className="space-y-6">
-          <ClientSection />
-          <PlatformSection onPlatformChange={handlePlatformChange} />
-          
-          <div className="space-y-4">
-            <Label htmlFor="campaign">Campaign Name</Label>
-            <Input
-              id="campaign"
-              placeholder="Enter campaign name"
-              className="bg-white text-black"
-            />
-          </div>
-
-          <KPISection
-            platform={platform}
-            selectedKPI={selectedKPI}
-            onKPIChange={setSelectedKPI}
-            kpisByPlatform={kpisByPlatform}
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg border border-white">
+      <div className="space-y-6">
+        <ClientSection />
+        <PlatformSection onPlatformChange={handlePlatformChange} />
+        
+        <div className="space-y-4">
+          <Label htmlFor="campaign">Campaign Name</Label>
+          <Input
+            id="campaign"
+            placeholder="Enter campaign name"
+            className="bg-white text-black"
           />
-
-          <div className="space-y-4">
-            <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
-            <Textarea
-              id="hypothesis"
-              placeholder="What do you think is causing the performance issue?"
-              className="bg-white text-black"
-            />
-          </div>
-
-          <RecommendedActionSection
-            platform={platform}
-            selectedKPI={selectedKPI}
-            isAutoSuggestLoading={isAutoSuggestLoading}
-            suggestions={suggestions}
-            recommendedAction={recommendedAction}
-            onRecommendedActionChange={setRecommendedAction}
-            onAutoSuggest={handleAutoSuggest}
-          />
-
-          <div className="space-y-4">
-            <Label>Optimization Categories</Label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  className={`category-pill border-white ${
-                    selectedCategories.includes(category) ? "selected" : ""
-                  }`}
-                  onClick={() => toggleCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <MetricsSection />
-
-          <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit Optimization"
-            )}
-          </Button>
         </div>
-      </form>
 
-      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <AlertDialogContent className="bg-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-bold text-black text-center">
-              Nice work! 🎉 👏
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-gray-700 text-lg">
-              Your optimisation has been successfully logged and is ready for approval. Your team has been notified.
-            </AlertDialogDescription>
-            <div className="flex justify-center space-x-4 mt-6">
-              <Button className="gradient-bg">
-                Create New Opti
-              </Button>
-              <Button 
-                variant="outline" 
-                className="border-2 border-[#000080] text-[#000080] bg-transparent hover:bg-[#000080] hover:text-white transition-colors"
-              >
-                Back to Dashboard
-              </Button>
-            </div>
-          </AlertDialogHeader>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        <KPISection
+          platform={platform}
+          selectedKPI={selectedKPI}
+          onKPIChange={setSelectedKPI}
+          kpisByPlatform={kpisByPlatform}
+        />
+
+        <div className="space-y-4">
+          <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
+          <Textarea
+            id="hypothesis"
+            placeholder="What do you think is causing the performance issue?"
+            className="bg-white text-black"
+          />
+        </div>
+
+        <RecommendedActionSection
+          platform={platform}
+          selectedKPI={selectedKPI}
+          isAutoSuggestLoading={isAutoSuggestLoading}
+          suggestions={suggestions}
+          recommendedAction={recommendedAction}
+          onRecommendedActionChange={setRecommendedAction}
+          onAutoSuggest={handleAutoSuggest}
+        />
+
+        <CategorySelector
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onToggleCategory={toggleCategory}
+        />
+
+        <MetricsSection />
+
+        <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            "Submit Optimization"
+          )}
+        </Button>
+      </div>
+
+      <SuccessDialog 
+        open={showSuccessDialog} 
+        onOpenChange={setShowSuccessDialog}
+      />
+    </form>
   );
 }
