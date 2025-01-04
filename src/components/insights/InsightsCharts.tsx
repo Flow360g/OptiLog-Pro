@@ -45,6 +45,17 @@ const userData = [
 ];
 
 export const InsightsCharts = () => {
+  const renderUserIcon = (props: any) => {
+    const { x, y, width, height } = props;
+    return (
+      <User
+        x={x + width / 2 - 12}
+        y={y - 24}
+        className="w-6 h-6 text-gray-600"
+      />
+    );
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Weekly Optimizations Chart */}
@@ -127,20 +138,15 @@ export const InsightsCharts = () => {
               <Tooltip />
               <Bar dataKey="count" fill="#8884d8">
                 {userData.map((entry, index) => (
-                  <Cell key={`cell-${index}`}>
-                    {({ x, y, width, height }) => (
-                      <g>
-                        <rect x={x} y={y} width={width} height={height} fill={COLORS[index % COLORS.length]} />
-                        <User
-                          x={x + width / 2 - 12}
-                          y={y - 24}
-                          className="w-6 h-6 text-gray-600"
-                        />
-                      </g>
-                    )}
-                  </Cell>
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Bar>
+              {userData.map((entry, index) => renderUserIcon({
+                x: index * (100 / userData.length),
+                y: 0,
+                width: 100 / userData.length,
+                height: 0
+              }))}
             </BarChart>
           </ResponsiveContainer>
         </div>
