@@ -41,19 +41,23 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#100c2a] text-foreground;
+    @apply bg-gradient-to-br from-blue-500/10 to-pink-500/10 min-h-screen text-foreground;
   }
   
   .gradient-bg {
-    @apply bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity;
+    @apply bg-gradient-to-r from-blue-500 to-pink-500 hover:opacity-90 transition-opacity;
+  }
+  
+  .form-container {
+    @apply bg-white/95 backdrop-blur-sm shadow-xl border border-white/20;
   }
   
   .category-pill {
     @apply px-4 py-2 rounded-full border-2 cursor-pointer transition-all
-           hover:border-primary hover:text-primary;
+           hover:border-blue-500 hover:text-blue-500;
   }
   
   .category-pill.selected {
-    @apply border-primary text-primary;
+    @apply border-blue-500 text-blue-500;
   }
 }
