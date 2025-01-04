@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2 } from "lucide-react";
 import { OptimizationSuggestions } from "../OptimizationSuggestions";
 
 interface RecommendedActionSectionProps {
@@ -25,20 +24,15 @@ export function RecommendedActionSection({
 }: RecommendedActionSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <Label htmlFor="recommendedAction">Recommended Action</Label>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onAutoSuggest}
-          disabled={isAutoSuggestLoading || !platform || !selectedKPI}
-          className="gradient-bg text-white border-none"
-        >
-          <Wand2 className="w-4 h-4 mr-2" />
-          Auto-suggest
-        </Button>
-      </div>
+      <OptimizationSuggestions
+        platform={platform}
+        selectedKPI={selectedKPI}
+        isLoading={isAutoSuggestLoading}
+        suggestions={suggestions}
+        selectedSuggestion={recommendedAction}
+        onSuggestionSelect={onRecommendedActionChange}
+        onAutoSuggest={onAutoSuggest}
+      />
 
       <Textarea
         id="recommendedAction"
@@ -47,18 +41,6 @@ export function RecommendedActionSection({
         placeholder="Enter your recommended action or use auto-suggest above"
         className="bg-white text-black mb-4"
       />
-
-      {suggestions.length > 0 && (
-        <OptimizationSuggestions
-          platform={platform}
-          selectedKPI={selectedKPI}
-          isLoading={isAutoSuggestLoading}
-          suggestions={suggestions}
-          selectedSuggestion={recommendedAction}
-          onSuggestionSelect={onRecommendedActionChange}
-          onAutoSuggest={onAutoSuggest}
-        />
-      )}
     </div>
   );
 }
