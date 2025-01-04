@@ -45,7 +45,11 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleCreateOptimization = (client: string) => {
-    navigate('/', { state: { preselectedClient: client.toLowerCase() } });
+    navigate('/', { 
+      state: { 
+        preselectedClient: client.toLowerCase() 
+      } 
+    });
   };
 
   return (

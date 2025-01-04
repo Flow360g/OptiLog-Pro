@@ -6,12 +6,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export function ClientSection({ preselectedClient }: { preselectedClient?: string }) {
+  const location = useLocation();
+  const [selectedClient, setSelectedClient] = useState(preselectedClient);
+
+  useEffect(() => {
+    if (location.state?.preselectedClient) {
+      setSelectedClient(location.state.preselectedClient);
+    }
+  }, [location.state]);
+
   return (
     <div className="space-y-4">
       <Label htmlFor="client">Client</Label>
-      <Select defaultValue={preselectedClient}>
+      <Select value={selectedClient} onValueChange={setSelectedClient}>
         <SelectTrigger className="bg-white text-black">
           <SelectValue placeholder="Select client" />
         </SelectTrigger>
