@@ -31,14 +31,14 @@ export function FilterSection({
     <div className="flex flex-wrap gap-4 mb-6">
       <div className="w-48">
         <Select
-          value={selectedClient || ""}
-          onValueChange={(value) => onClientChange(value || null)}
+          value={selectedClient || "all-clients"}
+          onValueChange={(value) => onClientChange(value === "all-clients" ? null : value)}
         >
           <SelectTrigger className="bg-white">
             <SelectValue placeholder="Filter by Client" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Clients</SelectItem>
+            <SelectItem value="all-clients">All Clients</SelectItem>
             {clients.map((client) => (
               <SelectItem key={client} value={client}>
                 {client}
@@ -50,14 +50,14 @@ export function FilterSection({
 
       <div className="w-48">
         <Select
-          value={selectedPlatform || ""}
-          onValueChange={(value) => onPlatformChange(value || null)}
+          value={selectedPlatform || "all-platforms"}
+          onValueChange={(value) => onPlatformChange(value === "all-platforms" ? null : value)}
         >
           <SelectTrigger className="bg-white">
             <SelectValue placeholder="Filter by Platform" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Platforms</SelectItem>
+            <SelectItem value="all-platforms">All Platforms</SelectItem>
             <SelectItem value="Facebook">Facebook</SelectItem>
             <SelectItem value="Google">Google</SelectItem>
           </SelectContent>
@@ -66,14 +66,14 @@ export function FilterSection({
 
       <div className="w-48">
         <Select
-          value={selectedCategory || ""}
-          onValueChange={(value) => onCategoryChange(value || null)}
+          value={selectedCategory || "all-categories"}
+          onValueChange={(value) => onCategoryChange(value === "all-categories" ? null : value)}
         >
           <SelectTrigger className="bg-white">
             <SelectValue placeholder="Filter by Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="all-categories">All Categories</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
