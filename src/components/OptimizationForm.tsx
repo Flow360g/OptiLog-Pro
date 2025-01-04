@@ -27,10 +27,63 @@ const categories = [
 const effortLevels = ["Low", "Medium", "High"];
 const impactLevels = ["Low", "Medium", "High"];
 
+const kpisByPlatform = {
+  facebook: ["CPC", "CPM", "CTR", "ROAS", "CPA"],
+  google: ["CPC", "Impression Share", "Quality Score", "CTR", "Conversion Rate"],
+  linkedin: ["CPC", "CPM", "CTR", "Lead Gen Rate", "Engagement Rate"],
+};
+
+const optimizationSuggestions = {
+  facebook: {
+    CPM: [
+      "Broaden audience targeting to increase reach and lower CPM",
+      "Optimize ad placements to focus on lower-cost inventory",
+      "Adjust campaign schedule to off-peak hours",
+    ],
+    CPC: [
+      "Improve ad relevance score through better creative-audience matching",
+      "Test different ad formats to find most cost-effective option",
+      "Optimize bidding strategy based on click-through rate patterns",
+    ],
+    ROAS: [
+      "Implement value-based lookalike audiences",
+      "Adjust campaign budget based on top-performing demographics",
+      "Optimize creative elements based on conversion data",
+    ],
+  },
+  google: {
+    "Quality Score": [
+      "Improve ad relevance by aligning keywords with ad copy",
+      "Optimize landing page experience for selected keywords",
+      "Structure ad groups with tighter keyword themes",
+    ],
+    "Impression Share": [
+      "Review and adjust bid strategy for key terms",
+      "Expand budget for high-performing campaigns",
+      "Optimize ad scheduling for peak performance periods",
+    ],
+  },
+  linkedin: {
+    CPM: [
+      "Refine audience targeting to most relevant job titles",
+      "Test different ad formats for better engagement",
+      "Optimize campaign scheduling for B2B hours",
+    ],
+    "Lead Gen Rate": [
+      "Improve form fields and length for better completion rate",
+      "Test different lead magnet offers",
+      "Optimize targeting based on historical lead quality data",
+    ],
+  },
+};
+
 export function OptimizationForm() {
   const { toast } = useToast();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isAutoSuggestLoading, setIsAutoSuggestLoading] = useState(false);
+  const [platform, setPlatform] = useState<string>("");
+  const [selectedKPI, setSelectedKPI] = useState<string>("");
+  const [recommendedAction, setRecommendedAction] = useState<string>("");
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -40,13 +93,33 @@ export function OptimizationForm() {
     );
   };
 
+  const handlePlatformChange = (value: string) => {
+    setPlatform(value);
+    setSelectedKPI(""); // Reset KPI when platform changes
+  };
+
+  const getRandomSuggestions = (suggestions: string[]) => {
+    if (!suggestions || suggestions.length === 0) return "";
+    const numSuggestions = Math.min(Math.floor(Math.random() * 3) + 1, suggestions.length);
+    const shuffled = [...suggestions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, numSuggestions).join("\n\n");
+  };
+
   const handleAutoSuggest = async () => {
     setIsAutoSuggestLoading(true);
-    // Simulate API call
+    
+    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    if (platform && selectedKPI && optimizationSuggestions[platform]?.[selectedKPI]) {
+      const suggestions = optimizationSuggestions[platform][selectedKPI];
+      const randomSuggestions = getRandomSuggestions(suggestions);
+      setRecommendedAction(randomSuggestions);
+    }
+    
     setIsAutoSuggestLoading(false);
     toast({
-      title: "Suggestion Generated",
+      title: "Suggestions Generated",
       description: "We've analyzed your data and generated recommendations.",
     });
   };
@@ -84,7 +157,7 @@ export function OptimizationForm() {
 
         <div className="space-y-4">
           <Label htmlFor="platform">Platform</Label>
-          <Select>
+          <Select onValueChange={handlePlatformChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select platform" />
             </SelectTrigger>
@@ -92,6 +165,27 @@ export function OptimizationForm() {
               <SelectItem value="facebook">Facebook</SelectItem>
               <SelectItem value="google">Google</SelectItem>
               <SelectItem value="linkedin">LinkedIn</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-4">
+          <Label htmlFor="kpi">KPI to Improve</Label>
+          <Select
+            value={selectedKPI}
+            onValueChange={setSelectedKPI}
+            disabled={!platform}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select KPI" />
+            </SelectTrigger>
+            <SelectContent>
+              {platform &&
+                kpisByPlatform[platform]?.map((kpi) => (
+                  <SelectItem key={kpi} value={kpi}>
+                    {kpi}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
@@ -174,7 +268,7 @@ export function OptimizationForm() {
               variant="outline"
               size="sm"
               onClick={handleAutoSuggest}
-              disabled={isAutoSuggestLoading}
+              disabled={isAutoSuggestLoading || !platform || !selectedKPI}
             >
               <Wand2 className="w-4 h-4 mr-2" />
               Auto-suggest
@@ -184,6 +278,8 @@ export function OptimizationForm() {
             id="action"
             placeholder="What specific changes do you recommend?"
             className="bg-muted"
+            value={recommendedAction}
+            onChange={(e) => setRecommendedAction(e.target.value)}
           />
         </div>
 
