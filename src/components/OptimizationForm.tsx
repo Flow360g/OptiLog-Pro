@@ -2,16 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { OptimizationSuggestions } from "./OptimizationSuggestions";
+import { ClientSection } from "./form-sections/ClientSection";
+import { PlatformSection } from "./form-sections/PlatformSection";
+import { KPISection } from "./form-sections/KPISection";
+import { MetricsSection } from "./form-sections/MetricsSection";
+import { RecommendedActionSection } from "./form-sections/RecommendedActionSection";
 
 const categories = [
   "Creative",
@@ -23,9 +20,6 @@ const categories = [
   "Ad Copy",
   "Landing Page",
 ];
-
-const effortLevels = ["Low", "Medium", "High"];
-const impactLevels = ["Low", "Medium", "High"];
 
 const kpisByPlatform = {
   facebook: ["CPC", "CPM", "CTR", "ROAS", "CPA"],
@@ -103,8 +97,6 @@ export function OptimizationForm() {
 
   const handleAutoSuggest = async () => {
     setIsAutoSuggestLoading(true);
-    
-    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     if (platform && selectedKPI && optimizationSuggestions[platform]?.[selectedKPI]) {
@@ -127,56 +119,16 @@ export function OptimizationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8">
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-[#100c2a] rounded-lg">
       <div className="space-y-6">
-        <div className="space-y-4">
-          <Label htmlFor="client">Client</Label>
-          <Select>
-            <SelectTrigger className="bg-white text-black">
-              <SelectValue placeholder="Select client" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="client1">Client 1</SelectItem>
-              <SelectItem value="client2">Client 2</SelectItem>
-              <SelectItem value="client3">Client 3</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-4">
-          <Label htmlFor="platform">Platform</Label>
-          <Select onValueChange={handlePlatformChange}>
-            <SelectTrigger className="bg-white text-black">
-              <SelectValue placeholder="Select platform" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="facebook">Facebook</SelectItem>
-              <SelectItem value="google">Google</SelectItem>
-              <SelectItem value="linkedin">LinkedIn</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-4">
-          <Label htmlFor="kpi">KPI to Improve</Label>
-          <Select
-            value={selectedKPI}
-            onValueChange={setSelectedKPI}
-            disabled={!platform}
-          >
-            <SelectTrigger className="bg-white text-black">
-              <SelectValue placeholder="Select KPI" />
-            </SelectTrigger>
-            <SelectContent>
-              {platform &&
-                kpisByPlatform[platform]?.map((kpi) => (
-                  <SelectItem key={kpi} value={kpi}>
-                    {kpi}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <ClientSection />
+        <PlatformSection onPlatformChange={handlePlatformChange} />
+        <KPISection
+          platform={platform}
+          selectedKPI={selectedKPI}
+          onKPIChange={setSelectedKPI}
+          kpisByPlatform={kpisByPlatform}
+        />
 
         <div className="space-y-4">
           <Label htmlFor="campaign">Campaign Name</Label>
@@ -194,7 +146,7 @@ export function OptimizationForm() {
               <button
                 key={category}
                 type="button"
-                className={`category-pill ${
+                className={`category-pill border-white ${
                   selectedCategories.includes(category) ? "selected" : ""
                 }`}
                 onClick={() => toggleCategory(category)}
@@ -205,39 +157,7 @@ export function OptimizationForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-4">
-            <Label htmlFor="effort">Effort Required</Label>
-            <Select>
-              <SelectTrigger className="bg-white text-black">
-                <SelectValue placeholder="Select effort level" />
-              </SelectTrigger>
-              <SelectContent>
-                {effortLevels.map((level) => (
-                  <SelectItem key={level} value={level.toLowerCase()}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-4">
-            <Label htmlFor="impact">Expected Impact</Label>
-            <Select>
-              <SelectTrigger className="bg-white text-black">
-                <SelectValue placeholder="Select impact level" />
-              </SelectTrigger>
-              <SelectContent>
-                {impactLevels.map((level) => (
-                  <SelectItem key={level} value={level.toLowerCase()}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <MetricsSection />
 
         <div className="space-y-4">
           <Label htmlFor="hypothesis">Hypothesis (Optional)</Label>
@@ -248,26 +168,15 @@ export function OptimizationForm() {
           />
         </div>
 
-        <div className="space-y-4">
-          <Label htmlFor="recommendedAction">Recommended Action</Label>
-          <Textarea
-            id="recommendedAction"
-            value={recommendedAction}
-            onChange={(e) => setRecommendedAction(e.target.value)}
-            placeholder="Enter your recommended action or use auto-suggest below"
-            className="bg-white text-black mb-4"
-          />
-          
-          <OptimizationSuggestions
-            platform={platform}
-            selectedKPI={selectedKPI}
-            isLoading={isAutoSuggestLoading}
-            suggestions={suggestions}
-            selectedSuggestion={recommendedAction}
-            onSuggestionSelect={setRecommendedAction}
-            onAutoSuggest={handleAutoSuggest}
-          />
-        </div>
+        <RecommendedActionSection
+          platform={platform}
+          selectedKPI={selectedKPI}
+          isAutoSuggestLoading={isAutoSuggestLoading}
+          suggestions={suggestions}
+          recommendedAction={recommendedAction}
+          onRecommendedActionChange={setRecommendedAction}
+          onAutoSuggest={handleAutoSuggest}
+        />
 
         <Button type="submit" className="w-full gradient-bg">
           Submit Optimization

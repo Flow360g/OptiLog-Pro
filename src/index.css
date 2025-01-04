@@ -45,11 +45,11 @@
   }
   
   .gradient-bg {
-    @apply bg-gradient-to-r from-primary to-secondary;
+    @apply bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity;
   }
   
   .category-pill {
-    @apply px-4 py-2 rounded-full border-2 border-muted cursor-pointer transition-all
+    @apply px-4 py-2 rounded-full border-2 cursor-pointer transition-all
            hover:border-primary hover:text-primary;
   }
   
