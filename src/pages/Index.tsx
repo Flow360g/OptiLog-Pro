@@ -7,13 +7,9 @@ const Index = () => {
       <Navigation />
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-center mb-12">
-            <img 
-              src="/lovable-uploads/2bf12162-a558-42a5-a7e0-3e07a41c5664.png" 
-              alt="OptiLog Pro Logo" 
-              className="h-50 w-[60%] object-contain" // Reduced width by 40%
-            />
-          </div>
+          <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Create Your Opti
+          </h1>
           <OptimizationForm />
         </div>
       </div>
