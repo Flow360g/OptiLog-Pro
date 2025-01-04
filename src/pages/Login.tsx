@@ -54,10 +54,20 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'rgb(var(--primary))',
-                    brandAccent: 'rgb(var(--secondary))',
+                    brand: '#1EAEDB',
+                    brandAccent: '#0FA0CE',
+                    brandButtonText: 'white',
+                  },
+                  borderWidths: {
+                    buttonBorderWidth: '0px',
+                  },
+                  radii: {
+                    borderRadiusButton: '0.75rem',
                   },
                 },
+              },
+              className: {
+                button: 'bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] hover:opacity-90 transition-opacity',
               },
             }}
             providers={["google"]}
