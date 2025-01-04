@@ -11,6 +11,7 @@ import { MetricsSection } from "./form-sections/MetricsSection";
 import { RecommendedActionSection } from "./form-sections/RecommendedActionSection";
 import { CategorySelector } from "./form-sections/CategorySelector";
 import { SuccessDialog } from "./form-sections/SuccessDialog";
+import { DateSection } from "./form-sections/DateSection";
 import { Loader2 } from "lucide-react";
 import { categories, kpisByPlatform, optimizationSuggestions } from "@/data/optimizationData";
 
@@ -24,6 +25,7 @@ export function OptimizationForm({ preselectedClient }: { preselectedClient?: st
   const [selectedKPI, setSelectedKPI] = useState<string>("");
   const [recommendedAction, setRecommendedAction] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>();
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -77,6 +79,8 @@ export function OptimizationForm({ preselectedClient }: { preselectedClient?: st
             className="bg-white text-black"
           />
         </div>
+
+        <DateSection selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
         <KPISection
           platform={platform}

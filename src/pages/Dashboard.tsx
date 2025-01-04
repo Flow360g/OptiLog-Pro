@@ -5,6 +5,14 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format } from "date-fns";
 
 // Mock data - in a real app, this would come from your backend
 const mockData = {
@@ -16,7 +24,9 @@ const mockData = {
       recommendedAction: "Optimize ad relevance score",
       categories: ["Creative", "Targeting"],
       effort: "3",
-      impact: "4"
+      impact: "4",
+      date: new Date("2024-04-15"),
+      status: "Pending"
     }
   ],
   "28 By Sam Wood": [
@@ -27,7 +37,9 @@ const mockData = {
       recommendedAction: "Test different ad copy variations",
       categories: ["Ad Copy", "Creative"],
       effort: "2",
-      impact: "4"
+      impact: "4",
+      date: new Date("2024-04-10"),
+      status: "Pending"
     }
   ],
   "GMHBA": [
@@ -38,7 +50,9 @@ const mockData = {
       recommendedAction: "Adjust targeting parameters",
       categories: ["Targeting", "Budget"],
       effort: "3",
-      impact: "5"
+      impact: "5",
+      date: new Date("2024-04-12"),
+      status: "Pending"
     }
   ]
 };
@@ -48,6 +62,7 @@ const Dashboard = () => {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [optimizationStatuses, setOptimizationStatuses] = useState<Record<string, string>>({});
 
   const handleCreateOptimization = (client: string) => {
     navigate('/', { 
@@ -55,6 +70,19 @@ const Dashboard = () => {
         preselectedClient: client.toLowerCase() 
       } 
     });
+  };
+
+  const handleStatusChange = (clientIndex: string, optimizationIndex: number, newStatus: string) => {
+    const key = `${clientIndex}-${optimizationIndex}`;
+    setOptimizationStatuses(prev => ({
+      ...prev,
+      [key]: newStatus
+    }));
+  };
+
+  const getOptimizationStatus = (clientIndex: string, optimizationIndex: number) => {
+    const key = `${clientIndex}-${optimizationIndex}`;
+    return optimizationStatuses[key] || "Pending";
   };
 
   const filteredData = Object.entries(mockData).reduce((acc, [client, optimizations]) => {
@@ -115,8 +143,10 @@ const Dashboard = () => {
                       <th className="text-left p-4 text-gray-900">KPI</th>
                       <th className="text-left p-4 text-gray-900">Action</th>
                       <th className="text-left p-4 text-gray-900">Categories</th>
+                      <th className="text-left p-4 text-gray-900">Date</th>
                       <th className="text-left p-4 text-gray-900">Effort</th>
                       <th className="text-left p-4 text-gray-900">Impact</th>
+                      <th className="text-left p-4 text-gray-900">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -130,8 +160,24 @@ const Dashboard = () => {
                         <td className="p-4 text-gray-700">{opt.kpi}</td>
                         <td className="p-4 text-gray-700">{opt.recommendedAction}</td>
                         <td className="p-4 text-gray-700">{opt.categories.join(", ")}</td>
+                        <td className="p-4 text-gray-700">{format(opt.date, "MMM d, yyyy")}</td>
                         <td className="p-4 text-gray-700">{opt.effort}</td>
                         <td className="p-4 text-gray-700">{opt.impact}</td>
+                        <td className="p-4 text-gray-700">
+                          <Select
+                            value={getOptimizationStatus(client, index)}
+                            onValueChange={(value) => handleStatusChange(client, index, value)}
+                          >
+                            <SelectTrigger className="w-[130px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Pending">Pending</SelectItem>
+                              <SelectItem value="Approved">Approved</SelectItem>
+                              <SelectItem value="Disapproved">Disapproved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
