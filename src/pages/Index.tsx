@@ -8,7 +8,7 @@ const Index = () => {
           <img 
             src="/lovable-uploads/29b5965d-9225-4552-9863-195736b717cc.png" 
             alt="OptiLog Pro Logo" 
-            className="h-32 w-auto object-contain"
+            className="h-40 w-auto object-contain"
           />
         </div>
         <OptimizationForm />
