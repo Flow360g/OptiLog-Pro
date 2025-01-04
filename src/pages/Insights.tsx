@@ -1,7 +1,15 @@
 import { Navigation } from "@/components/Navigation";
 import { InsightsCharts } from "@/components/insights/InsightsCharts";
+import { FilterSection } from "@/components/dashboard/FilterSection";
+import { useState } from "react";
 
 const Insights = () => {
+  const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const clients = ["Client A", "Client B", "Client C", "Client D", "Client E"];
+
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <Navigation />
@@ -13,6 +21,15 @@ const Insights = () => {
           <p className="text-lg text-gray-600 mb-8 text-center">
             Analytics and visualization of your optimization data
           </p>
+          <FilterSection
+            selectedClient={selectedClient}
+            selectedPlatform={selectedPlatform}
+            selectedCategory={selectedCategory}
+            onClientChange={setSelectedClient}
+            onPlatformChange={setSelectedPlatform}
+            onCategoryChange={setSelectedCategory}
+            clients={clients}
+          />
           <InsightsCharts />
         </div>
       </div>
