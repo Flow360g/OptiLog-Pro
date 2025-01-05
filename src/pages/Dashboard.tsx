@@ -17,22 +17,21 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchOptimizations();
-  }, []);
+  }, [userClients]);
 
   const fetchOptimizations = async () => {
     try {
+      // Fetch all optimizations for the user's assigned clients
       const { data: optimizations, error } = await supabase
         .from('optimizations')
-        .select('*');
+        .select('*')
+        .in('client', userClients);
 
       if (error) throw error;
 
       if (optimizations) {
-        // Filter optimizations by user's assigned clients
-        const filtered = optimizations.filter(opt => userClients.includes(opt.client));
-        
-        // Group filtered optimizations by client
-        const grouped = filtered.reduce((acc: OptimizationsByClient, curr) => {
+        // Group optimizations by client
+        const grouped = optimizations.reduce((acc: OptimizationsByClient, curr) => {
           if (!acc[curr.client]) {
             acc[curr.client] = [];
           }
