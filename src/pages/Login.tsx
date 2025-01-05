@@ -74,7 +74,7 @@ const Login = () => {
                 },
               },
               className: {
-                button: 'gradient-bg',
+                button: 'gradient-bg [&[data-provider="google"]]:!bg-none [&[data-provider="google"]]:!bg-[#f0f0f0]',
                 anchor: 'text-gray-500 hover:text-gray-700',
                 container: 'gap-3',
                 divider: 'bg-gray-300',
