@@ -18,6 +18,7 @@ export default function UserSettings() {
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -73,6 +74,7 @@ export default function UserSettings() {
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error("No user found");
@@ -95,7 +97,7 @@ export default function UserSettings() {
         return;
       }
 
-      // First, delete all existing client associations
+      // Delete existing client associations
       const { error: deleteError } = await supabase
         .from('user_clients')
         .delete()
@@ -107,19 +109,16 @@ export default function UserSettings() {
         return;
       }
 
-      // Wait a brief moment to ensure deletion is complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Then insert new client associations if any are selected
+      // Insert new client associations if any are selected
       if (selectedClients.length > 0) {
-        const clientsToInsert = selectedClients.map(client => ({
-          user_id: user.id,
-          client
-        }));
-
         const { error: insertError } = await supabase
           .from('user_clients')
-          .insert(clientsToInsert);
+          .insert(
+            selectedClients.map(client => ({
+              user_id: user.id,
+              client
+            }))
+          );
 
         if (insertError) {
           console.error("Clients insert error:", insertError);
@@ -133,6 +132,8 @@ export default function UserSettings() {
     } catch (error) {
       console.error("Save error:", error);
       toast.error("An unexpected error occurred");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -170,8 +171,9 @@ export default function UserSettings() {
           <Button 
             onClick={handleSave}
             className="w-full gradient-bg"
+            disabled={isSaving}
           >
-            Save Changes
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </div>
