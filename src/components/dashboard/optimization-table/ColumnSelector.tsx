@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus } from "lucide-react";
 
 interface Column {
   key: string;
@@ -22,13 +20,11 @@ export function ColumnSelector({ columns, visibleColumns, onColumnToggle }: Colu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="icon"
-          className="h-8 w-8 rounded-full bg-white hover:bg-gray-50 shadow-sm"
+        <button 
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
-          <Plus className="h-4 w-4" />
-        </Button>
+          Customise Columns
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         {columns.map((column) => (
