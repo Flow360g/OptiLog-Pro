@@ -54,8 +54,8 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'linear-gradient(to right, hsl(198, 64%, 49%), hsl(262, 83%, 58%))',
-                    brandAccent: 'linear-gradient(to right, hsl(198, 64%, 45%), hsl(262, 83%, 54%))',
+                    brand: 'hsl(198, 64%, 49%)',
+                    brandAccent: 'hsl(262, 83%, 58%)',
                     brandButtonText: 'white',
                   },
                   borderWidths: {
@@ -74,6 +74,7 @@ const Login = () => {
                 },
               },
               className: {
+                button: 'gradient-bg',
                 anchor: 'text-gray-500 hover:text-gray-700',
                 container: 'gap-3',
                 divider: 'bg-gray-300',
