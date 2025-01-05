@@ -16,7 +16,8 @@ export function useUserClients() {
 
       const { data: userClients, error } = await supabase
         .from('user_clients')
-        .select('client');
+        .select('client')
+        .eq('user_id', session.user.id);
 
       if (error) {
         console.error('Error fetching user clients:', error);

@@ -43,12 +43,12 @@ export function SettingsForm({ userId, userClients }: SettingsFormProps) {
       // Save profile data
       await saveProfileData(userId);
 
-      // Save client selections
+      // Save client selections and wait for it to complete
       await saveClientSelections(userId);
 
       // Invalidate queries to refresh data
       await queryClient.invalidateQueries({ queryKey: ['userClients'] });
-
+      
       toast.success("Settings updated successfully!");
       navigate("/dashboard");
     } catch (error) {
