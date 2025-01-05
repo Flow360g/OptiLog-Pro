@@ -54,7 +54,7 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'transparent',
+                    brand: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)))',
                     brandAccent: 'transparent',
                     brandButtonText: 'white',
                   },
@@ -65,9 +65,15 @@ const Login = () => {
                     borderRadiusButton: '0.75rem',
                   },
                 },
+                google: {
+                  colors: {
+                    brand: '#f0f0f0',
+                    brandAccent: '#e0e0e0',
+                    brandButtonText: '#000',
+                  },
+                },
               },
               className: {
-                button: 'gradient-bg',
                 anchor: 'text-gray-500 hover:text-gray-700',
                 container: 'gap-3',
                 divider: 'bg-gray-300',
