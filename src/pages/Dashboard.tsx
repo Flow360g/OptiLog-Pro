@@ -7,6 +7,23 @@ import { ClientSection } from "@/components/dashboard/ClientSection";
 import { OptimizationsByClient } from "@/types/optimization";
 import { useUserClients } from "@/hooks/useUserClients";
 
+interface OptimizationWithProfile {
+  id: string;
+  campaign_name: string;
+  platform: string;
+  kpi: string;
+  recommended_action: string;
+  categories: string[];
+  effort_level: number;
+  impact_level: number;
+  optimization_date: string;
+  status: string;
+  client: string;
+  profiles: {
+    first_name: string | null;
+  } | null;
+}
+
 const Dashboard = () => {
   const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
@@ -37,7 +54,7 @@ const Dashboard = () => {
 
       if (optimizations) {
         // Transform the data to include user_first_name at the top level
-        const transformedOptimizations = optimizations.map(opt => ({
+        const transformedOptimizations = (optimizations as OptimizationWithProfile[]).map(opt => ({
           ...opt,
           user_first_name: opt.profiles?.first_name || null
         }));
