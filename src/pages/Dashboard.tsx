@@ -19,9 +19,7 @@ interface OptimizationWithProfile {
   optimization_date: string;
   status: string;
   client: string;
-  profiles: {
-    first_name: string | null;
-  } | null;
+  user_id: string;
 }
 
 const Dashboard = () => {
@@ -40,23 +38,34 @@ const Dashboard = () => {
     try {
       if (!userClients.length) return;
 
-      const { data: optimizations, error } = await supabase
+      // First, fetch optimizations
+      const { data: optimizations, error: optimizationsError } = await supabase
         .from('optimizations')
-        .select(`
-          *,
-          profiles (
-            first_name
-          )
-        `)
+        .select('*')
         .in('client', userClients);
 
-      if (error) throw error;
+      if (optimizationsError) throw optimizationsError;
 
       if (optimizations) {
+        // Then, fetch profiles for the user_ids
+        const userIds = [...new Set(optimizations.map(opt => opt.user_id))];
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name')
+          .in('id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        // Create a map of user_id to first_name for quick lookup
+        const profileMap = (profiles || []).reduce((acc: {[key: string]: string | null}, profile) => {
+          acc[profile.id] = profile.first_name;
+          return acc;
+        }, {});
+
         // Transform the data to include user_first_name at the top level
-        const transformedOptimizations = (optimizations as OptimizationWithProfile[]).map(opt => ({
+        const transformedOptimizations = optimizations.map(opt => ({
           ...opt,
-          user_first_name: opt.profiles?.first_name || null
+          user_first_name: profileMap[opt.user_id] || null
         }));
 
         // Group optimizations by client
