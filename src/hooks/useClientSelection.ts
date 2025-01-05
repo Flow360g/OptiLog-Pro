@@ -22,7 +22,7 @@ export function useClientSelection(initialClients: string[] = []) {
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
       try {
-        // Start a transaction by getting the connection
+        // First, get existing selections
         const { data: existingSelections, error: fetchError } = await supabase
           .from('user_clients')
           .select('client')
@@ -30,11 +30,19 @@ export function useClientSelection(initialClients: string[] = []) {
 
         if (fetchError) throw fetchError;
 
-        // Delete only the clients that are no longer selected
-        const clientsToDelete = existingSelections
-          ?.map(s => s.client)
-          .filter(client => !selectedClients.includes(client)) || [];
+        const existingClients = existingSelections?.map(s => s.client) || [];
+        
+        // Find clients to delete (ones that exist but aren't in selectedClients)
+        const clientsToDelete = existingClients.filter(
+          client => !selectedClients.includes(client)
+        );
 
+        // Find clients to add (ones in selectedClients but don't exist yet)
+        const clientsToAdd = selectedClients.filter(
+          client => !existingClients.includes(client)
+        );
+
+        // Delete removed clients
         if (clientsToDelete.length > 0) {
           const { error: deleteError } = await supabase
             .from('user_clients')
@@ -45,15 +53,12 @@ export function useClientSelection(initialClients: string[] = []) {
           if (deleteError) throw deleteError;
         }
 
-        // Insert only new selections that don't exist yet
-        const existingClientSet = new Set(existingSelections?.map(s => s.client) || []);
-        const newSelections = selectedClients.filter(client => !existingClientSet.has(client));
-
-        if (newSelections.length > 0) {
+        // Add new clients
+        if (clientsToAdd.length > 0) {
           const { error: insertError } = await supabase
             .from('user_clients')
             .insert(
-              newSelections.map(client => ({
+              clientsToAdd.map(client => ({
                 user_id: userId,
                 client
               }))
