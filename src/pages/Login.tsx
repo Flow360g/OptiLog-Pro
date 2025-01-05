@@ -56,7 +56,7 @@ const Login = () => {
                   colors: {
                     brand: 'transparent',
                     brandAccent: 'transparent',
-                    brandButtonText: 'white',
+                    buttonText: 'white',
                     inputText: 'white',
                   },
                   borderWidths: {
@@ -68,9 +68,8 @@ const Login = () => {
                 },
               },
               className: {
-                button: 'gradient-bg text-white', // Added text-white here
+                button: 'bg-gray-600 hover:bg-gray-700',
                 container: 'gap-3',
-                providerIcon: 'text-white', // Ensure the Google icon is also white
               },
             }}
             providers={["google"]}
