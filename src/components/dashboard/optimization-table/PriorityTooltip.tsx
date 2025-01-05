@@ -32,7 +32,7 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
         <TooltipContent className="w-[400px] p-4">
           <div className="space-y-3">
             <div className="border rounded p-3 bg-gray-50">
-              <div className="text-center mb-2 font-semibold">Effort vs. Impact Matrix</div>
+              <div className="text-center mb-2">Effort vs. Impact Matrix</div>
               <div className="relative h-56 border-b border-l mb-8">
                 {/* Y-axis label */}
                 <div className="absolute -left-8 top-1/2 -translate-y-1/2 transform -rotate-90 text-xs">
@@ -45,9 +45,8 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
                 {/* Plot points */}
                 {sortedOptimizations.map((opt, index) => {
                   // Calculate position (normalize to 0-100%)
-                  // Each level represents 20% of the space (5 levels total)
-                  const x = ((opt.effort_level - 1) * 20) + 20; // 20% offset from Y axis for level 1
-                  const y = ((opt.impact_level - 1) * 20) + 20; // 20% offset for level 1
+                  const x = ((opt.effort_level - 1) * 20) + 10; // Adjust for better spacing
+                  const y = ((opt.impact_level - 1) * 20) + 10; // Adjust for better spacing
                   
                   return (
                     <div
@@ -64,10 +63,10 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
                 })}
               </div>
             </div>
-            <p className="italic text-sm">
+            <p className="text-sm text-gray-600">
               We want to prioritise our work based on what produces the highest impact, with the lowest amount of effort.
             </p>
-            <p className="text-sm">
+            <p className="text-sm text-gray-600">
               Priority Score = Impact + (6 - Effort). The higher the Impact and the lower
               the Effort, the higher the priority.
             </p>

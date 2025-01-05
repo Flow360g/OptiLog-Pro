@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [optimizationsByClient, setOptimizationsByClient] = useState<OptimizationsByClient>({});
   const { data: userClients = [] } = useUserClients();
 
@@ -68,8 +69,15 @@ const Dashboard = () => {
           user_first_name: profileMap[opt.user_id] || null
         }));
 
+        const filteredOptimizations = transformedOptimizations.filter(opt => {
+          const platformMatch = !selectedPlatform || opt.platform === selectedPlatform;
+          const categoryMatch = !selectedCategory || opt.categories.includes(selectedCategory);
+          const statusMatch = !selectedStatus || opt.status === selectedStatus;
+          return platformMatch && categoryMatch && statusMatch;
+        });
+
         // Group optimizations by client
-        const grouped = transformedOptimizations.reduce((acc: OptimizationsByClient, curr) => {
+        const grouped = filteredOptimizations.reduce((acc: OptimizationsByClient, curr) => {
           if (!acc[curr.client]) {
             acc[curr.client] = [];
           }
@@ -110,24 +118,6 @@ const Dashboard = () => {
     }
   };
 
-  const filteredData = Object.entries(optimizationsByClient).reduce((acc, [client, optimizations]) => {
-    if (selectedClient && selectedClient !== client) {
-      return acc;
-    }
-
-    const filteredOptimizations = optimizations.filter(opt => {
-      const platformMatch = !selectedPlatform || opt.platform === selectedPlatform;
-      const categoryMatch = !selectedCategory || opt.categories.includes(selectedCategory);
-      return platformMatch && categoryMatch;
-    });
-
-    if (filteredOptimizations.length > 0) {
-      acc[client] = filteredOptimizations;
-    }
-
-    return acc;
-  }, {} as OptimizationsByClient);
-
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <Navigation />
@@ -140,13 +130,15 @@ const Dashboard = () => {
           selectedClient={selectedClient}
           selectedPlatform={selectedPlatform}
           selectedCategory={selectedCategory}
+          selectedStatus={selectedStatus}
           onClientChange={setSelectedClient}
           onPlatformChange={setSelectedPlatform}
           onCategoryChange={setSelectedCategory}
+          onStatusChange={setSelectedStatus}
           clients={userClients}
         />
 
-        {Object.entries(filteredData).map(([client, optimizations]) => (
+        {Object.entries(optimizationsByClient).map(([client, optimizations]) => (
           <ClientSection
             key={client}
             client={client}

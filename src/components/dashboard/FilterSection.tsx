@@ -12,9 +12,11 @@ interface FilterSectionProps {
   selectedClient: string | null;
   selectedPlatform: string | null;
   selectedCategory: string | null;
+  selectedStatus: string | null;
   onClientChange: (value: string | null) => void;
   onPlatformChange: (value: string | null) => void;
   onCategoryChange: (value: string | null) => void;
+  onStatusChange: (value: string | null) => void;
   clients: string[];
 }
 
@@ -22,9 +24,11 @@ export function FilterSection({
   selectedClient,
   selectedPlatform,
   selectedCategory,
+  selectedStatus,
   onClientChange,
   onPlatformChange,
   onCategoryChange,
+  onStatusChange,
   clients,
 }: FilterSectionProps) {
   return (
@@ -83,12 +87,30 @@ export function FilterSection({
         </Select>
       </div>
 
+      <div className="w-48">
+        <Select
+          value={selectedStatus || "all-statuses"}
+          onValueChange={(value) => onStatusChange(value === "all-statuses" ? null : value)}
+        >
+          <SelectTrigger className="bg-white">
+            <SelectValue placeholder="Filter by Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all-statuses">All Statuses</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="Approved">Approved</SelectItem>
+            <SelectItem value="Disapproved">Disapproved</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <Button
         variant="outline"
         onClick={() => {
           onClientChange(null);
           onPlatformChange(null);
           onCategoryChange(null);
+          onStatusChange(null);
         }}
         className="bg-white"
       >
