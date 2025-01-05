@@ -126,6 +126,7 @@ export function FilterSection({
                   <SelectItem value="Pending">Pending</SelectItem>
                   <SelectItem value="Approved">Approved</SelectItem>
                   <SelectItem value="Disapproved">Disapproved</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -49,7 +49,7 @@ export function useDashboardData(
           const clientMatch = !selectedClient || opt.client === selectedClient;
           const platformMatch = !selectedPlatform || opt.platform === selectedPlatform;
           const categoryMatch = !selectedCategory || opt.categories.includes(selectedCategory);
-          const statusMatch = !selectedStatus || opt.status === selectedStatus;
+          const statusMatch = !selectedStatus ? opt.status !== 'Completed' : opt.status === selectedStatus;
           return clientMatch && platformMatch && categoryMatch && statusMatch;
         });
 
