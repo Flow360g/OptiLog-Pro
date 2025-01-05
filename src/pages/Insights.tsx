@@ -44,7 +44,7 @@ const Insights = () => {
   const clients = ["Client A", "Client B", "Client C", "Client D", "Client E"];
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <Navigation />
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
