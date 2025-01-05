@@ -68,8 +68,18 @@ const Login = () => {
                 },
               },
               className: {
-                button: 'bg-gray-600 hover:bg-gray-700',
+                button: 'gradient-bg',
+                anchor: 'text-gray-500 hover:text-gray-700',
                 container: 'gap-3',
+                divider: 'bg-gray-300',
+                label: 'text-gray-700',
+                input: 'bg-white border-gray-300 text-gray-900',
+                loader: 'text-gray-500',
+                message: 'text-gray-500',
+                providersGroup: 'gap-2',
+                providerIcon: 'h-5 w-5',
+                socialButtonsBlockButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+                socialButtonsBlockButtonText: 'text-gray-700 font-medium',
               },
             }}
             providers={["google"]}
