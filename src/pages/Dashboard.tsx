@@ -19,6 +19,38 @@ const Dashboard = () => {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [optimizationsByClient, setOptimizationsByClient] = useState<OptimizationsByClient>({});
   const { data: userClients = [] } = useUserClients();
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([
+    "priority",
+    "campaign",
+    "platform",
+    "kpi",
+    "action",
+    "categories",
+    "added_by",
+    "status"
+  ]);
+
+  const columnDefinitions = [
+    { key: "priority", label: "Priority" },
+    { key: "campaign", label: "Campaign" },
+    { key: "platform", label: "Platform" },
+    { key: "kpi", label: "KPI" },
+    { key: "action", label: "Action" },
+    { key: "categories", label: "Categories" },
+    { key: "date", label: "Date" },
+    { key: "added_by", label: "Added By" },
+    { key: "effort", label: "Effort" },
+    { key: "impact", label: "Impact" },
+    { key: "status", label: "Status" },
+  ];
+
+  const handleColumnToggle = (column: string) => {
+    setVisibleColumns((prev) =>
+      prev.includes(column)
+        ? prev.filter((col) => col !== column)
+        : [...prev, column]
+    );
+  };
 
   useEffect(() => {
     if (!isSessionLoading && !session) {
@@ -162,6 +194,9 @@ const Dashboard = () => {
           onCategoryChange={setSelectedCategory}
           onStatusChange={setSelectedStatus}
           clients={userClients}
+          visibleColumns={visibleColumns}
+          onColumnToggle={handleColumnToggle}
+          columnDefinitions={columnDefinitions}
         />
 
         {Object.entries(optimizationsByClient).map(([client, optimizations]) => (
