@@ -8,22 +8,6 @@ import { OptimizationsByClient } from "@/types/optimization";
 import { useUserClients } from "@/hooks/useUserClients";
 import { useNavigate } from "react-router-dom";
 
-interface OptimizationWithProfile {
-  id: string;
-  campaign_name: string;
-  platform: string;
-  kpi: string;
-  recommended_action: string;
-  categories: string[];
-  effort_level: number;
-  impact_level: number;
-  optimization_date: string;
-  status: string;
-  client: string;
-  user_id: string;
-  user_first_name: string | null;
-}
-
 const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -58,7 +42,19 @@ const Dashboard = () => {
   }, [navigate]);
 
   useEffect(() => {
-    fetchOptimizations();
+    const fetchData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+      
+      if (userClients.length > 0) {
+        fetchOptimizations();
+      }
+    };
+
+    fetchData();
   }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus]);
 
   const fetchOptimizations = async () => {
