@@ -21,11 +21,13 @@ const Dashboard = () => {
 
   const fetchOptimizations = async () => {
     try {
+      if (!userClients.length) return;
+
       const { data: optimizations, error } = await supabase
         .from('optimizations')
         .select(`
           *,
-          profiles!optimizations_user_id_fkey (
+          profiles (
             first_name
           )
         `)
