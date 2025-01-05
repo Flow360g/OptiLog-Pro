@@ -16,7 +16,7 @@ export function PlatformIcon({ platform }: PlatformIconProps) {
       case 'google':
         return (
           <img 
-            src="/lovable-uploads/0a4fd2fe-2ca7-4e53-b5a8-1286e299191f.png" 
+            src="/lovable-uploads/60c692e5-6102-41c5-b27e-62aad3bed037.png" 
             alt="Google Ads Logo" 
             className="w-12 h-12 object-contain"
           />
