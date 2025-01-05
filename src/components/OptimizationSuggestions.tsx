@@ -87,6 +87,8 @@ export function OptimizationSuggestions({
   onSuggestionSelect,
   onAutoSuggest,
 }: OptimizationSuggestionsProps) {
+  const isButtonEnabled = platform && selectedKPI && !isLoading;
+  
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -98,7 +100,8 @@ export function OptimizationSuggestions({
           variant="outline"
           size="sm"
           onClick={onAutoSuggest}
-          disabled={isLoading || !platform || !selectedKPI}
+          disabled={!isButtonEnabled}
+          className={isButtonEnabled ? "gradient-bg text-white border-0 hover:text-white" : ""}
         >
           <Wand2 className="w-4 h-4 mr-2" />
           Auto-suggest

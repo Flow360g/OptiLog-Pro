@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { ClientSection } from "@/components/dashboard/ClientSection";
 import { OptimizationsByClient } from "@/types/optimization";
 import { useUserClients } from "@/hooks/useUserClients";
@@ -20,6 +20,7 @@ interface OptimizationWithProfile {
   status: string;
   client: string;
   user_id: string;
+  user_first_name: string | null;
 }
 
 const Dashboard = () => {
@@ -33,7 +34,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchOptimizations();
-  }, [userClients]);
+  }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus]);
 
   const fetchOptimizations = async () => {
     try {
@@ -69,11 +70,13 @@ const Dashboard = () => {
           user_first_name: profileMap[opt.user_id] || null
         }));
 
+        // Apply filters
         const filteredOptimizations = transformedOptimizations.filter(opt => {
+          const clientMatch = !selectedClient || opt.client === selectedClient;
           const platformMatch = !selectedPlatform || opt.platform === selectedPlatform;
           const categoryMatch = !selectedCategory || opt.categories.includes(selectedCategory);
           const statusMatch = !selectedStatus || opt.status === selectedStatus;
-          return platformMatch && categoryMatch && statusMatch;
+          return clientMatch && platformMatch && categoryMatch && statusMatch;
         });
 
         // Group optimizations by client
