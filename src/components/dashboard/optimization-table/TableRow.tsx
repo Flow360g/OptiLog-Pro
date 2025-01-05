@@ -40,27 +40,46 @@ export function TableRow({ optimization: opt, index, visibleColumns, onStatusCha
     }
   };
 
+  const getColumnWidth = (column: string) => {
+    const widthMap: { [key: string]: string } = {
+      priority: "w-20",
+      campaign: "w-48",
+      platform: "w-24",
+      kpi: "w-32",
+      action: "w-64",
+      categories: "w-48",
+      date: "w-32",
+      added_by: "w-32",
+      effort: "w-24",
+      impact: "w-24",
+      status: "w-32"
+    };
+    return widthMap[column] || "";
+  };
+
   const renderCell = (column: string) => {
+    const width = getColumnWidth(column);
+    
     switch (column) {
       case 'priority':
-        return <td className="p-4 text-gray-700 font-medium">{index + 1}</td>;
+        return <td className={`p-4 text-gray-700 font-medium ${width}`}>{index + 1}</td>;
       case 'campaign':
-        return <td className="p-4 text-gray-700">{opt.campaign_name}</td>;
+        return <td className={`p-4 text-gray-700 ${width}`}>{opt.campaign_name}</td>;
       case 'platform':
         return (
-          <td className="p-4">
+          <td className={`p-4 ${width}`}>
             <div className="flex justify-center">
               <PlatformIcon platform={opt.platform} />
             </div>
           </td>
         );
       case 'kpi':
-        return <td className="p-4 text-gray-700">{opt.kpi}</td>;
+        return <td className={`p-4 text-gray-700 ${width}`}>{opt.kpi}</td>;
       case 'action':
-        return <td className="p-4 text-gray-700">{opt.recommended_action}</td>;
+        return <td className={`p-4 text-gray-700 ${width}`}>{opt.recommended_action}</td>;
       case 'categories':
         return (
-          <td className="p-4">
+          <td className={`p-4 ${width}`}>
             <div className="flex flex-wrap gap-1">
               {opt.categories.map((category, idx) => (
                 <span
@@ -75,19 +94,19 @@ export function TableRow({ optimization: opt, index, visibleColumns, onStatusCha
         );
       case 'date':
         return (
-          <td className="p-4 text-gray-700">
+          <td className={`p-4 text-gray-700 ${width}`}>
             {format(new Date(opt.optimization_date), "MMM d, yyyy")}
           </td>
         );
       case 'added_by':
-        return <td className="p-4 text-gray-700">{opt.user_first_name || 'Unknown'}</td>;
+        return <td className={`p-4 text-gray-700 ${width}`}>{opt.user_first_name || 'Unknown'}</td>;
       case 'effort':
-        return <td className="p-4 text-gray-700">{opt.effort_level}</td>;
+        return <td className={`p-4 text-gray-700 ${width}`}>{opt.effort_level}</td>;
       case 'impact':
-        return <td className="p-4 text-gray-700">{opt.impact_level}</td>;
+        return <td className={`p-4 text-gray-700 ${width}`}>{opt.impact_level}</td>;
       case 'status':
         return (
-          <td className="p-4 text-gray-700">
+          <td className={`p-4 text-gray-700 ${width}`}>
             <Select
               value={opt.status || "Pending"}
               onValueChange={(value) => onStatusChange(opt.id, value)}
