@@ -65,15 +65,21 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      // Refresh the data after successful update
-      fetchOptimizations();
-
       if (newStatus === 'Completed') {
         toast({
           title: "Success!",
           description: "Optimization marked as completed",
           variant: "default",
+          duration: 2000, // Auto dismiss after 2 seconds
         });
+        
+        // Delay the data refresh by 1 second to allow the confetti animation to complete
+        setTimeout(() => {
+          fetchOptimizations();
+        }, 1000);
+      } else {
+        // For other status changes, refresh immediately
+        fetchOptimizations();
       }
     } catch (error) {
       console.error('Error updating optimization status:', error);
