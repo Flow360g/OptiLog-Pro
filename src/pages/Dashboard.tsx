@@ -10,6 +10,8 @@ import { LoadingState } from "@/components/dashboard/LoadingState";
 import { useDashboardState } from "@/components/dashboard/DashboardState";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,6 +57,53 @@ const Dashboard = () => {
     { key: "impact", label: "Impact" },
     { key: "status", label: "Status" },
   ];
+
+  const handleDownload = () => {
+    // Prepare the data for CSV
+    const rows = [];
+    
+    // Add header row
+    const headers = ['Client', 'Campaign', 'Platform', 'KPI', 'Action', 'Categories', 
+                    'Date', 'Added By', 'Effort', 'Impact', 'Status'];
+    rows.push(headers.join(','));
+
+    // Add data rows
+    Object.entries(optimizationsByClient).forEach(([client, optimizations]) => {
+      optimizations.forEach(opt => {
+        const row = [
+          client,
+          opt.campaign_name,
+          opt.platform,
+          opt.kpi,
+          `"${opt.recommended_action.replace(/"/g, '""')}"`, // Escape quotes in action text
+          `"${opt.categories.join(', ')}"`,
+          opt.optimization_date,
+          opt.user_first_name,
+          opt.effort_level,
+          opt.impact_level,
+          opt.status
+        ];
+        rows.push(row.join(','));
+      });
+    });
+
+    // Create and download the CSV file
+    const csvContent = rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `optimizations_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Success",
+      description: "Optimizations data downloaded successfully",
+      duration: 2000,
+    });
+  };
 
   const handleStatusChange = async (optimizationId: string, newStatus: string) => {
     try {
@@ -106,20 +155,32 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <DashboardHeader />
 
-        <FilterSection
-          selectedClient={selectedClient}
-          selectedPlatform={selectedPlatform}
-          selectedCategory={selectedCategory}
-          selectedStatus={selectedStatus}
-          onClientChange={setSelectedClient}
-          onPlatformChange={setSelectedPlatform}
-          onCategoryChange={setSelectedCategory}
-          onStatusChange={setSelectedStatus}
-          clients={userClients}
-          visibleColumns={visibleColumns}
-          onColumnToggle={handleColumnToggle}
-          columnDefinitions={columnDefinitions}
-        />
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex-1">
+            <FilterSection
+              selectedClient={selectedClient}
+              selectedPlatform={selectedPlatform}
+              selectedCategory={selectedCategory}
+              selectedStatus={selectedStatus}
+              onClientChange={setSelectedClient}
+              onPlatformChange={setSelectedPlatform}
+              onCategoryChange={setSelectedCategory}
+              onStatusChange={setSelectedStatus}
+              clients={userClients}
+              visibleColumns={visibleColumns}
+              onColumnToggle={handleColumnToggle}
+              columnDefinitions={columnDefinitions}
+            />
+          </div>
+          <Button
+            onClick={handleDownload}
+            className="ml-4"
+            variant="outline"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download CSV
+          </Button>
+        </div>
 
         {Object.entries(optimizationsByClient).map(([client, optimizations]) => (
           <ClientSection
