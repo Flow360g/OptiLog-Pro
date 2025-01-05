@@ -25,9 +25,9 @@ interface FilterSectionProps {
   onCategoryChange: (value: string | null) => void;
   onStatusChange: (value: string | null) => void;
   clients: string[];
-  visibleColumns: string[];
-  onColumnToggle: (column: string) => void;
-  columnDefinitions: { key: string; label: string; }[];
+  visibleColumns?: string[];
+  onColumnToggle?: (column: string) => void;
+  columnDefinitions?: { key: string; label: string; }[];
 }
 
 export function FilterSection({
@@ -146,11 +146,13 @@ export function FilterSection({
         </PopoverContent>
       </Popover>
 
-      <ColumnSelector
-        columns={columnDefinitions}
-        visibleColumns={visibleColumns}
-        onColumnToggle={onColumnToggle}
-      />
+      {columnDefinitions && visibleColumns && onColumnToggle && (
+        <ColumnSelector
+          columns={columnDefinitions}
+          visibleColumns={visibleColumns}
+          onColumnToggle={onColumnToggle}
+        />
+      )}
     </div>
   );
 }
