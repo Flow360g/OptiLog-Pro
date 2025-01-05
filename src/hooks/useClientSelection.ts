@@ -27,33 +27,27 @@ export function useClientSelection(initialClients: string[] = []) {
         const { error: deleteError } = await supabase
           .from('user_clients')
           .delete()
-          .eq('user_id', userId)
-          .throwOnError();
+          .eq('user_id', userId);
 
         if (deleteError) {
           console.error('Error deleting existing clients:', deleteError);
           throw deleteError;
         }
 
+        // Only proceed with insertion if there are clients to insert
         if (selectedClients.length > 0) {
-          // Use upsert to handle potential duplicates
-          const { error: upsertError } = await supabase
+          const { error: insertError } = await supabase
             .from('user_clients')
-            .upsert(
+            .insert(
               selectedClients.map(client => ({
                 user_id: userId,
                 client
-              })),
-              { 
-                onConflict: 'user_id,client',
-                ignoreDuplicates: true 
-              }
-            )
-            .throwOnError();
+              }))
+            );
 
-          if (upsertError) {
-            console.error('Error upserting clients:', upsertError);
-            throw upsertError;
+          if (insertError) {
+            console.error('Error inserting clients:', insertError);
+            throw insertError;
           }
         }
 
