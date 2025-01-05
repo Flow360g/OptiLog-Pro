@@ -7,6 +7,7 @@ const Insights = () => {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   const clients = ["Client A", "Client B", "Client C", "Client D", "Client E"];
 
@@ -25,9 +26,11 @@ const Insights = () => {
             selectedClient={selectedClient}
             selectedPlatform={selectedPlatform}
             selectedCategory={selectedCategory}
+            selectedStatus={selectedStatus}
             onClientChange={setSelectedClient}
             onPlatformChange={setSelectedPlatform}
             onCategoryChange={setSelectedCategory}
+            onStatusChange={setSelectedStatus}
             clients={clients}
           />
           <InsightsCharts />
