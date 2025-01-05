@@ -18,6 +18,7 @@ export function TableHeader({ optimizations }: TableHeaderProps) {
       <th className="p-4 text-left text-gray-600 font-medium">Action</th>
       <th className="p-4 text-left text-gray-600 font-medium">Categories</th>
       <th className="p-4 text-left text-gray-600 font-medium">Date</th>
+      <th className="p-4 text-left text-gray-600 font-medium">Added By</th>
       <th className="p-4 text-left text-gray-600 font-medium">Effort</th>
       <th className="p-4 text-left text-gray-600 font-medium">Impact</th>
       <th className="p-4 text-left text-gray-600 font-medium">Status</th>

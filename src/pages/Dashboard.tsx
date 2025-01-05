@@ -21,17 +21,27 @@ const Dashboard = () => {
 
   const fetchOptimizations = async () => {
     try {
-      // Fetch all optimizations for the user's assigned clients
       const { data: optimizations, error } = await supabase
         .from('optimizations')
-        .select('*')
+        .select(`
+          *,
+          profiles:user_id (
+            first_name
+          )
+        `)
         .in('client', userClients);
 
       if (error) throw error;
 
       if (optimizations) {
+        // Transform the data to include user_first_name at the top level
+        const transformedOptimizations = optimizations.map(opt => ({
+          ...opt,
+          user_first_name: opt.profiles?.first_name || null
+        }));
+
         // Group optimizations by client
-        const grouped = optimizations.reduce((acc: OptimizationsByClient, curr) => {
+        const grouped = transformedOptimizations.reduce((acc: OptimizationsByClient, curr) => {
           if (!acc[curr.client]) {
             acc[curr.client] = [];
           }

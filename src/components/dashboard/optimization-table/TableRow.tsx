@@ -37,6 +37,7 @@ export function TableRow({ optimization: opt, index, onStatusChange }: TableRowP
       <td className="p-4 text-gray-700">
         {format(new Date(opt.optimization_date), "MMM d, yyyy")}
       </td>
+      <td className="p-4 text-gray-700">{opt.user_first_name || 'Unknown'}</td>
       <td className="p-4 text-gray-700">{opt.effort_level}</td>
       <td className="p-4 text-gray-700">{opt.impact_level}</td>
       <td className="p-4 text-gray-700">

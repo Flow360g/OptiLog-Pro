@@ -10,6 +10,7 @@ export interface Optimization {
   optimization_date: string;
   status: string;
   client: string;
+  user_first_name: string | null;
 }
 
 export interface OptimizationsByClient {
