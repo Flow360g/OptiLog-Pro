@@ -64,6 +64,14 @@ export default function UserSettings() {
     loadUserData();
   }, [navigate]);
 
+  const handleClientToggle = (client: string) => {
+    setSelectedClients(prev => 
+      prev.includes(client) 
+        ? prev.filter(c => c !== client)
+        : [...prev, client]
+    );
+  };
+
   const handleSave = async () => {
     if (isSaving) return;
     
