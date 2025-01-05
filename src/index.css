@@ -57,8 +57,8 @@
     @apply gradient-bg border-0 text-white;
   }
 
-  /* Add styles for auth buttons */
-  [data-supabase-auth-token] button {
-    @apply text-white !important;
+  /* Style for email sign-in button */
+  [data-supabase-auth-token="email"] {
+    @apply bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity !important;
   }
 }
