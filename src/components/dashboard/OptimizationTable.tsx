@@ -8,6 +8,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Optimization } from "@/types/optimization";
+import { QuestionMarkCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface OptimizationTableProps {
   optimizations: Optimization[];
@@ -26,12 +33,53 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
     }
   };
 
+  const calculatePriority = (impact: number, effort: number) => {
+    return impact + (6 - effort);
+  };
+
+  const sortedOptimizations = [...optimizations].sort((a, b) => {
+    const priorityA = calculatePriority(a.impact_level, a.effort_level);
+    const priorityB = calculatePriority(b.impact_level, b.effort_level);
+    return priorityB - priorityA;
+  });
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50">
+              <th className="text-left p-4 text-gray-900">
+                <div className="flex items-center gap-1">
+                  Priority
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <QuestionMarkCircle className="h-4 w-4 text-gray-500" />
+                      </TooltipTrigger>
+                      <TooltipContent className="w-64 p-4">
+                        <div className="space-y-3">
+                          <div className="border rounded p-3 bg-gray-50">
+                            <div className="text-center mb-2 font-semibold">Effort vs. Impact Matrix</div>
+                            <div className="relative h-32 border-b border-l">
+                              <div className="absolute -left-3 top-1/2 -translate-y-1/2 transform -rotate-90 text-xs">
+                                Impact
+                              </div>
+                              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-xs">
+                                Effort
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-sm">
+                            Priority Score = Impact + (6 - Effort). The higher the Impact and the lower
+                            the Effort, the higher the priority.
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </th>
               <th className="text-left p-4 text-gray-900">Campaign</th>
               <th className="text-left p-4 text-gray-900">Platform</th>
               <th className="text-left p-4 text-gray-900">KPI</th>
@@ -44,11 +92,12 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
             </tr>
           </thead>
           <tbody>
-            {optimizations.map((opt) => (
+            {sortedOptimizations.map((opt, index) => (
               <tr 
                 key={opt.id} 
                 className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
               >
+                <td className="p-4 text-gray-700 font-medium">{index + 1}</td>
                 <td className="p-4 text-gray-700">{opt.campaign_name}</td>
                 <td className="p-4 text-gray-700">{opt.platform}</td>
                 <td className="p-4 text-gray-700">{opt.kpi}</td>
