@@ -32,9 +32,8 @@ export function TableRow({ optimization: opt, index, onStatusChange }: TableRowP
       <td className="p-4 text-gray-700 font-medium">{index + 1}</td>
       <td className="p-4 text-gray-700">{opt.campaign_name}</td>
       <td className="p-4">
-        <div className="flex items-center gap-2">
+        <div className="flex justify-center">
           <PlatformIcon platform={opt.platform} />
-          <span className="text-gray-700">{opt.platform}</span>
         </div>
       </td>
       <td className="p-4 text-gray-700">{opt.kpi}</td>
