@@ -11,11 +11,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
+
+type UserPosition = Database['public']['Enums']['user_position'];
 
 export const AdditionalFields = () => {
   const navigate = useNavigate();
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
-  const [position, setPosition] = useState<string>("");
+  const [position, setPosition] = useState<UserPosition | ''>('');
 
   const handleClientToggle = (client: string) => {
     setSelectedClients(prev => 
@@ -78,7 +81,7 @@ export const AdditionalFields = () => {
     <div className="space-y-6">
       <div className="space-y-4">
         <Label>Position</Label>
-        <Select value={position} onValueChange={setPosition}>
+        <Select value={position} onValueChange={(value: UserPosition) => setPosition(value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select your position" />
           </SelectTrigger>
