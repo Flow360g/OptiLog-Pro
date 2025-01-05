@@ -16,14 +16,41 @@ export function Navigation() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   
   useEffect(() => {
-    const getUserEmail = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserEmail(user.email);
+    // Check for existing session
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Session error:", error);
+        navigate("/login");
+        return;
       }
+      
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+
+      setUserEmail(session.user.email);
     };
-    getUserEmail();
-  }, []);
+
+    checkSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/login");
+        return;
+      }
+      
+      if (session) {
+        setUserEmail(session.user.email);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
