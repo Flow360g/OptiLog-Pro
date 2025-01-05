@@ -24,7 +24,7 @@ export function ClientSection({
       case '28bsw':
         return '28 By Sam Wood';
       default:
-        return clientName;
+        return clientName.toUpperCase();
     }
   };
 
