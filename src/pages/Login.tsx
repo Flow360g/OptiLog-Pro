@@ -84,7 +84,7 @@ const Login = () => {
                 message: 'text-gray-500',
               },
             }}
-            providers={["google"]}
+            providers={["google", "email"]}
             redirectTo={window.location.origin}
           />
         </div>
