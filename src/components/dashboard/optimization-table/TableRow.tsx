@@ -97,13 +97,14 @@ export function TableRow({ optimization: opt, index, visibleColumns, onStatusCha
     )
   };
 
+  // Sort cells based on visibleColumns order
+  const sortedCells = visibleColumns.map(columnKey => 
+    columnMap[columnKey as keyof typeof columnMap]
+  );
+
   return (
     <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-      {visibleColumns.map((columnKey) => (
-        <React.Fragment key={columnKey}>
-          {columnMap[columnKey as keyof typeof columnMap]}
-        </React.Fragment>
-      ))}
+      {sortedCells}
     </tr>
   );
 }

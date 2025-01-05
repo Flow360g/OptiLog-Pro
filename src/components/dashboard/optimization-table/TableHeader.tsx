@@ -7,7 +7,7 @@ interface TableHeaderProps {
 }
 
 export function TableHeader({ optimizations, visibleColumns }: TableHeaderProps) {
-  const columns = [
+  const columnDefinitions = [
     { key: "priority", label: "Priority", width: "w-20" },
     { key: "campaign", label: "Campaign", width: "w-48" },
     { key: "platform", label: "Platform", width: "w-24" },
@@ -21,25 +21,30 @@ export function TableHeader({ optimizations, visibleColumns }: TableHeaderProps)
     { key: "status", label: "Status", width: "w-32" },
   ];
 
+  // Filter and sort columns based on visibleColumns order
+  const visibleColumnDefinitions = columnDefinitions.filter(col => 
+    visibleColumns.includes(col.key)
+  ).sort((a, b) => 
+    visibleColumns.indexOf(a.key) - visibleColumns.indexOf(b.key)
+  );
+
   return (
     <tr className="bg-gray-50 border-b border-gray-200">
-      {columns.map((column) => 
-        visibleColumns.includes(column.key) && (
-          <th 
-            key={column.key} 
-            className={`p-4 text-left text-gray-600 font-medium whitespace-nowrap ${column.width}`}
-          >
-            {column.key === "priority" ? (
-              <div className="flex items-center gap-2">
-                {column.label}
-                <PriorityTooltip optimizations={optimizations} />
-              </div>
-            ) : (
-              column.label
-            )}
-          </th>
-        )
-      )}
+      {visibleColumnDefinitions.map((column) => (
+        <th 
+          key={column.key} 
+          className={`p-4 text-left text-gray-600 font-medium whitespace-nowrap ${column.width}`}
+        >
+          {column.key === "priority" ? (
+            <div className="flex items-center gap-2">
+              {column.label}
+              <PriorityTooltip optimizations={optimizations} />
+            </div>
+          ) : (
+            column.label
+          )}
+        </th>
+      ))}
     </tr>
   );
 }
