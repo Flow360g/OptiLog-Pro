@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { ClientSelector } from "@/components/settings/ClientSelector";
+import { useClientSelection } from "@/hooks/useClientSelection";
 
 type UserPosition = Database['public']['Enums']['user_position'];
 
@@ -15,10 +16,17 @@ export default function UserSettings() {
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
-  const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  
+  const { 
+    selectedClients, 
+    setSelectedClients, 
+    handleClientToggle,
+    saveClientSelections,
+    isSaving: isClientSaving 
+  } = useClientSelection([]);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -62,15 +70,7 @@ export default function UserSettings() {
     };
 
     loadUserData();
-  }, [navigate]);
-
-  const handleClientToggle = (client: string) => {
-    setSelectedClients(prev => 
-      prev.includes(client) 
-        ? prev.filter(c => c !== client)
-        : [...prev, client]
-    );
-  };
+  }, [navigate, setSelectedClients]);
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -99,48 +99,8 @@ export default function UserSettings() {
         return;
       }
 
-      // Get current client associations
-      const { data: existingClients } = await supabase
-        .from('user_clients')
-        .select('client')
-        .eq('user_id', user.id);
-
-      const currentClients = new Set(existingClients?.map(ec => ec.client) || []);
-      const newClients = selectedClients.filter(client => !currentClients.has(client));
-      const clientsToRemove = Array.from(currentClients).filter(client => !selectedClients.includes(client as string));
-
-      // Remove unselected clients
-      if (clientsToRemove.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('user_clients')
-          .delete()
-          .eq('user_id', user.id)
-          .in('client', clientsToRemove);
-
-        if (deleteError) {
-          console.error("Delete clients error:", deleteError);
-          toast.error("Failed to update client selections");
-          return;
-        }
-      }
-
-      // Insert only new client associations
-      if (newClients.length > 0) {
-        const { error: insertError } = await supabase
-          .from('user_clients')
-          .insert(
-            newClients.map(client => ({
-              user_id: user.id,
-              client
-            }))
-          );
-
-        if (insertError) {
-          console.error("Clients insert error:", insertError);
-          toast.error("Failed to save new client selections");
-          return;
-        }
-      }
+      // Save client selections
+      await saveClientSelections(user.id);
 
       toast.success("Settings updated successfully!");
       navigate("/dashboard");
@@ -186,9 +146,9 @@ export default function UserSettings() {
           <Button 
             onClick={handleSave}
             className="w-full gradient-bg"
-            disabled={isSaving}
+            disabled={isSaving || isClientSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving || isClientSaving ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
       </div>
