@@ -54,8 +54,8 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'hsl(198, 64%, 49%)',
-                    brandAccent: 'hsl(262, 83%, 58%)',
+                    brand: 'linear-gradient(to right, hsl(198, 64%, 49%), hsl(262, 83%, 58%))',
+                    brandAccent: 'linear-gradient(to right, hsl(198, 64%, 45%), hsl(262, 83%, 54%))',
                     brandButtonText: 'white',
                   },
                   borderWidths: {
@@ -74,7 +74,6 @@ const Login = () => {
                 },
               },
               className: {
-                button: 'gradient-bg [&[data-provider="google"]]:!bg-none [&[data-provider="google"]]:!bg-[#f0f0f0]',
                 anchor: 'text-gray-500 hover:text-gray-700',
                 container: 'gap-3',
                 divider: 'bg-gray-300',
@@ -84,7 +83,7 @@ const Login = () => {
                 message: 'text-gray-500',
               },
             }}
-            providers={["google", "email"]}
+            providers={["google"]}
             redirectTo={window.location.origin}
           />
         </div>
