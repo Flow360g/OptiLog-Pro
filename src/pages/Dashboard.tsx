@@ -25,7 +25,7 @@ const Dashboard = () => {
         .from('optimizations')
         .select(`
           *,
-          user:user_id (
+          profiles!optimizations_user_id_fkey (
             first_name
           )
         `)
@@ -37,7 +37,7 @@ const Dashboard = () => {
         // Transform the data to include user_first_name at the top level
         const transformedOptimizations = optimizations.map(opt => ({
           ...opt,
-          user_first_name: opt.user?.first_name || null
+          user_first_name: opt.profiles?.first_name || null
         }));
 
         // Group optimizations by client
@@ -118,7 +118,7 @@ const Dashboard = () => {
           clients={userClients}
         />
 
-        {Object.entries(optimizationsByClient).map(([client, optimizations]) => (
+        {Object.entries(filteredData).map(([client, optimizations]) => (
           <ClientSection
             key={client}
             client={client}
