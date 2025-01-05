@@ -1,12 +1,30 @@
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Settings } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
 
 export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   
+  useEffect(() => {
+    const getUserEmail = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserEmail(user.email);
+      }
+    };
+    getUserEmail();
+  }, []);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -45,21 +63,31 @@ export function Navigation() {
         </div>
         
         <div className="flex items-center gap-2">
-          <button 
-            className="p-2 rounded-full gradient-bg"
-            aria-label="User menu"
-          >
-            <User className="w-6 h-6 text-white" />
-          </button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLogout}
-            className="text-gray-600 hover:text-primary"
-            aria-label="Logout"
-          >
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button 
+                className="p-2 rounded-full gradient-bg"
+                aria-label="User menu"
+              >
+                <User className="w-6 h-6 text-white" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {userEmail && (
+                <DropdownMenuItem className="text-sm text-gray-500">
+                  {userEmail}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <Settings className="mr-2 h-4 w-4" />
+                User Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>
