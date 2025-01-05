@@ -160,7 +160,6 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      // Refresh the optimizations to show the updated status
       fetchOptimizations();
     } catch (error) {
       console.error('Error updating optimization status:', error);
@@ -205,6 +204,7 @@ const Dashboard = () => {
             client={client}
             optimizations={optimizations}
             onStatusChange={handleStatusChange}
+            visibleColumns={visibleColumns}
           />
         ))}
       </main>

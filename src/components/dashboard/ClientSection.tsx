@@ -8,16 +8,21 @@ interface ClientSectionProps {
   client: string;
   optimizations: Optimization[];
   onStatusChange: (optimizationId: string, newStatus: string) => void;
+  visibleColumns: string[];
 }
 
-export function ClientSection({ client, optimizations, onStatusChange }: ClientSectionProps) {
+export function ClientSection({ 
+  client, 
+  optimizations, 
+  onStatusChange,
+  visibleColumns 
+}: ClientSectionProps) {
   const navigate = useNavigate();
 
   const getFormattedClientName = (clientName: string) => {
     switch (clientName.toLowerCase()) {
       case '28bsw':
         return '28 By Sam Wood';
-      // Add more client name mappings here as needed
       default:
         return clientName;
     }
@@ -46,6 +51,7 @@ export function ClientSection({ client, optimizations, onStatusChange }: ClientS
       <OptimizationTable 
         optimizations={optimizations}
         onStatusChange={onStatusChange}
+        visibleColumns={visibleColumns}
       />
     </section>
   );
