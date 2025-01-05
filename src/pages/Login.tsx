@@ -68,8 +68,9 @@ const Login = () => {
                 },
               },
               className: {
-                button: 'gradient-bg',
+                button: 'gradient-bg text-white', // Added text-white here
                 container: 'gap-3',
+                providerIcon: 'text-white', // Ensure the Google icon is also white
               },
             }}
             providers={["google"]}
