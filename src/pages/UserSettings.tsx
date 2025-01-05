@@ -107,6 +107,9 @@ export default function UserSettings() {
         return;
       }
 
+      // Wait a brief moment to ensure deletion is complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Then insert new client associations if any are selected
       if (selectedClients.length > 0) {
         const clientsToInsert = selectedClients.map(client => ({
