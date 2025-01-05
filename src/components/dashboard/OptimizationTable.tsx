@@ -24,7 +24,7 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
       <div className="overflow-x-auto">
         <Table>
           <thead>
-            <TableHeader />
+            <TableHeader optimizations={sortedOptimizations} />
           </thead>
           <tbody>
             {sortedOptimizations.map((opt, index) => (
