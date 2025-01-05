@@ -4,6 +4,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Settings2 } from "lucide-react";
 
 interface Column {
   key: string;
@@ -20,11 +22,10 @@ export function ColumnSelector({ columns, visibleColumns, onColumnToggle }: Colu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button 
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-        >
+        <Button variant="outline" className="bg-white">
+          <Settings2 className="h-4 w-4 mr-2" />
           Customise Columns
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         {columns.map((column) => (
