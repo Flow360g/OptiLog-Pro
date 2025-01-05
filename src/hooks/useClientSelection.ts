@@ -22,10 +22,10 @@ export function useClientSelection(initialClients: string[] = []) {
 
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .rpc('update_user_clients', {
           p_user_id: userId,
-          p_clients: selectedClients
+          p_clients: selectedClients as unknown as string[]
         })
         .throwOnError();
 
