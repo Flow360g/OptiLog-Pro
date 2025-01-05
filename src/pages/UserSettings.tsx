@@ -8,11 +8,13 @@ import { Navigation } from "@/components/Navigation";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { ClientSelector } from "@/components/settings/ClientSelector";
 import { useClientSelection } from "@/hooks/useClientSelection";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 type UserPosition = Database['public']['Enums']['user_position'];
 
 export default function UserSettings() {
   const navigate = useNavigate();
+  const { session, isLoading: isSessionLoading } = useSessionContext();
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -28,22 +30,29 @@ export default function UserSettings() {
     isSaving: isClientSaving 
   } = useClientSelection([]);
 
+  // Check session and redirect if not logged in
+  useEffect(() => {
+    if (!isSessionLoading && !session) {
+      navigate("/login");
+      return;
+    }
+  }, [session, isSessionLoading, navigate]);
+
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        if (!session) {
           navigate("/login");
           return;
         }
 
-        setEmail(user.email || "");
+        setEmail(session.user.email || "");
 
         // Load profile data
         const { data: profile } = await supabase
           .from('profiles')
           .select('position, first_name, last_name')
-          .eq('id', user.id)
+          .eq('id', session.user.id)
           .single();
 
         if (profile) {
@@ -56,7 +65,7 @@ export default function UserSettings() {
         const { data: userClients } = await supabase
           .from('user_clients')
           .select('client')
-          .eq('user_id', user.id);
+          .eq('user_id', session.user.id);
 
         if (userClients) {
           setSelectedClients(userClients.map(uc => uc.client));
@@ -69,19 +78,16 @@ export default function UserSettings() {
       }
     };
 
-    loadUserData();
-  }, [navigate, setSelectedClients]);
+    if (!isSessionLoading && session) {
+      loadUserData();
+    }
+  }, [navigate, setSelectedClients, session, isSessionLoading]);
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSaving || !session) return;
     
     try {
       setIsSaving(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("No user found");
-        return;
-      }
 
       // Update profile
       const { error: profileError } = await supabase
@@ -91,7 +97,7 @@ export default function UserSettings() {
           first_name: firstName,
           last_name: lastName
         })
-        .eq('id', user.id);
+        .eq('id', session.user.id);
 
       if (profileError) {
         console.error("Profile update error:", profileError);
@@ -100,7 +106,7 @@ export default function UserSettings() {
       }
 
       // Save client selections
-      await saveClientSelections(user.id);
+      await saveClientSelections(session.user.id);
 
       toast.success("Settings updated successfully!");
       navigate("/dashboard");
@@ -112,7 +118,7 @@ export default function UserSettings() {
     }
   };
 
-  if (loading) {
+  if (isSessionLoading || loading) {
     return (
       <div>
         <Navigation />
