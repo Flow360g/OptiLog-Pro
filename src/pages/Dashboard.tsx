@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FilterSection } from "@/components/dashboard/FilterSection";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -13,56 +13,69 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
-// Mock data - in a real app, this would come from your backend
-const mockData = {
-  "OES": [
-    {
-      campaign: "Summer Campaign 2024",
-      platform: "Facebook",
-      kpi: "CPC",
-      recommendedAction: "Optimize ad relevance score",
-      categories: ["Creative", "Targeting"],
-      effort: "3",
-      impact: "4",
-      date: new Date("2024-04-15"),
-      status: "Pending"
-    }
-  ],
-  "28 By Sam Wood": [
-    {
-      campaign: "Fitness Challenge Q1",
-      platform: "Google",
-      kpi: "CTR",
-      recommendedAction: "Test different ad copy variations",
-      categories: ["Ad Copy", "Creative"],
-      effort: "2",
-      impact: "4",
-      date: new Date("2024-04-10"),
-      status: "Pending"
-    }
-  ],
-  "GMHBA": [
-    {
-      campaign: "Health Insurance Q2",
-      platform: "Facebook",
-      kpi: "ROAS",
-      recommendedAction: "Adjust targeting parameters",
-      categories: ["Targeting", "Budget"],
-      effort: "3",
-      impact: "5",
-      date: new Date("2024-04-12"),
-      status: "Pending"
-    }
-  ]
-};
+interface Optimization {
+  campaign_name: string;
+  platform: string;
+  kpi: string;
+  recommended_action: string;
+  categories: string[];
+  effort_level: number;
+  impact_level: number;
+  optimization_date: string;
+  status: string;
+}
+
+interface OptimizationsByClient {
+  [key: string]: Optimization[];
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [optimizationStatuses, setOptimizationStatuses] = useState<Record<string, string>>({});
+  const [optimizationsByClient, setOptimizationsByClient] = useState<OptimizationsByClient>({});
+  const [clients, setClients] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchOptimizations();
+  }, []);
+
+  const fetchOptimizations = async () => {
+    try {
+      const { data: optimizations, error } = await supabase
+        .from('optimizations')
+        .select('*');
+
+      if (error) throw error;
+
+      if (optimizations) {
+        // Group optimizations by client
+        const grouped = optimizations.reduce((acc: OptimizationsByClient, curr) => {
+          if (!acc[curr.client]) {
+            acc[curr.client] = [];
+          }
+          acc[curr.client].push(curr);
+          return acc;
+        }, {});
+
+        setOptimizationsByClient(grouped);
+        setClients(Object.keys(grouped));
+      }
+    } catch (error) {
+      console.error('Error fetching optimizations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch optimizations",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleCreateOptimization = (client: string) => {
     navigate('/', { 
@@ -72,20 +85,37 @@ const Dashboard = () => {
     });
   };
 
-  const handleStatusChange = (clientIndex: string, optimizationIndex: number, newStatus: string) => {
-    const key = `${clientIndex}-${optimizationIndex}`;
-    setOptimizationStatuses(prev => ({
-      ...prev,
-      [key]: newStatus
-    }));
+  const handleStatusChange = async (clientIndex: string, optimizationId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('optimizations')
+        .update({ status: newStatus })
+        .eq('id', optimizationId);
+
+      if (error) throw error;
+
+      setOptimizationStatuses(prev => ({
+        ...prev,
+        [optimizationId]: newStatus
+      }));
+
+      // Refresh the optimizations to show the updated status
+      fetchOptimizations();
+    } catch (error) {
+      console.error('Error updating optimization status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update optimization status",
+        variant: "destructive",
+      });
+    }
   };
 
-  const getOptimizationStatus = (clientIndex: string, optimizationIndex: number) => {
-    const key = `${clientIndex}-${optimizationIndex}`;
-    return optimizationStatuses[key] || "Pending";
+  const getOptimizationStatus = (optimizationId: string) => {
+    return optimizationStatuses[optimizationId] || "Pending";
   };
 
-  const filteredData = Object.entries(mockData).reduce((acc, [client, optimizations]) => {
+  const filteredData = Object.entries(optimizationsByClient).reduce((acc, [client, optimizations]) => {
     if (selectedClient && selectedClient !== client) {
       return acc;
     }
@@ -101,7 +131,7 @@ const Dashboard = () => {
     }
 
     return acc;
-  }, {} as typeof mockData);
+  }, {} as OptimizationsByClient);
 
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
@@ -118,7 +148,7 @@ const Dashboard = () => {
           onClientChange={setSelectedClient}
           onPlatformChange={setSelectedPlatform}
           onCategoryChange={setSelectedCategory}
-          clients={Object.keys(mockData)}
+          clients={clients}
         />
 
         {Object.entries(filteredData).map(([client, optimizations]) => (
@@ -150,23 +180,23 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {optimizations.map((opt, index) => (
+                    {optimizations.map((opt) => (
                       <tr 
-                        key={index} 
+                        key={opt.campaign_name} 
                         className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                       >
-                        <td className="p-4 text-gray-700">{opt.campaign}</td>
+                        <td className="p-4 text-gray-700">{opt.campaign_name}</td>
                         <td className="p-4 text-gray-700">{opt.platform}</td>
                         <td className="p-4 text-gray-700">{opt.kpi}</td>
-                        <td className="p-4 text-gray-700">{opt.recommendedAction}</td>
+                        <td className="p-4 text-gray-700">{opt.recommended_action}</td>
                         <td className="p-4 text-gray-700">{opt.categories.join(", ")}</td>
-                        <td className="p-4 text-gray-700">{format(opt.date, "MMM d, yyyy")}</td>
-                        <td className="p-4 text-gray-700">{opt.effort}</td>
-                        <td className="p-4 text-gray-700">{opt.impact}</td>
+                        <td className="p-4 text-gray-700">{format(new Date(opt.optimization_date), "MMM d, yyyy")}</td>
+                        <td className="p-4 text-gray-700">{opt.effort_level}</td>
+                        <td className="p-4 text-gray-700">{opt.impact_level}</td>
                         <td className="p-4 text-gray-700">
                           <Select
-                            value={getOptimizationStatus(client, index)}
-                            onValueChange={(value) => handleStatusChange(client, index, value)}
+                            value={opt.status || "Pending"}
+                            onValueChange={(value) => handleStatusChange(client, opt.id, value)}
                           >
                             <SelectTrigger className="w-[130px]">
                               <SelectValue />
