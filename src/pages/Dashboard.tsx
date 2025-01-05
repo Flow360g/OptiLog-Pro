@@ -7,10 +7,12 @@ import { ClientSection } from "@/components/dashboard/ClientSection";
 import { OptimizationsByClient } from "@/types/optimization";
 import { useUserClients } from "@/hooks/useUserClients";
 import { useNavigate } from "react-router-dom";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { session, isLoading: isSessionLoading } = useSessionContext();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -19,32 +21,14 @@ const Dashboard = () => {
   const { data: userClients = [] } = useUserClients();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        console.error("Session error:", error);
-        navigate("/login");
-        return;
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/login");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    if (!isSessionLoading && !session) {
+      navigate("/login");
+    }
+  }, [session, isSessionLoading, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
           navigate("/login");
           return;
@@ -63,14 +47,13 @@ const Dashboard = () => {
       }
     };
 
-    fetchData();
-  }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus]);
+    if (!isSessionLoading && session) {
+      fetchData();
+    }
+  }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus, session, isSessionLoading]);
 
   const fetchOptimizations = async () => {
     try {
-      if (!userClients.length) return;
-
-      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/login");
         return;
@@ -156,6 +139,10 @@ const Dashboard = () => {
       });
     }
   };
+
+  if (isSessionLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
