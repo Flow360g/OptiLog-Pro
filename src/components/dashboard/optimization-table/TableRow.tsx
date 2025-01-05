@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PlatformIcon } from "./PlatformIcon";
+import { Check, X } from "lucide-react";
 
 interface TableRowProps {
   optimization: Optimization;
@@ -20,11 +21,22 @@ export function TableRow({ optimization: opt, index, visibleColumns, onStatusCha
   const getStatusStyles = (status: string) => {
     switch (status) {
       case 'Approved':
-        return 'bg-[#0FA0CE] text-white';
+        return 'bg-green-500 text-white';
       case 'Disapproved':
-        return 'bg-[#ea384c] text-white';
+        return 'bg-red-500 text-white';
       default:
         return 'bg-white';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return <Check className="h-4 w-4 ml-2" />;
+      case 'Disapproved':
+        return <X className="h-4 w-4 ml-2" />;
+      default:
+        return null;
     }
   };
 
@@ -81,7 +93,10 @@ export function TableRow({ optimization: opt, index, visibleColumns, onStatusCha
               onValueChange={(value) => onStatusChange(opt.id, value)}
             >
               <SelectTrigger className={`w-[130px] ${getStatusStyles(opt.status || "Pending")}`}>
-                <SelectValue />
+                <div className="flex items-center justify-between">
+                  <SelectValue />
+                  {getStatusIcon(opt.status || "Pending")}
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Pending">Pending</SelectItem>
@@ -99,7 +114,6 @@ export function TableRow({ optimization: opt, index, visibleColumns, onStatusCha
   return (
     <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
       {visibleColumns.map((column) => renderCell(column))}
-      <td className="p-4 w-10"></td>
     </tr>
   );
 }

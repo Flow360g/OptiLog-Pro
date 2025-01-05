@@ -1,14 +1,12 @@
 import { PriorityTooltip } from "./PriorityTooltip";
 import { Optimization } from "@/types/optimization";
-import { ColumnSelector } from "./ColumnSelector";
 
 interface TableHeaderProps {
   optimizations: Optimization[];
   visibleColumns: string[];
-  onColumnToggle: (column: string) => void;
 }
 
-export function TableHeader({ optimizations, visibleColumns, onColumnToggle }: TableHeaderProps) {
+export function TableHeader({ optimizations, visibleColumns }: TableHeaderProps) {
   const columns = [
     { key: "priority", label: "Priority" },
     { key: "campaign", label: "Campaign" },
@@ -39,13 +37,6 @@ export function TableHeader({ optimizations, visibleColumns, onColumnToggle }: T
           </th>
         )
       )}
-      <th className="p-4 w-10">
-        <ColumnSelector
-          columns={columns}
-          visibleColumns={visibleColumns}
-          onColumnToggle={onColumnToggle}
-        />
-      </th>
     </tr>
   );
 }

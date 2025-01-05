@@ -22,7 +22,11 @@ export function ColumnSelector({ columns, visibleColumns, onColumnToggle }: Colu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="rounded-full h-10 w-10 bg-white hover:bg-gray-50"
+        >
           <Plus className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
