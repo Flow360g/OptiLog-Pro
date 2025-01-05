@@ -54,8 +54,8 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)))',
-                    brandAccent: 'transparent',
+                    brand: 'linear-gradient(to right, hsl(198, 64%, 49%), hsl(262, 83%, 58%))',
+                    brandAccent: 'linear-gradient(to right, hsl(198, 64%, 45%), hsl(262, 83%, 54%))',
                     brandButtonText: 'white',
                   },
                   borderWidths: {
