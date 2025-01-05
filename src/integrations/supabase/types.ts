@@ -68,19 +68,43 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          position: Database["public"]["Enums"]["user_position"] | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           email?: string | null
           id: string
+          position?: Database["public"]["Enums"]["user_position"] | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           email?: string | null
           id?: string
+          position?: Database["public"]["Enums"]["user_position"] | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_clients: {
+        Row: {
+          client: string
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          client: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          client?: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -92,7 +116,11 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_position:
+        | "activation_executive"
+        | "activation_manager"
+        | "activation_director"
+        | "digital_partner"
     }
     CompositeTypes: {
       [_ in never]: never
