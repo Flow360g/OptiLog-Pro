@@ -54,15 +54,15 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'hsl(198, 64%, 49%)',
-                    brandAccent: 'hsl(198, 64%, 45%)',
+                    brand: '#2A6FEE',
+                    brandAccent: '#2A6FEE',
                     brandButtonText: 'white',
                   },
                 },
                 google: {
                   colors: {
                     brand: '#f0f0f0',
-                    brandAccent: '#e0e0e0',
+                    brandAccent: '#f0f0f0',
                     brandButtonText: '#000',
                   },
                 },
@@ -78,7 +78,7 @@ const Login = () => {
               },
             }}
             providers={["google"]}
-            redirectTo={`${window.location.origin}/`}
+            redirectTo={window.location.origin}
           />
         </div>
       </div>
