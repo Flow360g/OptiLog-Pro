@@ -23,36 +23,37 @@ export function useClientSelection(initialClients: string[] = []) {
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
       try {
-        // Start a transaction
+        // First, delete all existing client selections for this user
         const { error: deleteError } = await supabase
           .from('user_clients')
           .delete()
           .eq('user_id', userId)
-          .throwOnError(); // This ensures the delete completes or throws
+          .throwOnError();
 
         if (deleteError) {
           console.error('Error deleting existing clients:', deleteError);
           throw deleteError;
         }
 
-        // Wait a brief moment to ensure delete is processed
-        await new Promise(resolve => setTimeout(resolve, 100));
-
         if (selectedClients.length > 0) {
-          // Insert new records one by one to better handle potential errors
-          for (const client of selectedClients) {
-            const { error: insertError } = await supabase
-              .from('user_clients')
-              .insert({
+          // Use upsert to handle potential duplicates
+          const { error: upsertError } = await supabase
+            .from('user_clients')
+            .upsert(
+              selectedClients.map(client => ({
                 user_id: userId,
                 client
-              })
-              .throwOnError();
+              })),
+              { 
+                onConflict: 'user_id,client',
+                ignoreDuplicates: true 
+              }
+            )
+            .throwOnError();
 
-            if (insertError) {
-              console.error(`Error inserting client ${client}:`, insertError);
-              throw insertError;
-            }
+          if (upsertError) {
+            console.error('Error upserting clients:', upsertError);
+            throw upsertError;
           }
         }
 
