@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { cn } from "@/lib/utils";
 
 interface DateSectionProps {
@@ -18,7 +18,7 @@ export function DateSection({ selectedDate, onDateChange }: DateSectionProps) {
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
       // Convert the local date to UTC while preserving the selected date in Sydney timezone
-      const sydneyDate = zonedTimeToUtc(date, timeZone);
+      const sydneyDate = fromZonedTime(date, timeZone);
       onDateChange(sydneyDate);
     } else {
       onDateChange(undefined);
@@ -26,7 +26,7 @@ export function DateSection({ selectedDate, onDateChange }: DateSectionProps) {
   };
 
   const displayDate = selectedDate 
-    ? utcToZonedTime(selectedDate, timeZone)
+    ? toZonedTime(selectedDate, timeZone)
     : undefined;
 
   return (
