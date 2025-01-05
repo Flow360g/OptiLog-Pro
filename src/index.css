@@ -56,4 +56,9 @@
   .category-pill.selected {
     @apply gradient-bg border-0 text-white;
   }
+
+  /* Add styles for auth buttons */
+  [data-supabase-auth-token] button {
+    @apply text-white !important;
+  }
 }
