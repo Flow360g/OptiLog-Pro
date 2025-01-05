@@ -43,14 +43,23 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      
-      if (userClients.length > 0) {
-        fetchOptimizations();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          navigate("/login");
+          return;
+        }
+        
+        if (userClients.length > 0) {
+          await fetchOptimizations();
+        }
+      } catch (error) {
+        console.error('Error in fetchData:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch data. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
