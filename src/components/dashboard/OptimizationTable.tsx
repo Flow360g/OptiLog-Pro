@@ -41,31 +41,8 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
   };
 
   return (
-    <div className="relative">
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <thead>
-              <TableHeader 
-                optimizations={sortedOptimizations}
-                visibleColumns={visibleColumns}
-              />
-            </thead>
-            <tbody>
-              {sortedOptimizations.map((opt, index) => (
-                <TableRow
-                  key={opt.id}
-                  optimization={opt}
-                  index={index}
-                  visibleColumns={visibleColumns}
-                  onStatusChange={onStatusChange}
-                />
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      </div>
-      <div className="absolute -right-16 top-0">
+    <div className="relative bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+      <div className="absolute top-2 right-2 z-10">
         <ColumnSelector
           columns={[
             { key: "priority", label: "Priority" },
@@ -83,6 +60,27 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
           visibleColumns={visibleColumns}
           onColumnToggle={handleColumnToggle}
         />
+      </div>
+      <div className="overflow-x-auto">
+        <Table>
+          <thead>
+            <TableHeader 
+              optimizations={sortedOptimizations}
+              visibleColumns={visibleColumns}
+            />
+          </thead>
+          <tbody>
+            {sortedOptimizations.map((opt, index) => (
+              <TableRow
+                key={opt.id}
+                optimization={opt}
+                index={index}
+                visibleColumns={visibleColumns}
+                onStatusChange={onStatusChange}
+              />
+            ))}
+          </tbody>
+        </Table>
       </div>
     </div>
   );

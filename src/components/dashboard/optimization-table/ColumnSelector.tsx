@@ -24,8 +24,8 @@ export function ColumnSelector({ columns, visibleColumns, onColumnToggle }: Colu
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          size="icon" 
-          className="rounded-full h-10 w-10 bg-white hover:bg-gray-50"
+          size="icon"
+          className="h-8 w-8 rounded-full bg-white hover:bg-gray-50 shadow-sm"
         >
           <Plus className="h-4 w-4" />
         </Button>
