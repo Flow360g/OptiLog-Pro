@@ -35,7 +35,7 @@ const Login = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN') {
         navigate("/", { replace: true });
-      } else if (event === 'SIGNED_UP') {
+      } else if (event === 'USER_UPDATED') {
         setShowAdditionalFields(true);
       }
     });
