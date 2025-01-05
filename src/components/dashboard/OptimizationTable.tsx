@@ -15,6 +15,17 @@ interface OptimizationTableProps {
 }
 
 export function OptimizationTable({ optimizations, onStatusChange }: OptimizationTableProps) {
+  const getStatusStyles = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return 'bg-[#0FA0CE] text-white';
+      case 'Disapproved':
+        return 'bg-[#ea384c] text-white';
+      default:
+        return 'bg-white';
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
@@ -53,7 +64,7 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
                     value={opt.status || "Pending"}
                     onValueChange={(value) => onStatusChange(opt.id, value)}
                   >
-                    <SelectTrigger className="w-[130px]">
+                    <SelectTrigger className={`w-[130px] ${getStatusStyles(opt.status || "Pending")}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

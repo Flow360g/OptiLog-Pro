@@ -25,12 +25,6 @@ export function Navigation() {
 
         <div className="flex-1 flex justify-center items-center space-x-8 h-14">
           <Link 
-            to="/" 
-            className={`text-gray-900 ${location.pathname === '/' ? 'font-bold' : ''} flex items-center h-full`}
-          >
-            Opti Log
-          </Link>
-          <Link 
             to="/dashboard" 
             className={`text-gray-600 hover:text-primary ${location.pathname === '/dashboard' ? 'font-bold' : ''} flex items-center h-full`}
           >

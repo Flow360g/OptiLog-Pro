@@ -13,6 +13,16 @@ interface ClientSectionProps {
 export function ClientSection({ client, optimizations, onStatusChange }: ClientSectionProps) {
   const navigate = useNavigate();
 
+  const getFormattedClientName = (clientName: string) => {
+    switch (clientName.toLowerCase()) {
+      case '28bsw':
+        return '28 By Sam Wood';
+      // Add more client name mappings here as needed
+      default:
+        return clientName;
+    }
+  };
+
   const handleCreateOptimization = (client: string) => {
     navigate('/', { 
       state: { 
@@ -24,7 +34,7 @@ export function ClientSection({ client, optimizations, onStatusChange }: ClientS
   return (
     <section className="mb-12">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-gray-900">{client}</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">{getFormattedClientName(client)}</h2>
         <Button 
           onClick={() => handleCreateOptimization(client)}
           className="gradient-bg"
