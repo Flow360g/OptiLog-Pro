@@ -1,22 +1,19 @@
 import { Navigation } from "@/components/Navigation";
-import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { ClientSection } from "@/components/dashboard/ClientSection";
 import { OptimizationsByClient } from "@/types/optimization";
+import { useUserClients } from "@/hooks/useUserClients";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [optimizationsByClient, setOptimizationsByClient] = useState<OptimizationsByClient>({});
-  const [clients, setClients] = useState<string[]>([]);
+  const { data: userClients = [] } = useUserClients();
 
   useEffect(() => {
     fetchOptimizations();
@@ -31,8 +28,11 @@ const Dashboard = () => {
       if (error) throw error;
 
       if (optimizations) {
-        // Group optimizations by client
-        const grouped = optimizations.reduce((acc: OptimizationsByClient, curr) => {
+        // Filter optimizations by user's assigned clients
+        const filtered = optimizations.filter(opt => userClients.includes(opt.client));
+        
+        // Group filtered optimizations by client
+        const grouped = filtered.reduce((acc: OptimizationsByClient, curr) => {
           if (!acc[curr.client]) {
             acc[curr.client] = [];
           }
@@ -41,7 +41,6 @@ const Dashboard = () => {
         }, {});
 
         setOptimizationsByClient(grouped);
-        setClients(Object.keys(grouped));
       }
     } catch (error) {
       console.error('Error fetching optimizations:', error);
@@ -107,7 +106,7 @@ const Dashboard = () => {
           onClientChange={setSelectedClient}
           onPlatformChange={setSelectedPlatform}
           onCategoryChange={setSelectedCategory}
-          clients={clients}
+          clients={userClients}
         />
 
         {Object.entries(filteredData).map(([client, optimizations]) => (

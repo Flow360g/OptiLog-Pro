@@ -2,18 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
 import { Navigation } from "@/components/Navigation";
+import { ProfileForm } from "@/components/settings/ProfileForm";
+import { ClientSelector } from "@/components/settings/ClientSelector";
 
 type UserPosition = Database['public']['Enums']['user_position'];
 
@@ -156,61 +149,20 @@ export default function UserSettings() {
         <h1 className="text-2xl font-bold mb-8">User Settings</h1>
         
         <div className="space-y-6 bg-white p-6 rounded-lg shadow">
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <div className="text-gray-600">{email}</div>
-          </div>
+          <ProfileForm
+            email={email}
+            firstName={firstName}
+            lastName={lastName}
+            position={position}
+            onFirstNameChange={setFirstName}
+            onLastNameChange={setLastName}
+            onPositionChange={setPosition}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="Enter your first name"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Enter your last name"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <Label>Position</Label>
-            <Select value={position || undefined} onValueChange={(value: UserPosition) => setPosition(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select your position" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="activation_executive">Activation Executive</SelectItem>
-                <SelectItem value="activation_manager">Activation Manager</SelectItem>
-                <SelectItem value="activation_director">Activation Director</SelectItem>
-                <SelectItem value="digital_partner">Digital Partner</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-4">
-            <Label>Select Clients</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {["oes", "28bsw", "gmhba", "tgg", "nbn", "abn"].map((client) => (
-                <Button
-                  key={client}
-                  variant={selectedClients.includes(client) ? "default" : "outline"}
-                  onClick={() => handleClientToggle(client)}
-                  className="w-full"
-                >
-                  {client.toUpperCase()}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <ClientSelector
+            selectedClients={selectedClients}
+            onClientToggle={handleClientToggle}
+          />
 
           <Button 
             onClick={handleSave}
