@@ -76,8 +76,8 @@ const Login = () => {
                 input: 'bg-white border-gray-300 text-gray-900',
                 loader: 'text-gray-500',
                 message: 'text-gray-500',
-                socialButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700',
-                socialButtonText: 'text-gray-700 font-medium',
+                socialButtonsBlockButton: 'bg-gray-200 hover:bg-gray-300 text-gray-700',
+                socialButtonsBlockButtonText: 'text-gray-700 font-medium',
               },
             }}
             providers={["google"]}
