@@ -8,38 +8,6 @@ const Insights = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>([
-    "priority",
-    "campaign",
-    "platform",
-    "kpi",
-    "action",
-    "categories",
-    "added_by",
-    "status"
-  ]);
-
-  const columnDefinitions = [
-    { key: "priority", label: "Priority" },
-    { key: "campaign", label: "Campaign" },
-    { key: "platform", label: "Platform" },
-    { key: "kpi", label: "KPI" },
-    { key: "action", label: "Action" },
-    { key: "categories", label: "Categories" },
-    { key: "date", label: "Date" },
-    { key: "added_by", label: "Added By" },
-    { key: "effort", label: "Effort" },
-    { key: "impact", label: "Impact" },
-    { key: "status", label: "Status" },
-  ];
-
-  const handleColumnToggle = (column: string) => {
-    setVisibleColumns((prev) =>
-      prev.includes(column)
-        ? prev.filter((col) => col !== column)
-        : [...prev, column]
-    );
-  };
 
   const clients = ["Client A", "Client B", "Client C", "Client D", "Client E"];
 
@@ -64,9 +32,6 @@ const Insights = () => {
             onCategoryChange={setSelectedCategory}
             onStatusChange={setSelectedStatus}
             clients={clients}
-            visibleColumns={visibleColumns}
-            onColumnToggle={handleColumnToggle}
-            columnDefinitions={columnDefinitions}
           />
           <InsightsCharts />
         </div>
