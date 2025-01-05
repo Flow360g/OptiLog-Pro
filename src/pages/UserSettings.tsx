@@ -73,6 +73,8 @@ export default function UserSettings() {
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
+    
     try {
       setIsSaving(true);
       const { data: { user } } = await supabase.auth.getUser();
@@ -111,19 +113,21 @@ export default function UserSettings() {
 
       // Insert new client associations if any are selected
       if (selectedClients.length > 0) {
-        const { error: insertError } = await supabase
-          .from('user_clients')
-          .insert(
-            selectedClients.map(client => ({
+        // Insert clients one by one to better handle potential errors
+        for (const client of selectedClients) {
+          const { error: insertError } = await supabase
+            .from('user_clients')
+            .insert([{
               user_id: user.id,
               client
-            }))
-          );
+            }]);
 
-        if (insertError) {
-          console.error("Clients insert error:", insertError);
-          toast.error("Failed to save client selections");
-          return;
+          if (insertError) {
+            console.error(`Error inserting client ${client}:`, insertError);
+            toast.error(`Failed to add client ${client}`);
+            // Continue with other clients even if one fails
+            continue;
+          }
         }
       }
 
