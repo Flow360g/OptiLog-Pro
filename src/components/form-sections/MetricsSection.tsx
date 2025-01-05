@@ -7,14 +7,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const levels = ["1", "2", "3", "4", "5"];
+interface MetricsSectionProps {
+  onEffortChange: (value: number) => void;
+  onImpactChange: (value: number) => void;
+}
 
-export function MetricsSection() {
+export function MetricsSection({ onEffortChange, onImpactChange }: MetricsSectionProps) {
+  const levels = ["1", "2", "3", "4", "5"];
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-4">
         <Label htmlFor="effort">Effort Required</Label>
-        <Select>
+        <Select onValueChange={(value) => onEffortChange(Number(value))}>
           <SelectTrigger className="bg-white text-black">
             <SelectValue placeholder="Select effort level" />
           </SelectTrigger>
@@ -30,7 +35,7 @@ export function MetricsSection() {
 
       <div className="space-y-4">
         <Label htmlFor="impact">Expected Impact</Label>
-        <Select>
+        <Select onValueChange={(value) => onImpactChange(Number(value))}>
           <SelectTrigger className="bg-white text-black">
             <SelectValue placeholder="Select impact level" />
           </SelectTrigger>

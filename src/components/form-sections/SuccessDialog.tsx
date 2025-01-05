@@ -10,9 +10,16 @@ import {
 interface SuccessDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreateNew: () => void;
+  onBackToDashboard: () => void;
 }
 
-export function SuccessDialog({ open, onOpenChange }: SuccessDialogProps) {
+export function SuccessDialog({ 
+  open, 
+  onOpenChange,
+  onCreateNew,
+  onBackToDashboard
+}: SuccessDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="bg-white">
@@ -24,12 +31,16 @@ export function SuccessDialog({ open, onOpenChange }: SuccessDialogProps) {
             Your optimisation has been successfully logged and is ready for approval. Your team has been notified.
           </AlertDialogDescription>
           <div className="flex justify-center space-x-4 mt-6">
-            <Button className="gradient-bg">
+            <Button 
+              className="gradient-bg"
+              onClick={onCreateNew}
+            >
               Create New Opti
             </Button>
             <Button 
               variant="outline" 
               className="border-2 border-[#000080] text-[#000080] bg-transparent hover:bg-[#000080] hover:text-white transition-colors"
+              onClick={onBackToDashboard}
             >
               Back to Dashboard
             </Button>

@@ -9,7 +9,12 @@ import {
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-export function ClientSection({ preselectedClient }: { preselectedClient?: string }) {
+interface ClientSectionProps {
+  preselectedClient?: string;
+  onClientChange: (value: string) => void;
+}
+
+export function ClientSection({ preselectedClient, onClientChange }: ClientSectionProps) {
   const location = useLocation();
   const [selectedClient, setSelectedClient] = useState(preselectedClient);
 
@@ -25,14 +30,21 @@ export function ClientSection({ preselectedClient }: { preselectedClient?: strin
       };
       
       const normalizedClient = location.state.preselectedClient.toLowerCase();
-      setSelectedClient(clientMap[normalizedClient] || normalizedClient);
+      const mappedClient = clientMap[normalizedClient] || normalizedClient;
+      setSelectedClient(mappedClient);
+      onClientChange(mappedClient);
     }
-  }, [location.state]);
+  }, [location.state, onClientChange]);
+
+  const handleClientChange = (value: string) => {
+    setSelectedClient(value);
+    onClientChange(value);
+  };
 
   return (
     <div className="space-y-4">
       <Label htmlFor="client">Client</Label>
-      <Select value={selectedClient} onValueChange={setSelectedClient}>
+      <Select value={selectedClient} onValueChange={handleClientChange}>
         <SelectTrigger className="bg-white text-black">
           <SelectValue placeholder="Select client" />
         </SelectTrigger>
