@@ -22,45 +22,27 @@ export function useClientSelection(initialClients: string[] = []) {
 
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
-      try {
-        // First, delete all existing client selections for this user
-        const { error: deleteError } = await supabase
-          .from('user_clients')
-          .delete()
-          .eq('user_id', userId);
+      const { data, error } = await supabase
+        .rpc('update_user_clients', {
+          p_user_id: userId,
+          p_clients: selectedClients
+        })
+        .throwOnError();
 
-        if (deleteError) {
-          console.error('Error deleting existing clients:', deleteError);
-          throw deleteError;
-        }
-
-        // Only proceed with insertion if there are clients to insert
-        if (selectedClients.length > 0) {
-          const { error: insertError } = await supabase
-            .from('user_clients')
-            .insert(
-              selectedClients.map(client => ({
-                user_id: userId,
-                client
-              }))
-            );
-
-          if (insertError) {
-            console.error('Error inserting clients:', insertError);
-            throw insertError;
-          }
-        }
-
-        return selectedClients;
-      } catch (error) {
-        console.error('Error in mutation:', error);
-        toast.error('Failed to update client selections');
+      if (error) {
+        console.error('Error updating user clients:', error);
         throw error;
       }
+
+      return selectedClients;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userClients'] });
       toast.success('Client selections updated successfully');
+    },
+    onError: (error) => {
+      console.error('Error in mutation:', error);
+      toast.error('Failed to update client selections');
     }
   });
 
