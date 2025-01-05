@@ -21,36 +21,20 @@ export function useClientSelection(initialClients: string[] = []) {
 
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Get current client selections
-      const { data: currentSelections } = await supabase
+      // Delete all existing client selections
+      const { error: deleteError } = await supabase
         .from('user_clients')
-        .select('client')
+        .delete()
         .eq('user_id', userId);
 
-      const currentClients = new Set(currentSelections?.map(s => s.client) || []);
-      const newClients = new Set(selectedClients);
+      if (deleteError) throw deleteError;
 
-      // Determine which clients to add and remove
-      const clientsToAdd = selectedClients.filter(client => !currentClients.has(client));
-      const clientsToRemove = Array.from(currentClients).filter(client => !newClients.has(client));
-
-      // Remove unselected clients
-      if (clientsToRemove.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('user_clients')
-          .delete()
-          .eq('user_id', userId)
-          .in('client', clientsToRemove);
-
-        if (deleteError) throw deleteError;
-      }
-
-      // Add newly selected clients
-      if (clientsToAdd.length > 0) {
+      // Only insert if there are selected clients
+      if (selectedClients.length > 0) {
         const { error: insertError } = await supabase
           .from('user_clients')
           .insert(
-            clientsToAdd.map(client => ({
+            selectedClients.map(client => ({
               user_id: userId,
               client
             }))
