@@ -20,23 +20,39 @@ export function useClientSelection(initialClients: string[] = []) {
     try {
       setIsSaving(true);
 
-      // First, delete all existing client associations
-      const { error: deleteError } = await supabase
+      // Get current client selections
+      const { data: currentSelections } = await supabase
         .from('user_clients')
-        .delete()
+        .select('client')
         .eq('user_id', userId);
 
-      if (deleteError) {
-        console.error("Delete clients error:", deleteError);
-        throw new Error("Failed to update client selections");
+      const currentClients = new Set(currentSelections?.map(s => s.client) || []);
+      const newClients = new Set(selectedClients);
+
+      // Determine which clients to add and remove
+      const clientsToAdd = selectedClients.filter(client => !currentClients.has(client));
+      const clientsToRemove = Array.from(currentClients).filter(client => !newClients.has(client));
+
+      // Remove unselected clients
+      if (clientsToRemove.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('user_clients')
+          .delete()
+          .eq('user_id', userId)
+          .in('client', clientsToRemove);
+
+        if (deleteError) {
+          console.error("Delete clients error:", deleteError);
+          throw new Error("Failed to update client selections");
+        }
       }
 
-      // Then, insert the new selections if there are any
-      if (selectedClients.length > 0) {
+      // Add newly selected clients
+      if (clientsToAdd.length > 0) {
         const { error: insertError } = await supabase
           .from('user_clients')
           .insert(
-            selectedClients.map(client => ({
+            clientsToAdd.map(client => ({
               user_id: userId,
               client
             }))
