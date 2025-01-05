@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Optimization } from "@/types/optimization";
-import { QuestionMarkCircledIcon } from "lucide-react";
+import { QuestionMarkCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -55,7 +55,7 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger>
-                        <QuestionMarkCircledIcon className="h-4 w-4 text-gray-500" />
+                        <QuestionMarkCircle className="h-4 w-4 text-gray-500" />
                       </TooltipTrigger>
                       <TooltipContent className="w-64 p-4">
                         <div className="space-y-3">
