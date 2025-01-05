@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useClientSelection(initialClients: string[] = []) {
   const [selectedClients, setSelectedClients] = useState<string[]>(initialClients);
-  const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
 
   const handleClientToggle = (client: string) => {
@@ -16,12 +14,8 @@ export function useClientSelection(initialClients: string[] = []) {
     );
   };
 
-  const saveClientSelections = async (userId: string) => {
-    if (isSaving) return;
-    
-    try {
-      setIsSaving(true);
-
+  const { mutateAsync: saveClientSelections, isLoading: isSaving } = useMutation({
+    mutationFn: async (userId: string) => {
       // Get current client selections
       const { data: currentSelections } = await supabase
         .from('user_clients')
@@ -43,10 +37,7 @@ export function useClientSelection(initialClients: string[] = []) {
           .eq('user_id', userId)
           .in('client', clientsToRemove);
 
-        if (deleteError) {
-          console.error("Delete clients error:", deleteError);
-          throw new Error("Failed to update client selections");
-        }
+        if (deleteError) throw deleteError;
       }
 
       // Add newly selected clients
@@ -60,23 +51,15 @@ export function useClientSelection(initialClients: string[] = []) {
             }))
           );
 
-        if (insertError) {
-          console.error("Clients insert error:", insertError);
-          throw new Error("Failed to save new client selections");
-        }
+        if (insertError) throw insertError;
       }
 
-      // Invalidate the userClients query to trigger a refetch
-      await queryClient.invalidateQueries({ queryKey: ['userClients'] });
-
-      return true;
-    } catch (error) {
-      console.error("Save client selections error:", error);
-      throw error;
-    } finally {
-      setIsSaving(false);
+      return selectedClients;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userClients'] });
     }
-  };
+  });
 
   return {
     selectedClients,

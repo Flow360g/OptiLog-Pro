@@ -40,14 +40,11 @@ export function SettingsForm({ userId, userClients }: SettingsFormProps) {
 
   const handleSave = async () => {
     try {
-      // Save profile data
+      // Save profile data first
       await saveProfileData(userId);
 
-      // Save client selections and wait for it to complete
+      // Save client selections and wait for the mutation to complete
       await saveClientSelections(userId);
-
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({ queryKey: ['userClients'] });
       
       toast.success("Settings updated successfully!");
       navigate("/dashboard");
