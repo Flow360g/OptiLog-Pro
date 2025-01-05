@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useClientSelection(initialClients: string[] = []) {
   const [selectedClients, setSelectedClients] = useState<string[]>(initialClients);
   const queryClient = useQueryClient();
+
+  // Synchronize local state with prop changes
+  useEffect(() => {
+    setSelectedClients(initialClients);
+  }, [initialClients]);
 
   const handleClientToggle = (client: string) => {
     setSelectedClients(prev => 
