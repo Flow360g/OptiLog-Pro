@@ -31,17 +31,26 @@ const Login = () => {
     
     checkUser();
 
-    // Listen for signup events to show additional fields
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN') {
-        navigate("/", { replace: true });
-      } else if (event === 'USER_UPDATED') {
-        setShowAdditionalFields(true);
+      if (event === 'SIGNED_IN' && !showAdditionalFields) {
+        // If user has already completed profile setup, redirect to home
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('position')
+          .single();
+        
+        if (profile?.position) {
+          navigate("/", { replace: true });
+        } else {
+          // Show additional fields if position not set
+          setShowAdditionalFields(true);
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, showAdditionalFields]);
 
   const handleClientToggle = (client: string) => {
     setSelectedClients(prev => 
