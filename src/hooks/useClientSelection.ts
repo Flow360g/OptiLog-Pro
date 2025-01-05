@@ -21,29 +21,37 @@ export function useClientSelection(initialClients: string[] = []) {
 
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Delete all existing client selections
-      const { error: deleteError } = await supabase
-        .from('user_clients')
-        .delete()
-        .eq('user_id', userId);
-
-      if (deleteError) throw deleteError;
-
-      // Only insert if there are selected clients
-      if (selectedClients.length > 0) {
-        const { error: insertError } = await supabase
+      try {
+        // First, delete all existing client selections for this user
+        const { error: deleteError } = await supabase
           .from('user_clients')
-          .insert(
-            selectedClients.map(client => ({
-              user_id: userId,
-              client
-            }))
-          );
+          .delete()
+          .eq('user_id', userId);
 
-        if (insertError) throw insertError;
+        if (deleteError) throw deleteError;
+
+        // Wait a moment to ensure deletion is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Then, insert new selections if there are any
+        if (selectedClients.length > 0) {
+          const { error: insertError } = await supabase
+            .from('user_clients')
+            .insert(
+              selectedClients.map(client => ({
+                user_id: userId,
+                client
+              }))
+            );
+
+          if (insertError) throw insertError;
+        }
+
+        return selectedClients;
+      } catch (error) {
+        console.error('Error in mutation:', error);
+        throw error;
       }
-
-      return selectedClients;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userClients'] });
