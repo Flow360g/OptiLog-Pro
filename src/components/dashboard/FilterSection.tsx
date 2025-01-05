@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Filter } from "lucide-react";
 import { categories } from "@/data/optimizationData";
+import { ColumnSelector } from "./optimization-table/ColumnSelector";
 
 interface FilterSectionProps {
   selectedClient: string | null;
@@ -24,6 +25,9 @@ interface FilterSectionProps {
   onCategoryChange: (value: string | null) => void;
   onStatusChange: (value: string | null) => void;
   clients: string[];
+  visibleColumns: string[];
+  onColumnToggle: (column: string) => void;
+  columnDefinitions: { key: string; label: string; }[];
 }
 
 export function FilterSection({
@@ -36,9 +40,12 @@ export function FilterSection({
   onCategoryChange,
   onStatusChange,
   clients,
+  visibleColumns,
+  onColumnToggle,
+  columnDefinitions,
 }: FilterSectionProps) {
   return (
-    <div className="mb-6">
+    <div className="mb-6 flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="bg-white">
@@ -138,6 +145,12 @@ export function FilterSection({
           </div>
         </PopoverContent>
       </Popover>
+
+      <ColumnSelector
+        columns={columnDefinitions}
+        visibleColumns={visibleColumns}
+        onColumnToggle={onColumnToggle}
+      />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { Optimization } from "@/types/optimization";
 import { TableHeader } from "./optimization-table/TableHeader";
 import { TableRow } from "./optimization-table/TableRow";
 import { useState } from "react";
-import { ColumnSelector } from "./optimization-table/ColumnSelector";
+import { FilterSection } from "./FilterSection";
 
 interface OptimizationTableProps {
   optimizations: Optimization[];
@@ -56,13 +56,20 @@ export function OptimizationTable({ optimizations, onStatusChange }: Optimizatio
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end gap-2">
-        <ColumnSelector
-          columns={columnDefinitions}
-          visibleColumns={visibleColumns}
-          onColumnToggle={handleColumnToggle}
-        />
-      </div>
+      <FilterSection
+        selectedClient={null}
+        selectedPlatform={null}
+        selectedCategory={null}
+        selectedStatus={null}
+        onClientChange={() => {}}
+        onPlatformChange={() => {}}
+        onCategoryChange={() => {}}
+        onStatusChange={() => {}}
+        clients={[]}
+        visibleColumns={visibleColumns}
+        onColumnToggle={handleColumnToggle}
+        columnDefinitions={columnDefinitions}
+      />
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <Table>
