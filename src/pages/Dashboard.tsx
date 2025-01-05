@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ClientSection } from "@/components/dashboard/ClientSection";
 import { OptimizationsByClient } from "@/types/optimization";
 import { useUserClients } from "@/hooks/useUserClients";
+import { useNavigate } from "react-router-dom";
 
 interface OptimizationWithProfile {
   id: string;
@@ -25,6 +26,7 @@ interface OptimizationWithProfile {
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -33,12 +35,41 @@ const Dashboard = () => {
   const { data: userClients = [] } = useUserClients();
 
   useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.error("Session error:", error);
+        navigate("/login");
+        return;
+      }
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  useEffect(() => {
     fetchOptimizations();
   }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus]);
 
   const fetchOptimizations = async () => {
     try {
       if (!userClients.length) return;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
 
       // First, fetch optimizations
       const { data: optimizations, error: optimizationsError } = await supabase
