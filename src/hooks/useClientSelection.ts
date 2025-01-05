@@ -14,7 +14,7 @@ export function useClientSelection(initialClients: string[] = []) {
     );
   };
 
-  const { mutateAsync: saveClientSelections, isLoading: isSaving } = useMutation({
+  const { mutateAsync: saveClientSelections, isPending: isSaving } = useMutation({
     mutationFn: async (userId: string) => {
       // Get current client selections
       const { data: currentSelections } = await supabase
