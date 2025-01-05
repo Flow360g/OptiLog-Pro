@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function useClientSelection(initialClients: string[] = []) {
   const [selectedClients, setSelectedClients] = useState<string[]>(initialClients);
   const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleClientToggle = (client: string) => {
     setSelectedClients(prev => 
@@ -63,6 +65,9 @@ export function useClientSelection(initialClients: string[] = []) {
           throw new Error("Failed to save new client selections");
         }
       }
+
+      // Invalidate the userClients query to trigger a refetch
+      await queryClient.invalidateQueries({ queryKey: ['userClients'] });
 
       return true;
     } catch (error) {

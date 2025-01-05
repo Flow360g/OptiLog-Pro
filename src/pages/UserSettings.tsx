@@ -9,6 +9,7 @@ import { ProfileForm } from "@/components/settings/ProfileForm";
 import { ClientSelector } from "@/components/settings/ClientSelector";
 import { useClientSelection } from "@/hooks/useClientSelection";
 import { useSessionContext } from '@supabase/auth-helpers-react';
+import { useQueryClient } from "@tanstack/react-query";
 
 type UserPosition = Database['public']['Enums']['user_position'];
 
@@ -21,6 +22,7 @@ export default function UserSettings() {
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
   
   const { 
     selectedClients, 
@@ -107,6 +109,9 @@ export default function UserSettings() {
 
       // Save client selections
       await saveClientSelections(session.user.id);
+
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({ queryKey: ['userClients'] });
 
       toast.success("Settings updated successfully!");
       navigate("/dashboard");
