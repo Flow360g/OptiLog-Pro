@@ -32,7 +32,7 @@ const Dashboard = () => {
     handleColumnToggle
   } = useDashboardState();
 
-  useDashboardData(
+  const { fetchOptimizations } = useDashboardData(
     userClients,
     selectedClient,
     selectedPlatform,
@@ -65,17 +65,16 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      // Refresh the data
-      const { fetchOptimizations } = useDashboardData(
-        userClients,
-        selectedClient,
-        selectedPlatform,
-        selectedCategory,
-        selectedStatus,
-        session,
-        setOptimizationsByClient
-      );
+      // Refresh the data after successful update
       fetchOptimizations();
+
+      if (newStatus === 'Completed') {
+        toast({
+          title: "Success!",
+          description: "Optimization marked as completed",
+          variant: "default",
+        });
+      }
     } catch (error) {
       console.error('Error updating optimization status:', error);
       toast({
