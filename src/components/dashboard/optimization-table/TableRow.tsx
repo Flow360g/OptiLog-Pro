@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Facebook, Globe } from "lucide-react";
+import { PlatformIcon } from "./PlatformIcon";
 
 interface TableRowProps {
   optimization: Optimization;
@@ -27,24 +27,13 @@ export function TableRow({ optimization: opt, index, onStatusChange }: TableRowP
     }
   };
 
-  const getPlatformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'facebook':
-        return <Facebook className="w-5 h-5 text-[#1877F2]" />;
-      case 'google':
-        return <Globe className="w-5 h-5 text-[#4285F4]" />;
-      default:
-        return <Globe className="w-5 h-5 text-gray-500" />;
-    }
-  };
-
   return (
     <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
       <td className="p-4 text-gray-700 font-medium">{index + 1}</td>
       <td className="p-4 text-gray-700">{opt.campaign_name}</td>
       <td className="p-4">
         <div className="flex items-center gap-2">
-          {getPlatformIcon(opt.platform)}
+          <PlatformIcon platform={opt.platform} />
           <span className="text-gray-700">{opt.platform}</span>
         </div>
       </td>
