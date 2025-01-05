@@ -95,7 +95,7 @@ export default function UserSettings() {
         return;
       }
 
-      // Delete existing client associations
+      // First, delete all existing client associations
       const { error: deleteError } = await supabase
         .from('user_clients')
         .delete()
@@ -107,19 +107,19 @@ export default function UserSettings() {
         return;
       }
 
-      // Insert new client associations
+      // Then insert new client associations if any are selected
       if (selectedClients.length > 0) {
-        const { error: clientsError } = await supabase
-          .from('user_clients')
-          .insert(
-            selectedClients.map(client => ({
-              user_id: user.id,
-              client
-            }))
-          );
+        const clientsToInsert = selectedClients.map(client => ({
+          user_id: user.id,
+          client
+        }));
 
-        if (clientsError) {
-          console.error("Clients insert error:", clientsError);
+        const { error: insertError } = await supabase
+          .from('user_clients')
+          .insert(clientsToInsert);
+
+        if (insertError) {
+          console.error("Clients insert error:", insertError);
           toast.error("Failed to save client selections");
           return;
         }
