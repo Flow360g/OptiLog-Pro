@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
@@ -64,14 +64,6 @@ export default function UserSettings() {
     loadUserData();
   }, [navigate]);
 
-  const handleClientToggle = (client: string) => {
-    setSelectedClients(prev => 
-      prev.includes(client) 
-        ? prev.filter(c => c !== client)
-        : [...prev, client]
-    );
-  };
-
   const handleSave = async () => {
     if (isSaving) return;
     
@@ -99,35 +91,46 @@ export default function UserSettings() {
         return;
       }
 
-      // Delete existing client associations
-      const { error: deleteError } = await supabase
+      // Get current client associations
+      const { data: existingClients } = await supabase
         .from('user_clients')
-        .delete()
+        .select('client')
         .eq('user_id', user.id);
 
-      if (deleteError) {
-        console.error("Delete clients error:", deleteError);
-        toast.error("Failed to update client selections");
-        return;
+      const currentClients = new Set(existingClients?.map(ec => ec.client) || []);
+      const newClients = selectedClients.filter(client => !currentClients.has(client));
+      const clientsToRemove = Array.from(currentClients).filter(client => !selectedClients.includes(client as string));
+
+      // Remove unselected clients
+      if (clientsToRemove.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('user_clients')
+          .delete()
+          .eq('user_id', user.id)
+          .in('client', clientsToRemove);
+
+        if (deleteError) {
+          console.error("Delete clients error:", deleteError);
+          toast.error("Failed to update client selections");
+          return;
+        }
       }
 
-      // Insert new client associations if any are selected
-      if (selectedClients.length > 0) {
-        // Insert clients one by one to better handle potential errors
-        for (const client of selectedClients) {
-          const { error: insertError } = await supabase
-            .from('user_clients')
-            .insert([{
+      // Insert only new client associations
+      if (newClients.length > 0) {
+        const { error: insertError } = await supabase
+          .from('user_clients')
+          .insert(
+            newClients.map(client => ({
               user_id: user.id,
               client
-            }]);
+            }))
+          );
 
-          if (insertError) {
-            console.error(`Error inserting client ${client}:`, insertError);
-            toast.error(`Failed to add client ${client}`);
-            // Continue with other clients even if one fails
-            continue;
-          }
+        if (insertError) {
+          console.error("Clients insert error:", insertError);
+          toast.error("Failed to save new client selections");
+          return;
         }
       }
 
