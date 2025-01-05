@@ -56,7 +56,7 @@ const Login = () => {
                   colors: {
                     brand: 'transparent',
                     brandAccent: 'transparent',
-                    buttonText: 'white',
+                    brandButtonText: 'white',
                     inputText: 'white',
                   },
                   borderWidths: {
