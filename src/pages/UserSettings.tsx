@@ -23,7 +23,7 @@ export default function UserSettings() {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
-  const [position, setPosition] = useState<UserPosition | ''>('');
+  const [position, setPosition] = useState<UserPosition | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function UserSettings() {
           .single();
 
         if (profile) {
-          setPosition(profile.position || '');
+          setPosition(profile.position || null);
           setFirstName(profile.first_name || '');
           setLastName(profile.last_name || '');
         }
@@ -183,7 +183,7 @@ export default function UserSettings() {
 
           <div className="space-y-4">
             <Label>Position</Label>
-            <Select value={position} onValueChange={(value: UserPosition) => setPosition(value)}>
+            <Select value={position || undefined} onValueChange={(value: UserPosition) => setPosition(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your position" />
               </SelectTrigger>
