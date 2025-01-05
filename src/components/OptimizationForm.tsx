@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { categories, kpisByPlatform, optimizationSuggestions } from "@/data/optimizationData";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 export function OptimizationForm({ preselectedClient }: { preselectedClient?: string }) {
   const { toast } = useToast();
@@ -92,15 +93,27 @@ export function OptimizationForm({ preselectedClient }: { preselectedClient?: st
           description: "You must be logged in to submit an optimization",
           variant: "destructive",
         });
+        navigate('/login');
         return;
       }
+
+      if (!selectedDate) {
+        toast({
+          title: "Error",
+          description: "Please select a date for the optimization",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
 
       const { error } = await supabase.from('optimizations').insert({
         user_id: user.id,
         client,
         platform,
         campaign_name: campaignName,
-        optimization_date: selectedDate,
+        optimization_date: formattedDate,
         kpi: selectedKPI,
         hypothesis,
         recommended_action: recommendedAction,
