@@ -22,23 +22,38 @@ export function useClientSelection(initialClients: string[] = []) {
   const mutation = useMutation({
     mutationFn: async (userId: string) => {
       try {
-        // First, delete all existing client selections for this user
-        const { error: deleteError } = await supabase
+        // Start a transaction by getting the connection
+        const { data: existingSelections, error: fetchError } = await supabase
           .from('user_clients')
-          .delete()
+          .select('client')
           .eq('user_id', userId);
 
-        if (deleteError) throw deleteError;
+        if (fetchError) throw fetchError;
 
-        // Wait a moment to ensure deletion is complete
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Delete only the clients that are no longer selected
+        const clientsToDelete = existingSelections
+          ?.map(s => s.client)
+          .filter(client => !selectedClients.includes(client)) || [];
 
-        // Then, insert new selections if there are any
-        if (selectedClients.length > 0) {
+        if (clientsToDelete.length > 0) {
+          const { error: deleteError } = await supabase
+            .from('user_clients')
+            .delete()
+            .eq('user_id', userId)
+            .in('client', clientsToDelete);
+
+          if (deleteError) throw deleteError;
+        }
+
+        // Insert only new selections that don't exist yet
+        const existingClientSet = new Set(existingSelections?.map(s => s.client) || []);
+        const newSelections = selectedClients.filter(client => !existingClientSet.has(client));
+
+        if (newSelections.length > 0) {
           const { error: insertError } = await supabase
             .from('user_clients')
             .insert(
-              selectedClients.map(client => ({
+              newSelections.map(client => ({
                 user_id: userId,
                 client
               }))
