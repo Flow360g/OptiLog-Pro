@@ -29,11 +29,11 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
         <TooltipTrigger>
           <HelpCircle className="h-4 w-4 text-gray-500" />
         </TooltipTrigger>
-        <TooltipContent className="w-80 p-4">
+        <TooltipContent className="w-[400px] p-4">
           <div className="space-y-3">
             <div className="border rounded p-3 bg-gray-50">
               <div className="text-center mb-2 font-semibold">Effort vs. Impact Matrix</div>
-              <div className="relative h-48 border-b border-l">
+              <div className="relative h-56 border-b border-l mb-8">
                 {/* Y-axis label */}
                 <div className="absolute -left-8 top-1/2 -translate-y-1/2 transform -rotate-90 text-xs">
                   Impact
@@ -45,9 +45,9 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
                 {/* Plot points */}
                 {sortedOptimizations.map((opt, index) => {
                   // Calculate position (normalize to 0-100%)
-                  // Adjust the x calculation to start slightly out from Y axis
-                  const x = ((opt.effort_level - 1) * 20) + 5; // 5% offset from Y axis
-                  const y = (opt.impact_level - 1) * 20; // 5 levels = 20% each
+                  // Each level represents 20% of the space (5 levels total)
+                  const x = ((opt.effort_level - 1) * 20) + 20; // 20% offset from Y axis for level 1
+                  const y = ((opt.impact_level - 1) * 20) + 20; // 20% offset for level 1
                   
                   return (
                     <div
