@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Filter } from "lucide-react";
+import { Filter, Settings2, Download } from "lucide-react";
 import { categories } from "@/data/optimizationData";
 import { ColumnSelector } from "./optimization-table/ColumnSelector";
 
@@ -28,6 +28,7 @@ interface FilterSectionProps {
   visibleColumns?: string[];
   onColumnToggle?: (column: string) => void;
   columnDefinitions?: { key: string; label: string; }[];
+  onDownload?: () => void;
 }
 
 export function FilterSection({
@@ -43,14 +44,15 @@ export function FilterSection({
   visibleColumns,
   onColumnToggle,
   columnDefinitions,
+  onDownload,
 }: FilterSectionProps) {
   return (
     <div className="mb-6 flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="bg-white">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
+            <Filter className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Filters</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-4">
@@ -148,11 +150,21 @@ export function FilterSection({
       </Popover>
 
       {columnDefinitions && visibleColumns && onColumnToggle && (
-        <ColumnSelector
-          columns={columnDefinitions}
-          visibleColumns={visibleColumns}
-          onColumnToggle={onColumnToggle}
-        />
+        <Button variant="outline" className="bg-white" onClick={() => onColumnToggle}>
+          <Settings2 className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Customise Columns</span>
+        </Button>
+      )}
+
+      {onDownload && (
+        <Button
+          onClick={onDownload}
+          variant="outline"
+          className="bg-white ml-auto"
+        >
+          <Download className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Download CSV</span>
+        </Button>
       )}
     </div>
   );
