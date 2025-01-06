@@ -7,28 +7,26 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // First clear any existing session to prevent token conflicts
-    const clearSession = async () => {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error clearing session:", error);
-      }
-    };
-
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session check error:", error);
+          // Only clear session if there's an error
+          await supabase.auth.signOut();
+          return;
+        }
+        
         if (session?.user) {
           navigate("/dashboard");
         }
       } catch (error) {
         console.error("Session check error:", error);
-        // If there's an error, we'll clear the session
-        await clearSession();
+        await supabase.auth.signOut();
       }
     };
 
-    clearSession().then(() => checkSession());
+    checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
