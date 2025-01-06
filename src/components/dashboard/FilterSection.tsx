@@ -160,7 +160,7 @@ export function FilterSection({
         <Button
           onClick={onDownload}
           variant="outline"
-          className="bg-white ml-auto"
+          className="bg-white"
         >
           <Download className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Download CSV</span>
