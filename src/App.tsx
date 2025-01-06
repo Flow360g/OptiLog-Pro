@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
@@ -60,11 +60,11 @@ const queryClient = new QueryClient();
 // Wrapper component to include TitleUpdater
 function AppContent() {
   return (
-    <>
+    <Router>
       <RouterProvider router={router} />
       <TitleUpdater />
       <Toaster />
-    </>
+    </Router>
   );
 }
 
