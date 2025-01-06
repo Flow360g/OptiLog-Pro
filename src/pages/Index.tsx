@@ -9,24 +9,28 @@ const Index = () => {
 
   useEffect(() => {
     const checkFirstTimeUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, position, has_seen_welcome')
-          .eq('id', user.id)
-          .single();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, position, has_seen_welcome')
+            .eq('id', user.id)
+            .single();
 
-        // Show dialog if required fields are empty and user hasn't seen the welcome dialog
-        if ((!profile?.first_name || !profile?.last_name || !profile?.position) && !profile?.has_seen_welcome) {
-          setShowWelcomeDialog(true);
+          // Only show dialog if required fields are empty AND user hasn't seen the welcome dialog
+          if (profile && (!profile.first_name || !profile.last_name || !profile.position) && !profile.has_seen_welcome) {
+            setShowWelcomeDialog(true);
+          }
         }
+      } catch (error) {
+        console.error("Error checking user profile:", error);
       }
     };
 
     checkFirstTimeUser();
-  }, []);
+  }, []); // Only run once when component mounts
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">

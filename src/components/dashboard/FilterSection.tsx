@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/popover";
 import { FilterButtons } from "./filter-section/FilterButtons";
 import { FilterContent } from "./filter-section/FilterContent";
+import { ColumnSelector } from "./optimization-table/ColumnSelector";
 
 interface FilterSectionProps {
   selectedClient: string | null;
@@ -39,29 +40,50 @@ export function FilterSection({
 }: FilterSectionProps) {
   return (
     <div className="flex items-center gap-2">
-      <Popover>
-        <PopoverTrigger asChild>
-          <FilterButtons
-            onDownload={onDownload}
+      <div className="flex items-center gap-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <FilterButtons
+              onDownload={onDownload}
+              visibleColumns={visibleColumns}
+              onColumnToggle={onColumnToggle}
+              columnDefinitions={columnDefinitions}
+            />
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-4">
+            <FilterContent
+              selectedClient={selectedClient}
+              selectedPlatform={selectedPlatform}
+              selectedCategory={selectedCategory}
+              selectedStatus={selectedStatus}
+              onClientChange={onClientChange}
+              onPlatformChange={onPlatformChange}
+              onCategoryChange={onCategoryChange}
+              onStatusChange={onStatusChange}
+              clients={clients}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {columnDefinitions && visibleColumns && onColumnToggle && (
+          <ColumnSelector
+            columns={columnDefinitions}
             visibleColumns={visibleColumns}
             onColumnToggle={onColumnToggle}
-            columnDefinitions={columnDefinitions}
           />
-        </PopoverTrigger>
-        <PopoverContent className="w-80 p-4">
-          <FilterContent
-            selectedClient={selectedClient}
-            selectedPlatform={selectedPlatform}
-            selectedCategory={selectedCategory}
-            selectedStatus={selectedStatus}
-            onClientChange={onClientChange}
-            onPlatformChange={onPlatformChange}
-            onCategoryChange={onCategoryChange}
-            onStatusChange={onStatusChange}
-            clients={clients}
-          />
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
+
+      {onDownload && (
+        <Button
+          onClick={onDownload}
+          variant="outline"
+          className="bg-white ml-auto"
+        >
+          <Download className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Download CSV</span>
+        </Button>
+      )}
     </div>
   );
 }
