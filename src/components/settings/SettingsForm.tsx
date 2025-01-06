@@ -134,7 +134,6 @@ export function SettingsForm({ userId, userClients }: SettingsFormProps) {
       </Button>
 
       <div className="pt-6 border-t">
-        <h3 className="text-lg font-semibold text-red-600 mb-4">Danger Zone</h3>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" className="w-full">
