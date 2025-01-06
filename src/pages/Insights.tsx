@@ -22,17 +22,19 @@ const Insights = () => {
           <p className="text-lg text-gray-600 mb-8 text-center">
             Analytics and visualization of your optimization data
           </p>
-          <FilterSection
-            selectedClient={selectedClient}
-            selectedPlatform={selectedPlatform}
-            selectedCategory={selectedCategory}
-            selectedStatus={selectedStatus}
-            onClientChange={setSelectedClient}
-            onPlatformChange={setSelectedPlatform}
-            onCategoryChange={setSelectedCategory}
-            onStatusChange={setSelectedStatus}
-            clients={clients}
-          />
+          <div className="mb-8">
+            <FilterSection
+              selectedClient={selectedClient}
+              selectedPlatform={selectedPlatform}
+              selectedCategory={selectedCategory}
+              selectedStatus={selectedStatus}
+              onClientChange={setSelectedClient}
+              onPlatformChange={setSelectedPlatform}
+              onCategoryChange={setSelectedCategory}
+              onStatusChange={setSelectedStatus}
+              clients={clients}
+            />
+          </div>
           <InsightsCharts />
         </div>
       </div>

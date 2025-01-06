@@ -15,29 +15,31 @@ export function FilterButtons({
   columnDefinitions,
 }: FilterButtonsProps) {
   return (
-    <>
-      <Button variant="outline" className="bg-white">
-        <Filter className="h-4 w-4 md:mr-2" />
-        <span className="hidden md:inline">Filters</span>
-      </Button>
-
-      {columnDefinitions && visibleColumns && onColumnToggle && (
+    <div className="flex items-center gap-2 w-full">
+      <div className="flex items-center gap-2">
         <Button variant="outline" className="bg-white">
-          <Settings2 className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Customise Columns</span>
+          <Filter className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Filters</span>
         </Button>
-      )}
+
+        {columnDefinitions && visibleColumns && onColumnToggle && (
+          <Button variant="outline" className="bg-white">
+            <Settings2 className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Customise Columns</span>
+          </Button>
+        )}
+      </div>
 
       {onDownload && (
         <Button
           onClick={onDownload}
           variant="outline"
-          className="bg-white"
+          className="bg-white ml-auto"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Download CSV</span>
         </Button>
       )}
-    </>
+    </div>
   );
 }
