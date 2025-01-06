@@ -15,7 +15,7 @@ export function FilterButtons({
   columnDefinitions,
 }: FilterButtonsProps) {
   return (
-    <div className="flex justify-between w-full">
+    <div className="flex items-center gap-2 w-full">
       <div className="flex items-center gap-2">
         <Button variant="outline" className="bg-white">
           <Filter className="h-4 w-4 md:mr-2" />
@@ -34,7 +34,7 @@ export function FilterButtons({
         <Button
           onClick={onDownload}
           variant="outline"
-          className="bg-white"
+          className="bg-white ml-auto"
         >
           <Download className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Download CSV</span>
