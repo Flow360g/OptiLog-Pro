@@ -43,9 +43,9 @@ export function FilterSection({
     <div className="flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
+          <Button variant="outline" className="bg-white">
+            <Filter className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Filters</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-4">
@@ -64,39 +64,22 @@ export function FilterSection({
       </Popover>
 
       {columnDefinitions && visibleColumns && onColumnToggle && (
-        <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => {
-          const dropdownTrigger = document.querySelector('[data-column-selector-trigger]');
-          if (dropdownTrigger instanceof HTMLElement) {
-            dropdownTrigger.click();
-          }
-        }}>
-          <Settings2 className="h-4 w-4" />
-          <span>Customise Columns</span>
-        </Button>
+        <ColumnSelector
+          columns={columnDefinitions}
+          visibleColumns={visibleColumns}
+          onColumnToggle={onColumnToggle}
+        />
       )}
 
       {onDownload && (
         <Button
           onClick={onDownload}
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2"
+          variant="outline"
+          className="bg-white"
         >
-          <Download className="h-4 w-4" />
-          <span>Download CSV</span>
+          <Download className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Download CSV</span>
         </Button>
-      )}
-
-      {/* Hidden ColumnSelector that's controlled by the Customise Columns button */}
-      {columnDefinitions && visibleColumns && onColumnToggle && (
-        <div className="hidden">
-          <ColumnSelector
-            columns={columnDefinitions}
-            visibleColumns={visibleColumns}
-            onColumnToggle={onColumnToggle}
-            triggerProps={{ "data-column-selector-trigger": true }}
-          />
-        </div>
       )}
     </div>
   );

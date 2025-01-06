@@ -16,16 +16,15 @@ interface ColumnSelectorProps {
   columns: Column[];
   visibleColumns: string[];
   onColumnToggle: (column: string) => void;
-  triggerProps?: Record<string, any>;
 }
 
-export function ColumnSelector({ columns, visibleColumns, onColumnToggle, triggerProps }: ColumnSelectorProps) {
+export function ColumnSelector({ columns, visibleColumns, onColumnToggle }: ColumnSelectorProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" {...triggerProps}>
-          <Settings2 className="h-4 w-4 mr-2" />
-          Customise Columns
+        <Button variant="outline" className="bg-white">
+          <Settings2 className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Customise Columns</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
