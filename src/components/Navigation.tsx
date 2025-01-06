@@ -84,7 +84,7 @@ export function Navigation() {
       </Link>
     </>
   );
-  
+
   return (
     <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -102,11 +102,11 @@ export function Navigation() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-1 md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="mr-2">
-                <Menu className="h-[1.75rem] w-[1.75rem]" />
+              <Button variant="ghost" size="icon">
+                <Menu className="h-[2.1rem] w-[2.1rem]" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -119,10 +119,10 @@ export function Navigation() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button 
-                className="p-2 rounded-full gradient-bg"
+                className="p-1.5 rounded-full gradient-bg"
                 aria-label="User menu"
               >
-                <User className="w-[1.125rem] h-[1.125rem] md:w-6 md:h-6 text-white" />
+                <User className="w-[0.85rem] h-[0.85rem] md:w-6 md:h-6 text-white" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
