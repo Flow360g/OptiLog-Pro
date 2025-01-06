@@ -6,6 +6,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 interface DateSectionProps {
   selectedDate: Date | undefined;
@@ -14,6 +15,15 @@ interface DateSectionProps {
 
 export function DateSection({ selectedDate, onDateChange }: DateSectionProps) {
   const timeZone = 'Australia/Sydney';
+
+  useEffect(() => {
+    // Set today's date as default when component mounts and no date is selected
+    if (!selectedDate) {
+      const today = new Date();
+      const sydneyDate = fromZonedTime(today, timeZone);
+      onDateChange(sydneyDate);
+    }
+  }, [selectedDate, onDateChange]);
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
