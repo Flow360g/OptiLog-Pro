@@ -47,7 +47,7 @@ export function FilterSection({
   onDownload,
 }: FilterSectionProps) {
   return (
-    <div className="mb-6 flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="bg-white">
@@ -162,7 +162,7 @@ export function FilterSection({
           variant="outline"
           className="bg-white"
         >
-          <Download className="h-4 w-4 md:mr-2" />
+          <Download className="h-4 w-4" />
           <span className="hidden md:inline">Download CSV</span>
         </Button>
       )}

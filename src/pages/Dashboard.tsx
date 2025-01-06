@@ -155,31 +155,22 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <DashboardHeader />
 
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex-1">
-            <FilterSection
-              selectedClient={selectedClient}
-              selectedPlatform={selectedPlatform}
-              selectedCategory={selectedCategory}
-              selectedStatus={selectedStatus}
-              onClientChange={setSelectedClient}
-              onPlatformChange={setSelectedPlatform}
-              onCategoryChange={setSelectedCategory}
-              onStatusChange={setSelectedStatus}
-              clients={userClients}
-              visibleColumns={visibleColumns}
-              onColumnToggle={handleColumnToggle}
-              columnDefinitions={columnDefinitions}
-            />
-          </div>
-          <Button
-            onClick={handleDownload}
-            className="ml-4"
-            variant="outline"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download CSV
-          </Button>
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <FilterSection
+            selectedClient={selectedClient}
+            selectedPlatform={selectedPlatform}
+            selectedCategory={selectedCategory}
+            selectedStatus={selectedStatus}
+            onClientChange={setSelectedClient}
+            onPlatformChange={setSelectedPlatform}
+            onCategoryChange={setSelectedCategory}
+            onStatusChange={setSelectedStatus}
+            clients={userClients}
+            visibleColumns={visibleColumns}
+            onColumnToggle={handleColumnToggle}
+            columnDefinitions={columnDefinitions}
+            onDownload={handleDownload}
+          />
         </div>
 
         {Object.entries(optimizationsByClient).map(([client, optimizations]) => (
