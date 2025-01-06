@@ -150,7 +150,7 @@ export function FilterSection({
       </Popover>
 
       {columnDefinitions && visibleColumns && onColumnToggle && (
-        <Button variant="outline" className="bg-white" onClick={() => onColumnToggle}>
+        <Button variant="outline" className="bg-white">
           <Settings2 className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Customise Columns</span>
         </Button>

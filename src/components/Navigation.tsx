@@ -102,11 +102,11 @@ export function Navigation() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
+              <Button variant="ghost" size="icon" className="mr-2">
+                <Menu className="h-[1.75rem] w-[1.75rem]" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
@@ -115,9 +115,36 @@ export function Navigation() {
               </div>
             </SheetContent>
           </Sheet>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button 
+                className="p-2 rounded-full gradient-bg"
+                aria-label="User menu"
+              >
+                <User className="w-[1.125rem] h-[1.125rem] md:w-6 md:h-6 text-white" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {userEmail && (
+                <DropdownMenuItem className="text-sm text-gray-500">
+                  {userEmail}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <Settings className="mr-2 h-4 w-4" />
+                User Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        
-        <div className="flex items-center gap-2">
+
+        {/* Desktop User Menu */}
+        <div className="hidden md:flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button 
