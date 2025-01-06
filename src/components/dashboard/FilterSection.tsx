@@ -3,6 +3,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import { FilterButtons } from "./filter-section/FilterButtons";
 import { FilterContent } from "./filter-section/FilterContent";
 import { ColumnSelector } from "./optimization-table/ColumnSelector";
