@@ -14,12 +14,12 @@ const Index = () => {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('first_name, last_name, position')
+          .select('first_name, last_name, position, has_seen_welcome')
           .eq('id', user.id)
           .single();
 
-        // Show dialog if any of these fields are empty
-        if (!profile?.first_name || !profile?.last_name || !profile?.position) {
+        // Show dialog if required fields are empty and user hasn't seen the welcome dialog
+        if ((!profile?.first_name || !profile?.last_name || !profile?.position) && !profile?.has_seen_welcome) {
           setShowWelcomeDialog(true);
         }
       }
