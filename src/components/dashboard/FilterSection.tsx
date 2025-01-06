@@ -45,12 +45,14 @@ export function FilterSection({
       <div className="flex items-center gap-2">
         <Popover>
           <PopoverTrigger asChild>
-            <FilterButtons
-              onDownload={onDownload}
-              visibleColumns={visibleColumns}
-              onColumnToggle={onColumnToggle}
-              columnDefinitions={columnDefinitions}
-            />
+            <Button variant="outline" className="bg-white">
+              <FilterButtons
+                onDownload={onDownload}
+                visibleColumns={visibleColumns}
+                onColumnToggle={onColumnToggle}
+                columnDefinitions={columnDefinitions}
+              />
+            </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4">
             <FilterContent
