@@ -1,4 +1,3 @@
-import { BrowserRouter as Router } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
@@ -31,40 +30,50 @@ function TitleUpdater() {
   return null;
 }
 
+// Create a wrapper component for each route that includes TitleUpdater
+const withTitleUpdate = (Component: React.ComponentType) => {
+  return function WithTitleUpdate() {
+    return (
+      <>
+        <TitleUpdater />
+        <Component />
+      </>
+    );
+  };
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />,
+    element: withTitleUpdate(Index)(),
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: withTitleUpdate(Dashboard)(),
   },
   {
     path: "/login",
-    element: <Login />,
+    element: withTitleUpdate(Login)(),
   },
   {
     path: "/settings",
-    element: <UserSettings />,
+    element: withTitleUpdate(UserSettings)(),
   },
   {
     path: "/insights",
-    element: <Insights />,
+    element: withTitleUpdate(Insights)(),
   },
 ]);
 
 // Create a client
 const queryClient = new QueryClient();
 
-// Wrapper component to include TitleUpdater
 function AppContent() {
   return (
-    <Router>
+    <>
       <RouterProvider router={router} />
-      <TitleUpdater />
       <Toaster />
-    </Router>
+    </>
   );
 }
 
