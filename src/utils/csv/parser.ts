@@ -58,15 +58,18 @@ function parseNumericValue(value: string): number {
 function identifyMetricType(header: string): string | null {
   const cleanHeader = header.toLowerCase().trim();
   
-  if (cleanHeader.includes('cost per result') || cleanHeader.includes('cost_per_result')) return 'cost_per_result';
-  if (cleanHeader.includes('conversion rate') || cleanHeader.includes('website purchase')) return 'conversion_rate';
-  if (cleanHeader.includes('cost per outbound click') || cleanHeader.includes('cost per click')) return 'cpc';
-  if (cleanHeader.includes('outbound ctr') || cleanHeader.includes('click-through')) return 'ctr';
-  if (cleanHeader.includes('cpm') || cleanHeader.includes('cost per 1,000')) return 'cpm';
-  if (cleanHeader.includes('amount spent') || cleanHeader.includes('spend')) return 'spend';
-  if (cleanHeader.includes('impressions')) return 'impressions';
-  if (cleanHeader.includes('link clicks') || cleanHeader.includes('clicks')) return 'clicks';
-  if (cleanHeader.includes('results') || cleanHeader.includes('conversions')) return 'conversions';
+  // Remove date ranges and parentheses for cleaner matching
+  const strippedHeader = cleanHeader.replace(/\([^)]*\)/g, '').trim();
+  
+  if (strippedHeader.includes('cost per purchase') || strippedHeader.includes('cost per result')) return 'cost_per_result';
+  if (strippedHeader.includes('website purchase') || strippedHeader.includes('conversion rate')) return 'conversion_rate';
+  if (strippedHeader.includes('cost per outbound click') || strippedHeader.includes('cost per click')) return 'cpc';
+  if (strippedHeader.includes('outbound ctr') || strippedHeader.includes('click-through rate')) return 'ctr';
+  if (strippedHeader.includes('cpm') || strippedHeader.includes('cost per 1,000')) return 'cpm';
+  if (strippedHeader.includes('amount spent') || strippedHeader.includes('spend')) return 'spend';
+  if (strippedHeader.includes('impressions')) return 'impressions';
+  if (strippedHeader.includes('link clicks') || strippedHeader.includes('clicks')) return 'clicks';
+  if (strippedHeader.includes('results') || strippedHeader.includes('purchases')) return 'conversions';
   
   return null;
 }
