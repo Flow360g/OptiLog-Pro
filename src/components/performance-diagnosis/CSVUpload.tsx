@@ -31,13 +31,13 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
     setIsUploading(true);
 
     try {
-      const user = await supabase.auth.getUser();
-      if (!user.data.user) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         throw new Error("User not authenticated");
       }
 
       // Create a folder for the user's files
-      const folderPath = `${user.data.user.id}/${crypto.randomUUID()}`;
+      const folderPath = `${user.id}/${crypto.randomUUID()}`;
       const fileName = `${folderPath}/${file.name}`;
 
       // Upload to Supabase Storage
@@ -66,10 +66,11 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
         ]
       };
 
-      // Store analysis results
+      // Store analysis results with user_id
       const { error: analysisError } = await supabase
         .from('csv_analysis')
         .insert({
+          user_id: user.id,
           file_name: file.name,
           metrics_analysis: mockAnalysis.metrics,
           recommendations: mockAnalysis.recommendations
