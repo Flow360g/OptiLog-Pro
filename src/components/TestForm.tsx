@@ -20,7 +20,7 @@ import {
 import { MetricsSection } from "./form-sections/MetricsSection";
 
 export type TestPlatform = "facebook" | "google" | "tiktok";
-export type TestType = "Creative Test" | "Audience Test" | "Bid Strategy Test";
+export type TestCategory = "Creative Test" | "Audience Test" | "Bid Strategy Test";
 
 export function TestForm() {
   const { toast } = useToast();
@@ -32,7 +32,9 @@ export function TestForm() {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [client, setClient] = useState("");
-  const [testType, setTestType] = useState<TestType>();
+  const [testCategory, setTestCategory] = useState<TestCategory>();
+  const [testType, setTestType] = useState<string>();
+  const [testKPI, setTestKPI] = useState<string>("");
   const [effortLevel, setEffortLevel] = useState<number>(0);
   const [impactLevel, setImpactLevel] = useState<number>(0);
 
@@ -53,10 +55,10 @@ export function TestForm() {
         return;
       }
 
-      if (!platform || !testType) {
+      if (!platform || !testCategory || !testType) {
         toast({
           title: "Error",
-          description: "Please select both a platform and test type",
+          description: "Please select a platform, test category, and test type",
           variant: "destructive",
         });
         return;
@@ -90,6 +92,7 @@ export function TestForm() {
         effort_level: effortLevel,
         impact_level: impactLevel,
         user_id: user.id,
+        kpi: testKPI,
       });
 
       if (error) {
@@ -142,15 +145,44 @@ export function TestForm() {
         </div>
 
         <div className="space-y-4">
-          <Label htmlFor="testType">Test Type</Label>
-          <Select value={testType} onValueChange={(value: TestType) => setTestType(value)}>
+          <Label htmlFor="testCategory">Test Category</Label>
+          <Select value={testCategory} onValueChange={(value: TestCategory) => setTestCategory(value)}>
             <SelectTrigger className="bg-white text-black">
-              <SelectValue placeholder="Select test type" />
+              <SelectValue placeholder="Select test category" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Creative Test">Creative Test</SelectItem>
               <SelectItem value="Audience Test">Audience Test</SelectItem>
               <SelectItem value="Bid Strategy Test">Bid Strategy Test</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-4">
+          <Label htmlFor="testType">Test Type</Label>
+          <Select value={testType} onValueChange={setTestType}>
+            <SelectTrigger className="bg-white text-black">
+              <SelectValue placeholder="Select test type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Image Test">Image Test</SelectItem>
+              <SelectItem value="Video Test">Video Test</SelectItem>
+              <SelectItem value="Copy Test">Copy Test</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-4">
+          <Label htmlFor="testKPI">Test KPI</Label>
+          <Select value={testKPI} onValueChange={setTestKPI}>
+            <SelectTrigger className="bg-white text-black">
+              <SelectValue placeholder="Select test KPI" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="CPA">CPA</SelectItem>
+              <SelectItem value="ROAS">ROAS</SelectItem>
+              <SelectItem value="CTR">CTR</SelectItem>
+              <SelectItem value="CPM">CPM</SelectItem>
             </SelectContent>
           </Select>
         </div>
