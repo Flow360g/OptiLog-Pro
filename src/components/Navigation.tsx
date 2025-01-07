@@ -1,4 +1,4 @@
-import { User, LogOut, Settings, Menu, X } from "lucide-react";
+import { User, LogOut, Settings, Menu } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -74,6 +74,13 @@ export function Navigation() {
         onClick={() => setIsOpen(false)}
       >
         Insights
+      </Link>
+      <Link 
+        to="/performance-diagnosis" 
+        className={`text-gray-600 hover:text-primary ${location.pathname === '/performance-diagnosis' ? 'font-bold' : ''}`}
+        onClick={() => setIsOpen(false)}
+      >
+        Performance Diagnosis
       </Link>
       <Link 
         to="/" 

@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      csv_analysis: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          metrics_analysis: Json
+          recommendations: string[]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          metrics_analysis: Json
+          recommendations: string[]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          metrics_analysis?: Json
+          recommendations?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
       optimizations: {
         Row: {
           campaign_name: string
