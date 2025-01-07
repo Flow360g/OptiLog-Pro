@@ -5,7 +5,6 @@ import Login from "./pages/Login";
 import UserSettings from "./pages/UserSettings";
 import Insights from "./pages/Insights";
 import Index from "./pages/Index";
-import PerformanceDiagnosis from "./pages/PerformanceDiagnosis";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,8 +20,7 @@ function TitleUpdater() {
       '/dashboard': 'Dashboard',
       '/login': 'Login',
       '/settings': 'User Settings',
-      '/insights': 'Insights',
-      '/performance-diagnosis': 'Performance Diagnosis'
+      '/insights': 'Insights'
     };
 
     const pageTitle = pageTitles[location.pathname] || '';
@@ -64,10 +62,6 @@ const router = createBrowserRouter([
   {
     path: "/insights",
     element: withTitleUpdate(Insights)(),
-  },
-  {
-    path: "/performance-diagnosis",
-    element: withTitleUpdate(PerformanceDiagnosis)(),
   },
 ]);
 
