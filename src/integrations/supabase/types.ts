@@ -224,6 +224,7 @@ export type Database = {
           hypothesis: string
           id: string
           impact_level: number | null
+          kpi: string
           name: string
           platform: Database["public"]["Enums"]["test_platform"]
           start_date: string | null
@@ -240,6 +241,7 @@ export type Database = {
           hypothesis: string
           id?: string
           impact_level?: number | null
+          kpi: string
           name: string
           platform: Database["public"]["Enums"]["test_platform"]
           start_date?: string | null
@@ -256,6 +258,7 @@ export type Database = {
           hypothesis?: string
           id?: string
           impact_level?: number | null
+          kpi?: string
           name?: string
           platform?: Database["public"]["Enums"]["test_platform"]
           start_date?: string | null
