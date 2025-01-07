@@ -6,6 +6,7 @@ import UserSettings from "./pages/UserSettings";
 import Insights from "./pages/Insights";
 import Index from "./pages/Index";
 import TestingSchedule from "./pages/TestingSchedule";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -49,30 +50,37 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: withTitleUpdate(Index)(),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/dashboard",
     element: withTitleUpdate(Dashboard)(),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/login",
     element: withTitleUpdate(Login)(),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/settings",
     element: withTitleUpdate(UserSettings)(),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/insights",
     element: withTitleUpdate(Insights)(),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/testing-schedule",
     element: withTitleUpdate(TestingSchedule)(),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/testing-schedule/new",
     element: withTitleUpdate(TestingSchedule)(),
+    errorElement: <ErrorBoundary />,
   },
 ]);
 
