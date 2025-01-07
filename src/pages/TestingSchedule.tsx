@@ -56,23 +56,21 @@ export default function TestingSchedule() {
         <div className="max-w-7xl mx-auto">
           {selectedClient ? (
             <>
-              <div className="flex items-center gap-4 mb-8">
-                <Button
-                  variant="ghost"
-                  onClick={handleBackClick}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Back to Client Selection
-                </Button>
-                <div>
-                  <h1 className="text-4xl font-bold text-gray-900">
-                    Testing Schedule
-                  </h1>
-                  <p className="text-lg text-gray-600">
-                    {selectedClient.toUpperCase()}
-                  </p>
-                </div>
+              <Button
+                variant="ghost"
+                onClick={handleBackClick}
+                className="flex items-center gap-2 mb-6"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Client Selection
+              </Button>
+              <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold text-gray-900">
+                  Testing Schedule
+                </h1>
+                <p className="text-xl text-gray-600 mt-2">
+                  {selectedClient.toUpperCase()}
+                </p>
               </div>
 
               {isLoading ? (
