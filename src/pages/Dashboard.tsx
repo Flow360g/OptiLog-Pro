@@ -1,5 +1,3 @@
-import { Navigation } from "@/components/Navigation";
-import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { useUserClients } from "@/hooks/useUserClients";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +8,7 @@ import { LoadingState } from "@/components/dashboard/LoadingState";
 import { useDashboardState } from "@/components/dashboard/DashboardState";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useEffect } from "react";
 
 const Dashboard = () => {
@@ -33,7 +32,6 @@ const Dashboard = () => {
     handleColumnToggle
   } = useDashboardState();
 
-  // Add session check effect
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -130,7 +128,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
-      <Navigation />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <DashboardHeader />
 
