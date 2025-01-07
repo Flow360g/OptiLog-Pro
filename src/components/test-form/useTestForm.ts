@@ -50,13 +50,22 @@ export function useTestForm() {
         .from('test_types')
         .select('id')
         .eq('name', testType)
-        .single();
+        .maybeSingle();
 
-      if (testTypeError || !testTypeData) {
+      if (testTypeError) {
         console.error('Error getting test type:', testTypeError);
         toast({
           title: "Error",
           description: "Failed to get test type. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!testTypeData) {
+        toast({
+          title: "Error",
+          description: "Selected test type not found. Please select a different test type.",
           variant: "destructive",
         });
         return;
