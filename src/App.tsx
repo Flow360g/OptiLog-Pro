@@ -21,7 +21,9 @@ function TitleUpdater() {
       '/dashboard': 'Dashboard',
       '/login': 'Login',
       '/settings': 'User Settings',
-      '/insights': 'Insights'
+      '/insights': 'Insights',
+      '/testing-schedule': 'Testing Schedule',
+      '/testing-schedule/new': 'Create New Test'
     };
 
     const pageTitle = pageTitles[location.pathname] || '';
@@ -68,11 +70,10 @@ const router = createBrowserRouter([
     path: "/testing-schedule",
     element: withTitleUpdate(TestingSchedule)(),
   },
-  // Performance Diagnosis route is hidden for now
-  // {
-  //   path: "/performance-diagnosis",
-  //   element: withTitleUpdate(PerformanceDiagnosis)(),
-  // },
+  {
+    path: "/testing-schedule/new",
+    element: withTitleUpdate(TestingSchedule)(),
+  },
 ]);
 
 // Create a client
