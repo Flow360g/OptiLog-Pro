@@ -58,19 +58,13 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
         .from('csv-uploads')
         .getPublicUrl(fileName);
 
-      // Format metrics for display
-      const formattedMetrics = Object.entries(analysis.metrics).reduce((acc, [key, value]) => ({
-        ...acc,
-        [key]: `${value.percentChange.toFixed(2)}% (${value.currentPeriod.toFixed(2)} vs ${value.previousPeriod.toFixed(2)})`
-      }), {});
-
       // Store analysis results with user_id
       const { error: analysisError } = await supabase
         .from('csv_analysis')
         .insert({
           user_id: user.id,
           file_name: file.name,
-          metrics_analysis: formattedMetrics,
+          metrics_analysis: analysis.metrics,
           recommendations: analysis.recommendations
         });
 
@@ -78,7 +72,7 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
 
       // Update UI with results
       onAnalysisComplete({
-        metrics: formattedMetrics,
+        metrics: analysis.metrics,
         recommendations: analysis.recommendations
       });
 
@@ -91,7 +85,7 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
       console.error('Upload error:', error);
       toast({
         title: "Upload failed",
-        description: "There was an error processing your file. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error processing your file. Please ensure your CSV contains valid data with the required columns: date, spend, impressions, clicks, and conversions.",
         variant: "destructive",
       });
     } finally {

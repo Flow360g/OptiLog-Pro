@@ -1,6 +1,5 @@
 import Papa from 'papaparse';
 import { cleanData } from './dataCleanup';
-import { MetricRelationships, analyzeMetricRelationships } from './metricAnalysis';
 
 export interface CSVData {
   date: string;
@@ -23,13 +22,17 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
       skipEmptyLines: true,
       complete: (results) => {
         try {
+          if (results.errors && results.errors.length > 0) {
+            throw new Error(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`);
+          }
+          
           const cleanedData = cleanData(results.data as any[]);
           resolve(cleanedData);
         } catch (error) {
-          reject(error);
+          reject(new Error(`Failed to process CSV: ${error.message}`));
         }
       },
-      error: (error) => reject(error),
+      error: (error) => reject(new Error(`Failed to parse CSV: ${error.message}`)),
     });
   });
 }
