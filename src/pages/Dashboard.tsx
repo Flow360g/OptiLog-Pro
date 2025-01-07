@@ -18,10 +18,14 @@ const Dashboard = () => {
     selectedClient,
     selectedPlatform,
     selectedStatus,
+    selectedCategory,
     visibleColumns,
     setSelectedClient,
     setSelectedPlatform,
     setSelectedStatus,
+    setSelectedCategory,
+    optimizationsByClient,
+    setOptimizationsByClient,
     handleColumnToggle
   } = useDashboardState();
 
@@ -31,21 +35,21 @@ const Dashboard = () => {
     }
   }, [session, isSessionLoading, navigate]);
 
-  const { fetchOptimizations, optimizationsByClient } = useDashboardData(
+  const { optimizationsByClient: fetchedOptimizations } = useDashboardData(
     userClients || [],
     selectedClient,
     selectedPlatform,
-    null, // category
+    selectedCategory,
     selectedStatus,
     session,
-    () => {} // setOptimizationsByClient is handled internally
+    setOptimizationsByClient
   );
 
   if (isSessionLoading || isClientsLoading) {
     return <LoadingState />;
   }
 
-  const optimizations: Optimization[] = Object.values(optimizationsByClient || {}).flat();
+  const optimizations: Optimization[] = Object.values(fetchedOptimizations).flat();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
@@ -55,11 +59,11 @@ const Dashboard = () => {
           clients={userClients}
           selectedClient={selectedClient}
           selectedPlatform={selectedPlatform}
-          selectedCategory={null}
+          selectedCategory={selectedCategory}
           selectedStatus={selectedStatus}
           onClientChange={setSelectedClient}
           onPlatformChange={setSelectedPlatform}
-          onCategoryChange={() => {}}
+          onCategoryChange={setSelectedCategory}
           onStatusChange={setSelectedStatus}
           visibleColumns={visibleColumns}
           onColumnToggle={handleColumnToggle}

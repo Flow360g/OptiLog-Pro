@@ -71,7 +71,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <img 
-            src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
+            src="/lovable-uploads/17c74460-d769-41d3-97a4-6690fc5ac1b8.png" 
             alt="OptiLog Pro Logo" 
             className="h-16 w-auto object-contain"
           />
