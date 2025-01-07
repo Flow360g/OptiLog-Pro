@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TestResult {
+  [key: string]: string; // This makes TestResult indexable by string, matching Json type
   control: string;
   experiment: string;
 }
