@@ -9,6 +9,7 @@ import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const columnDefinitions = [
   { key: "priority", label: "Priority" },
