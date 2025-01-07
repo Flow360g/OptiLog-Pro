@@ -63,19 +63,19 @@ export function TestForm() {
         return;
       }
 
-      const { error } = await supabase.from('tests').insert([{
+      const { error } = await supabase.from('tests').insert({
         client,
         platform,
         name: testName,
         hypothesis,
         test_variable: testVariable,
         test_type: testType,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDate?.toISOString().split('T')[0],
+        end_date: endDate?.toISOString().split('T')[0],
         effort_level: effortLevel,
         impact_level: impactLevel,
         user_id: user.id,
-      }]);
+      });
 
       if (error) {
         console.error('Error submitting test:', error);
