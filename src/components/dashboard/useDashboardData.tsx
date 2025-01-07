@@ -12,7 +12,10 @@ export function useDashboardData(
   selectedStatus: string | null,
   session: Session | null,
   setOptimizationsByClient: (value: OptimizationsByClient) => void
-) {
+): { 
+  fetchOptimizations: () => Promise<void>;
+  optimizationsByClient: OptimizationsByClient;
+} {
   const { toast } = useToast();
   const [localOptimizationsByClient, setLocalOptimizationsByClient] = useState<OptimizationsByClient>({});
 
