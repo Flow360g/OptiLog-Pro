@@ -72,7 +72,27 @@ export function findMatchingColumn(headers: string[], targetColumn: string): str
   // Then check mappings
   const possibleNames = columnMappings[targetColumn] || [];
   for (const name of possibleNames) {
-    const index = lowerHeaders.findIndex(h => h.includes(name.toLowerCase()));
+    // Find any header that contains the mapping name, ignoring date ranges in parentheses
+    const index = lowerHeaders.findIndex(h => {
+      // Remove date ranges in parentheses before matching
+      const cleanHeader = h.replace(/\([^)]*\)/g, '').trim();
+      return cleanHeader.includes(name.toLowerCase());
+    });
+    
+    if (index !== -1) {
+      return headers[index];
+    }
+  }
+  
+  // For spend/cost columns, also check for currency indicators
+  if (targetColumn === 'spend') {
+    const index = lowerHeaders.findIndex(h => {
+      const cleanHeader = h.replace(/\([^)]*\)/g, '').trim();
+      return cleanHeader.includes('aud') && 
+             (cleanHeader.includes('amount') || 
+              cleanHeader.includes('cost') || 
+              cleanHeader.includes('spend'));
+    });
     if (index !== -1) {
       return headers[index];
     }
