@@ -7,6 +7,7 @@ import Insights from "@/pages/Insights";
 import Login from "@/pages/Login";
 import Tests from "@/pages/Tests";
 import { OptimizationForm } from "@/components/OptimizationForm";
+import { CreateTest } from "@/components/tests/CreateTest";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: "/tests",
         element: <Tests />,
+      },
+      {
+        path: "/tests/new",
+        element: <CreateTest />,
       },
     ],
   },
