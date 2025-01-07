@@ -20,13 +20,6 @@ export function NavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
         Insights
       </Link>
       <Link 
-        to="/performance-diagnosis" 
-        className={`text-gray-600 hover:text-primary ${location.pathname === '/performance-diagnosis' ? 'font-bold' : ''}`}
-        onClick={onLinkClick}
-      >
-        Performance Diagnosis
-      </Link>
-      <Link 
         to="/" 
         className="border-2 border-primary rounded-full px-4 py-1 text-gray-600 hover:text-primary"
         onClick={onLinkClick}
