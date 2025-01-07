@@ -38,15 +38,29 @@ export function AnalysisResults({ metrics, recommendations }: AnalysisResultsPro
     );
   }
 
-  const formatValue = (value: number): string => {
+  const formatValue = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 'N/A';
+    }
     return value.toLocaleString(undefined, { 
       minimumFractionDigits: 2,
       maximumFractionDigits: 2 
     });
   };
 
-  const formatPercentage = (value: number): string => {
+  const formatPercentage = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 'N/A';
+    }
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+  };
+
+  const getMetricLabel = (key: string): string => {
+    // Convert camelCase to Title Case with spaces
+    return key
+      .split(/(?=[A-Z])/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   return (
@@ -57,9 +71,9 @@ export function AnalysisResults({ metrics, recommendations }: AnalysisResultsPro
           <h3 className="text-lg font-medium mb-4">Key Metrics</h3>
           <div className="space-y-3">
             {metrics && Object.entries(metrics).map(([key, value]) => (
-              <div key={key} className="flex justify-between items-center">
+              <div key={key} className="flex justify-between items-start">
                 <span className="text-sm font-medium text-gray-600">
-                  {key.split(/(?=[A-Z])/).join(' ')}
+                  {getMetricLabel(key)}
                 </span>
                 <div className="text-right">
                   <div className="text-sm text-gray-900">
@@ -68,7 +82,13 @@ export function AnalysisResults({ metrics, recommendations }: AnalysisResultsPro
                   <div className="text-sm text-gray-600">
                     Previous: {formatValue(value.previousPeriod)}
                   </div>
-                  <div className={`text-sm ${value.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`text-sm ${
+                    !isNaN(value.percentChange) && value.percentChange >= 0 
+                      ? 'text-green-600' 
+                      : !isNaN(value.percentChange) 
+                        ? 'text-red-600' 
+                        : 'text-gray-600'
+                  }`}>
                     {formatPercentage(value.percentChange)}
                   </div>
                 </div>

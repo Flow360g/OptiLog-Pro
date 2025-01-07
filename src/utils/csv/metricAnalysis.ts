@@ -50,26 +50,37 @@ const METRIC_RELATIONSHIPS: MetricRelationships = {
 };
 
 function calculatePeriodMetrics(data: CSVData[]): Record<string, number> {
+  if (!data || data.length === 0) {
+    return {};
+  }
+
+  const validNumbers = (numbers: number[]): number[] => 
+    numbers.filter(n => !isNaN(n) && n !== null && n !== undefined);
+
+  const safeAverage = (numbers: number[]): number => {
+    const valid = validNumbers(numbers);
+    return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : NaN;
+  };
+
   return {
-    cost_per_result: average(data.map(d => d.cost_per_result)),
-    conversion_rate: average(data.map(d => d.conversion_rate)),
-    cpc: average(data.map(d => d.cpc)),
-    ctr: average(data.map(d => d.ctr)),
-    cpm: average(data.map(d => d.cpm))
+    cost_per_result: safeAverage(data.map(d => d.cost_per_result)),
+    conversion_rate: safeAverage(data.map(d => d.conversion_rate)),
+    cpc: safeAverage(data.map(d => d.cpc)),
+    ctr: safeAverage(data.map(d => d.ctr)),
+    cpm: safeAverage(data.map(d => d.cpm))
   };
 }
 
-function average(numbers: number[]): number {
-  return numbers.reduce((a, b) => a + b, 0) / numbers.length;
-}
-
 function calculatePercentChange(current: number, previous: number): number {
+  if (isNaN(current) || isNaN(previous) || previous === 0) {
+    return NaN;
+  }
   return ((current - previous) / previous) * 100;
 }
 
 function determineImpact(metric: string, currentMetrics: Record<string, number>, previousMetrics: Record<string, number>): number {
   const percentChange = calculatePercentChange(currentMetrics[metric], previousMetrics[metric]);
-  return Math.abs(percentChange);
+  return isNaN(percentChange) ? 0 : Math.abs(percentChange);
 }
 
 function generateRecommendations(rootCauses: string[]): string[] {
@@ -113,8 +124,8 @@ export function analyzeMetricRelationships(data: CSVData[]): MetricAnalysis {
   const metrics: Record<string, PeriodComparison> = {};
   Object.keys(METRIC_RELATIONSHIPS).forEach(metric => {
     metrics[metric] = {
-      currentPeriod: currentMetrics[metric],
-      previousPeriod: previousMetrics[metric],
+      currentPeriod: currentMetrics[metric] || 0,
+      previousPeriod: previousMetrics[metric] || 0,
       percentChange: calculatePercentChange(currentMetrics[metric], previousMetrics[metric])
     };
   });
@@ -125,9 +136,12 @@ export function analyzeMetricRelationships(data: CSVData[]): MetricAnalysis {
     relationships[metric].impact = determineImpact(metric, currentMetrics, previousMetrics);
   });
 
-  // Identify root causes
+  // Identify root causes (only include metrics with valid changes)
   const rootCauses = Object.entries(relationships)
-    .filter(([metric, rel]) => rel.parent && rel.impact > 10) // 10% threshold for significant impact
+    .filter(([metric, rel]) => {
+      const change = metrics[metric].percentChange;
+      return rel.parent && !isNaN(change) && Math.abs(change) > 10;
+    })
     .sort((a, b) => b[1].impact - a[1].impact)
     .map(([metric]) => metric);
 
