@@ -16,12 +16,17 @@ export const generateTestResultsPDF = (test: Test) => {
   doc.setFontSize(12);
   autoTable(doc, {
     startY: 30,
-    head: [["Test Details"]],
+    head: [["Field", "Value"]],
     body: [
-      ["Name", test.name],
+      ["Test Name", test.name],
       ["Platform", test.platform],
       ["KPI", test.kpi],
+      ["Test Type", `${test.test_types.test_categories.name} - ${test.test_types.name}`],
       ["Hypothesis", test.hypothesis],
+      ["Start Date", test.start_date ? new Date(test.start_date).toLocaleDateString() : "Not set"],
+      ["End Date", test.end_date ? new Date(test.end_date).toLocaleDateString() : "Not set"],
+      ["Effort Level", test.effort_level ? `${test.effort_level}/5` : "Not set"],
+      ["Impact Level", test.impact_level ? `${test.impact_level}/5` : "Not set"],
     ],
     theme: "grid",
   });
