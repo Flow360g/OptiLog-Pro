@@ -29,7 +29,6 @@ export function TestForm() {
   const [platform, setPlatform] = useState<TestPlatform>();
   const [testName, setTestName] = useState("");
   const [hypothesis, setHypothesis] = useState("");
-  const [testVariable, setTestVariable] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [client, setClient] = useState("");
@@ -63,13 +62,29 @@ export function TestForm() {
         return;
       }
 
+      // First get the test_type_id based on the selected test type
+      const { data: testTypeData, error: testTypeError } = await supabase
+        .from('test_types')
+        .select('id')
+        .eq('name', testType)
+        .single();
+
+      if (testTypeError || !testTypeData) {
+        console.error('Error getting test type:', testTypeError);
+        toast({
+          title: "Error",
+          description: "Failed to get test type. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase.from('tests').insert({
         client,
         platform,
         name: testName,
         hypothesis,
-        test_variable: testVariable,
-        test_type: testType,
+        test_type_id: testTypeData.id,
         start_date: startDate?.toISOString().split('T')[0],
         end_date: endDate?.toISOString().split('T')[0],
         effort_level: effortLevel,
@@ -148,18 +163,6 @@ export function TestForm() {
             className="bg-white text-black"
             value={hypothesis}
             onChange={(e) => setHypothesis(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="space-y-4">
-          <Label htmlFor="testVariable">Test Variable</Label>
-          <Input
-            id="testVariable"
-            placeholder="What variable are you testing?"
-            className="bg-white text-black"
-            value={testVariable}
-            onChange={(e) => setTestVariable(e.target.value)}
             required
           />
         </div>
