@@ -5,7 +5,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload } from "lucide-react";
 
-export function CSVUpload() {
+interface AnalysisResult {
+  metrics: Record<string, any>;
+  recommendations: string[];
+}
+
+export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result: AnalysisResult) => void }) {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -26,8 +31,16 @@ export function CSVUpload() {
     setIsUploading(true);
 
     try {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Create a folder for the user's files
+      const folderPath = `${user.data.user.id}/${crypto.randomUUID()}`;
+      const fileName = `${folderPath}/${file.name}`;
+
       // Upload to Supabase Storage
-      const fileName = `${crypto.randomUUID()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('csv-uploads')
         .upload(fileName, file);
@@ -39,18 +52,44 @@ export function CSVUpload() {
         .from('csv-uploads')
         .getPublicUrl(fileName);
 
-      // TODO: Call analysis function and store results
-      // For now, just show success message
+      // Simulate analysis (in a real app, you'd process the CSV here)
+      const mockAnalysis = {
+        metrics: {
+          totalRows: 100,
+          averageValue: 50,
+          topPerformer: "Campaign A"
+        },
+        recommendations: [
+          "Increase budget allocation for top-performing campaigns",
+          "Optimize targeting for underperforming segments",
+          "Review ad creative for low CTR campaigns"
+        ]
+      };
+
+      // Store analysis results
+      const { error: analysisError } = await supabase
+        .from('csv_analysis')
+        .insert({
+          file_name: file.name,
+          metrics_analysis: mockAnalysis.metrics,
+          recommendations: mockAnalysis.recommendations
+        });
+
+      if (analysisError) throw analysisError;
+
+      // Update UI with results
+      onAnalysisComplete(mockAnalysis);
+
       toast({
-        title: "Upload successful",
-        description: "Your CSV file has been uploaded and will be analyzed shortly.",
+        title: "Analysis complete",
+        description: "Your CSV file has been analyzed successfully.",
       });
 
     } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your file. Please try again.",
+        description: "There was an error processing your file. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -67,17 +106,17 @@ export function CSVUpload() {
           onChange={handleFileUpload}
           disabled={isUploading}
           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
-                   file:text-sm file:font-semibold file:gradient-bg
-                   file:text-white hover:file:opacity-90"
+                   file:text-sm file:font-semibold file:bg-primary
+                   file:text-white hover:file:bg-primary/90"
         />
-        <Button disabled={isUploading} className="gradient-bg">
+        <Button disabled={isUploading} variant="default">
           <Upload className="mr-2 h-4 w-4" />
-          Upload CSV
+          {isUploading ? "Uploading..." : "Upload CSV"}
         </Button>
       </div>
       {isUploading && (
         <p className="text-sm text-muted-foreground">
-          Uploading your file...
+          Uploading and analyzing your file...
         </p>
       )}
     </div>

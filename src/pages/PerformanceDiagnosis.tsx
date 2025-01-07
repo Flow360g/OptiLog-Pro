@@ -1,8 +1,20 @@
 import { Navigation } from "@/components/Navigation";
 import { CSVUpload } from "@/components/performance-diagnosis/CSVUpload";
 import { AnalysisResults } from "@/components/performance-diagnosis/AnalysisResults";
+import { useState } from "react";
+
+interface AnalysisResult {
+  metrics: Record<string, any>;
+  recommendations: string[];
+}
 
 export default function PerformanceDiagnosis() {
+  const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null);
+
+  const handleAnalysisComplete = (result: AnalysisResult) => {
+    setAnalysisResults(result);
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <Navigation />
@@ -14,11 +26,14 @@ export default function PerformanceDiagnosis() {
               Upload your performance data for analysis and get actionable insights.
               We'll analyze your CSV file and provide recommendations for optimization.
             </p>
-            <CSVUpload />
+            <CSVUpload onAnalysisComplete={handleAnalysisComplete} />
           </div>
           
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <AnalysisResults />
+            <AnalysisResults 
+              metrics={analysisResults?.metrics}
+              recommendations={analysisResults?.recommendations}
+            />
           </div>
         </div>
       </main>
