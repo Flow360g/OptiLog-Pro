@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload } from "lucide-react";
+import { Upload, AlertCircle } from "lucide-react";
 import { parseCSVFile } from "@/utils/csv/parser";
 import { analyzeMetricRelationships } from "@/utils/csv/metricAnalysis";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AnalysisResult {
   metrics: Record<string, any>;
@@ -14,25 +15,22 @@ interface AnalysisResult {
 
 export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result: AnalysisResult) => void }) {
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.name.endsWith('.csv')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload a CSV file",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    setError(null);
     setIsUploading(true);
 
     try {
+      // Validate file type
+      if (!file.name.endsWith('.csv')) {
+        throw new Error("Please upload a CSV file");
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error("User not authenticated");
@@ -86,9 +84,13 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
 
     } catch (error) {
       console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 
+        "There was an error processing your file. Please ensure your CSV contains valid data with the required columns: date, spend, impressions, clicks, and conversions.";
+      
+      setError(errorMessage);
       toast({
         title: "Upload failed",
-        description: error instanceof Error ? error.message : "There was an error processing your file. Please ensure your CSV contains valid data with the required columns: date, spend, impressions, clicks, and conversions.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -113,6 +115,14 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
           {isUploading ? "Uploading..." : "Upload CSV"}
         </Button>
       </div>
+      
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       {isUploading && (
         <p className="text-sm text-muted-foreground">
           Uploading and analyzing your file...
