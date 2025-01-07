@@ -20,6 +20,13 @@ export function NavLinks({ onLinkClick }: { onLinkClick?: () => void }) {
         Insights
       </Link>
       <Link 
+        to="/tests" 
+        className={`text-gray-600 hover:text-primary ${location.pathname === '/tests' ? 'font-bold' : ''}`}
+        onClick={onLinkClick}
+      >
+        Tests
+      </Link>
+      <Link 
         to="/" 
         className="border-2 border-primary rounded-full px-4 py-1 text-gray-600 hover:text-primary"
         onClick={onLinkClick}

@@ -150,6 +150,130 @@ export type Database = {
         }
         Relationships: []
       }
+      test_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      test_types: {
+        Row: {
+          category_id: string
+          created_at: string
+          default_hypothesis: string | null
+          description: string | null
+          id: string
+          name: string
+          tooltip: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          default_hypothesis?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          tooltip?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          default_hypothesis?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          tooltip?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "test_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tests: {
+        Row: {
+          client: string
+          created_at: string
+          effort_level: number | null
+          end_date: string | null
+          hypothesis: string
+          id: string
+          impact_level: number | null
+          name: string
+          platform: Database["public"]["Enums"]["test_platform"]
+          start_date: string | null
+          status: Database["public"]["Enums"]["test_status"]
+          test_type_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client: string
+          created_at?: string
+          effort_level?: number | null
+          end_date?: string | null
+          hypothesis: string
+          id?: string
+          impact_level?: number | null
+          name: string
+          platform: Database["public"]["Enums"]["test_platform"]
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["test_status"]
+          test_type_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client?: string
+          created_at?: string
+          effort_level?: number | null
+          end_date?: string | null
+          hypothesis?: string
+          id?: string
+          impact_level?: number | null
+          name?: string
+          platform?: Database["public"]["Enums"]["test_platform"]
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["test_status"]
+          test_type_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tests_test_type_id_fkey"
+            columns: ["test_type_id"]
+            isOneToOne: false
+            referencedRelation: "test_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_clients: {
         Row: {
           client: string
@@ -185,6 +309,13 @@ export type Database = {
       }
     }
     Enums: {
+      test_platform: "facebook" | "google" | "tiktok"
+      test_status:
+        | "draft"
+        | "scheduled"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
       user_position:
         | "activation_executive"
         | "activation_manager"
