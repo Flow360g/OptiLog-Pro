@@ -3,68 +3,67 @@ type ColumnMapping = {
 };
 
 export const columnMappings: ColumnMapping = {
-  date: [
-    'reporting starts',
-    'reporting ends',
-    'date range',
-    'day',
-    'reporting date',
-    'start date',
-    'end date',
-    'period'
+  cost_per_result: [
+    'cost per results',
+    'cost per result',
+    'cost_per_result',
+    'cost per results (dec'
+  ],
+  conversion_rate: [
+    'conversion rate',
+    'conversion_rate',
+    'website purchases',
+    'purchases'
+  ],
+  cpc: [
+    'cost per outbound click',
+    'cost per click',
+    'cpc',
+    'cost per link click'
+  ],
+  ctr: [
+    'outbound ctr',
+    'ctr',
+    'click-through rate',
+    'outbound click-through rate'
+  ],
+  cpm: [
+    'cpm',
+    'cost per 1,000 impressions',
+    'cost per thousand impressions',
+    'cpm (cost per'
   ],
   spend: [
-    'cost',
     'amount spent',
-    'total spend',
-    'ad spend',
-    'campaign spend',
-    'budget spent',
-    'investment',
-    'media cost',
-    'media spend'
+    'spend',
+    'cost',
+    'amount spent (aud)'
   ],
   impressions: [
+    'impressions',
     'impr.',
     'impr',
-    'total impressions',
-    'ad impressions',
-    'views',
-    'total views',
-    'reach',
-    'total reach',
-    'served impressions'
+    'impressions ('
   ],
   clicks: [
-    'total clicks',
-    'ad clicks',
+    'clicks',
     'link clicks',
-    'all clicks',
-    'click-through',
-    'click through',
-    'clickthrough',
-    'total link clicks'
+    'outbound clicks',
+    'link clicks ('
   ],
   conversions: [
-    'conv.',
-    'conv',
-    'total conversions',
     'results',
-    'total results',
-    'conversion',
-    'purchases',
-    'total purchases',
-    'actions',
-    'total actions'
+    'conversions',
+    'total conversions',
+    'results ('
   ]
 };
 
 export function findMatchingColumn(headers: string[], targetColumn: string): string | null {
-  // Convert headers to lowercase for case-insensitive matching
-  const lowerHeaders = headers.map(h => h.toLowerCase());
+  const lowerHeaders = headers.map(h => h.toLowerCase().trim());
   
   // First try exact match
-  const exactMatch = lowerHeaders.find(h => h === targetColumn);
+  const exactMatch = lowerHeaders.find(h => h === targetColumn.toLowerCase());
   if (exactMatch) {
     return headers[lowerHeaders.indexOf(exactMatch)];
   }
@@ -72,9 +71,8 @@ export function findMatchingColumn(headers: string[], targetColumn: string): str
   // Then check mappings
   const possibleNames = columnMappings[targetColumn] || [];
   for (const name of possibleNames) {
-    // Find any header that contains the mapping name, ignoring date ranges in parentheses
     const index = lowerHeaders.findIndex(h => {
-      // Remove date ranges in parentheses before matching
+      // Remove date ranges and parentheses before matching
       const cleanHeader = h.replace(/\([^)]*\)/g, '').trim();
       return cleanHeader.includes(name.toLowerCase());
     });
@@ -84,11 +82,11 @@ export function findMatchingColumn(headers: string[], targetColumn: string): str
     }
   }
   
-  // For spend/cost columns, also check for currency indicators
+  // For spend columns, also check for currency indicators
   if (targetColumn === 'spend') {
     const index = lowerHeaders.findIndex(h => {
       const cleanHeader = h.replace(/\([^)]*\)/g, '').trim();
-      return cleanHeader.includes('aud') && 
+      return (cleanHeader.includes('aud') || cleanHeader.includes('$')) && 
              (cleanHeader.includes('amount') || 
               cleanHeader.includes('cost') || 
               cleanHeader.includes('spend'));
@@ -99,4 +97,28 @@ export function findMatchingColumn(headers: string[], targetColumn: string): str
   }
   
   return null;
+}
+
+export function extractDateRangeFromHeader(header: string): { isPrevious: boolean } {
+  const cleanHeader = header.toLowerCase();
+  
+  // Check for explicit date ranges
+  const previousDatePattern = /(dec 10|december 10)/i;
+  const currentDatePattern = /(dec 24|december 24)/i;
+  
+  if (previousDatePattern.test(header)) {
+    return { isPrevious: true };
+  }
+  
+  if (currentDatePattern.test(header)) {
+    return { isPrevious: false };
+  }
+  
+  // Fallback to checking for previous period indicators
+  const isPrevious = cleanHeader.includes('previous') || 
+                    cleanHeader.includes('prior') || 
+                    cleanHeader.includes('last') ||
+                    /\([^)]*previous[^)]*\)/i.test(header);
+  
+  return { isPrevious };
 }

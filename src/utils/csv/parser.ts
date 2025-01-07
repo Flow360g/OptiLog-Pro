@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 import { cleanData } from './dataCleanup';
-import { findMatchingColumn } from './columnMapping';
+import { findMatchingColumn, extractDateRangeFromHeader } from './columnMapping';
 
 export interface CSVData {
   date: string;
@@ -48,34 +48,25 @@ function parseNumericValue(value: string): number {
   
   // Convert percentage strings to decimals
   if (cleanValue.includes('%')) {
-    return parseFloat(cleanValue) / 100;
+    return parseFloat(cleanValue);
   }
   
   const parsedValue = parseFloat(cleanValue);
   return isNaN(parsedValue) ? 0 : parsedValue;
 }
 
-function extractDateRangeFromHeader(header: string): { isPrevious: boolean } {
-  const cleanHeader = header.toLowerCase();
-  const isPrevious = cleanHeader.includes('previous') || 
-                    cleanHeader.includes('prior') || 
-                    cleanHeader.includes('last') ||
-                    /\([^)]*previous[^)]*\)/i.test(header);
-  return { isPrevious };
-}
-
 function identifyMetricType(header: string): string | null {
   const cleanHeader = header.toLowerCase().trim();
   
-  if (cleanHeader.includes('cost_per_result') || cleanHeader.includes('cost per result')) return 'cost_per_result';
-  if (cleanHeader.includes('conversion_rate') || cleanHeader.includes('conversion rate')) return 'conversion_rate';
-  if (cleanHeader.includes('cpc')) return 'cpc';
-  if (cleanHeader.includes('ctr')) return 'ctr';
-  if (cleanHeader.includes('cpm')) return 'cpm';
-  if (cleanHeader.includes('spend') || cleanHeader.includes('cost')) return 'spend';
+  if (cleanHeader.includes('cost per result') || cleanHeader.includes('cost_per_result')) return 'cost_per_result';
+  if (cleanHeader.includes('conversion rate') || cleanHeader.includes('website purchase')) return 'conversion_rate';
+  if (cleanHeader.includes('cost per outbound click') || cleanHeader.includes('cost per click')) return 'cpc';
+  if (cleanHeader.includes('outbound ctr') || cleanHeader.includes('click-through')) return 'ctr';
+  if (cleanHeader.includes('cpm') || cleanHeader.includes('cost per 1,000')) return 'cpm';
+  if (cleanHeader.includes('amount spent') || cleanHeader.includes('spend')) return 'spend';
   if (cleanHeader.includes('impressions')) return 'impressions';
-  if (cleanHeader.includes('clicks')) return 'clicks';
-  if (cleanHeader.includes('conversions') || cleanHeader.includes('results')) return 'conversions';
+  if (cleanHeader.includes('link clicks') || cleanHeader.includes('clicks')) return 'clicks';
+  if (cleanHeader.includes('results') || cleanHeader.includes('conversions')) return 'conversions';
   
   return null;
 }
@@ -106,51 +97,54 @@ function organizeMetricsByPeriod(data: any[]): ParsedMetrics {
     }
   };
 
-  // Process the first row of data which contains our metrics
-  const firstRow = data[0];
-  
-  Object.entries(firstRow).forEach(([header, value]) => {
-    const { isPrevious } = extractDateRangeFromHeader(header);
-    const period = isPrevious ? 'previous' : 'current';
-    const metricType = identifyMetricType(header);
-    
-    if (metricType && value !== undefined && value !== null) {
-      const numericValue = parseNumericValue(value.toString());
-      metrics[period][metricType as keyof typeof metrics.current] = numericValue;
-    }
+  // Process each row of data
+  data.forEach(row => {
+    Object.entries(row).forEach(([header, value]) => {
+      const { isPrevious } = extractDateRangeFromHeader(header);
+      const period = isPrevious ? 'previous' : 'current';
+      const metricType = identifyMetricType(header);
+      
+      if (metricType && value !== undefined && value !== null) {
+        const numericValue = parseNumericValue(value.toString());
+        if (!isNaN(numericValue)) {
+          metrics[period][metricType as keyof typeof metrics.current] = numericValue;
+        }
+      }
+    });
   });
 
-  // Calculate derived metrics if they're not present in the data
+  // Calculate derived metrics if they're missing
   ['current', 'previous'].forEach(period => {
     const p = period as keyof ParsedMetrics;
     const m = metrics[p];
 
-    // Calculate CTR if not present
+    // CTR
     if (m.ctr === 0 && m.clicks > 0 && m.impressions > 0) {
       m.ctr = (m.clicks / m.impressions) * 100;
     }
 
-    // Calculate CPC if not present
+    // CPC
     if (m.cpc === 0 && m.clicks > 0 && m.spend > 0) {
       m.cpc = m.spend / m.clicks;
     }
 
-    // Calculate CPM if not present
+    // CPM
     if (m.cpm === 0 && m.impressions > 0 && m.spend > 0) {
       m.cpm = (m.spend / m.impressions) * 1000;
     }
 
-    // Calculate Conversion Rate if not present
+    // Conversion Rate
     if (m.conversion_rate === 0 && m.conversions > 0 && m.clicks > 0) {
       m.conversion_rate = (m.conversions / m.clicks) * 100;
     }
 
-    // Calculate Cost per Result if not present
+    // Cost per Result
     if (m.cost_per_result === 0 && m.conversions > 0 && m.spend > 0) {
       m.cost_per_result = m.spend / m.conversions;
     }
   });
 
+  console.log('Organized metrics:', metrics);
   return metrics;
 }
 
