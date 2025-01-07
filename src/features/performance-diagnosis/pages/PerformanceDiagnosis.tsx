@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/Navigation";
-import { CSVUpload } from "@/components/performance-diagnosis/CSVUpload";
-import { AnalysisResults } from "@/components/performance-diagnosis/AnalysisResults";
+import { CSVUpload } from "../components/CSVUpload";
+import { AnalysisResults } from "../components/AnalysisResults";
 import { useState } from "react";
 
 interface AnalysisResult {

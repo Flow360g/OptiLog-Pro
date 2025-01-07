@@ -63,6 +63,11 @@ const router = createBrowserRouter([
     path: "/insights",
     element: withTitleUpdate(Insights)(),
   },
+  // Performance Diagnosis route is hidden for now
+  // {
+  //   path: "/performance-diagnosis",
+  //   element: withTitleUpdate(PerformanceDiagnosis)(),
+  // },
 ]);
 
 // Create a client

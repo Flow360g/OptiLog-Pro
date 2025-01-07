@@ -1,3 +1,4 @@
+// Move the existing content from src/components/performance-diagnosis/AnalysisResults.tsx
 import { Card } from "@/components/ui/card";
 
 interface MetricValue {
