@@ -20,7 +20,7 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
-      skipEmptyLines: true,
+      skipEmptyLines: 'greedy', // Skip empty lines and trim whitespace
       transformHeader: (header: string) => {
         // Normalize headers by removing quotes and whitespace
         return header.replace(/['"]+/g, '').trim();
@@ -52,22 +52,28 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
           }
 
           // Transform the data to use standardized column names
-          const transformedData = results.data.map((row: any) => {
-            const newRow: any = {};
-            for (const [standardName, originalName] of Object.entries(columnMap)) {
-              newRow[standardName] = row[originalName];
-            }
-            return newRow;
-          });
+          const transformedData = results.data
+            .filter((row: any) => Object.keys(row).length > 0) // Filter out empty rows
+            .map((row: any) => {
+              const newRow: any = {};
+              for (const [standardName, originalName] of Object.entries(columnMap)) {
+                newRow[standardName] = row[originalName];
+              }
+              return newRow;
+            });
 
-          // Log parsing errors in a more user-friendly way
-          if (results.errors && results.errors.length > 0) {
-            const errorMessages = results.errors
+          // Only show critical parsing errors
+          const criticalErrors = results.errors.filter(error => 
+            error.type === 'Quotes' || error.type === 'Delimiter'
+          );
+          
+          if (criticalErrors.length > 0) {
+            const errorMessages = criticalErrors
               .map(error => `Row ${error.row + 1}: ${error.message}`)
               .slice(0, 3);
             
             throw new Error(`CSV parsing errors:\n${errorMessages.join('\n')}${
-              results.errors.length > 3 ? `\n...and ${results.errors.length - 3} more errors` : ''
+              criticalErrors.length > 3 ? `\n...and ${criticalErrors.length - 3} more errors` : ''
             }`);
           }
           
