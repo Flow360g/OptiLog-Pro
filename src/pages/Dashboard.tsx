@@ -8,6 +8,7 @@ import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { FilterSection } from "@/components/dashboard/FilterSection";
 import { useEffect } from "react";
+import { Optimization } from "@/types/optimization";
 
 const Dashboard = () => {
   const { session, isLoading: isSessionLoading } = useSessionContext();
@@ -44,7 +45,7 @@ const Dashboard = () => {
     return <LoadingState />;
   }
 
-  const optimizations = Object.values(optimizationsByClient || {}).flat();
+  const optimizations: Optimization[] = Object.values(optimizationsByClient || {}).flat();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">

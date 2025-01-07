@@ -12,8 +12,12 @@ export function useDashboardData(
   selectedStatus: string | null,
   session: Session | null,
   setOptimizationsByClient: (value: OptimizationsByClient) => void
-) {
+): { 
+  fetchOptimizations: () => Promise<void>;
+  optimizationsByClient: OptimizationsByClient;
+} {
   const { toast } = useToast();
+  const [optimizationsByClient, setLocalOptimizationsByClient] = useState<OptimizationsByClient>({});
 
   const fetchOptimizations = async () => {
     try {
@@ -61,6 +65,7 @@ export function useDashboardData(
           return acc;
         }, {});
 
+        setLocalOptimizationsByClient(grouped);
         setOptimizationsByClient(grouped);
       }
     } catch (error) {
@@ -79,5 +84,8 @@ export function useDashboardData(
     }
   }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus, session]);
 
-  return { fetchOptimizations };
+  return { 
+    fetchOptimizations,
+    optimizationsByClient
+  };
 }
