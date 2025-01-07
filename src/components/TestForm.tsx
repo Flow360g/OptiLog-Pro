@@ -23,7 +23,7 @@ export function TestForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [platform, setPlatform] = useState<string>("");
+  const [platform, setPlatform] = useState<"facebook" | "google" | "tiktok">();
   const [testName, setTestName] = useState("");
   const [hypothesis, setHypothesis] = useState("");
   const [testVariable, setTestVariable] = useState("");
@@ -51,18 +51,27 @@ export function TestForm() {
         return;
       }
 
+      if (!platform) {
+        toast({
+          title: "Error",
+          description: "Please select a platform",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase.from('tests').insert({
-        user_id: user.id,
         client,
         platform,
         name: testName,
         hypothesis,
         test_variable: testVariable,
-        test_type: testType,
+        test_type: testType as "Creative Test" | "Audience Test" | "Bid Strategy Test",
         start_date: startDate,
         end_date: endDate,
         effort_level: effortLevel,
         impact_level: impactLevel,
+        user_id: user.id,
       });
 
       if (error) {
