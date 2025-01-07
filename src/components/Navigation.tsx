@@ -4,46 +4,70 @@ import { useState, useEffect } from "react";
 import { NavLinks } from "./navigation/NavLinks";
 import { UserMenu } from "./navigation/UserMenu";
 import { MobileNav } from "./navigation/MobileNav";
+import { useToast } from "@/hooks/use-toast";
 
 export function Navigation() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
   
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Session error:", error);
-        navigate("/login");
-        return;
-      }
-      
-      if (!session) {
-        navigate("/login");
-        return;
-      }
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session error:", error);
+          await supabase.auth.signOut();
+          navigate("/login");
+          return;
+        }
+        
+        if (!session) {
+          navigate("/login");
+          return;
+        }
 
-      setUserEmail(session.user.email);
+        setUserEmail(session.user.email);
+      } catch (error) {
+        console.error("Session check error:", error);
+        await supabase.auth.signOut();
+        navigate("/login");
+      }
     };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
+        setUserEmail(null);
         navigate("/login");
         return;
       }
       
       if (session) {
-        setUserEmail(session.user.email);
+        try {
+          const { data: { user }, error } = await supabase.auth.getUser();
+          if (error) throw error;
+          setUserEmail(user?.email || null);
+        } catch (error) {
+          console.error("Error getting user:", error);
+          toast({
+            title: "Error",
+            description: "There was a problem with your session. Please log in again.",
+            variant: "destructive",
+          });
+          await supabase.auth.signOut();
+          navigate("/login");
+        }
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
