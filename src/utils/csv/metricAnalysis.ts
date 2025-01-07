@@ -78,7 +78,6 @@ function calculatePeriodMetrics(data: CSVData[]): Record<string, number> {
 
   // Get metrics from the last row (current period) and first row (previous period)
   const currentPeriodData = data[data.length - 1];
-  const previousPeriodData = data[0];
 
   return {
     cost_per_result: Number(currentPeriodData.cost_per_result) || 0,
@@ -96,8 +95,14 @@ function calculatePercentChange(current: number, previous: number): number {
   return ((current - previous) / previous) * 100;
 }
 
-function determineImpact(metric: string, currentMetrics: Record<string, number>, previousMetrics: Record<string, number>): number {
-  const percentChange = calculatePercentChange(currentMetrics[metric], previousMetrics[metric]);
+function determineImpact(
+  metric: string,
+  currentMetrics: Record<string, PeriodComparison>,
+  previousMetrics: Record<string, PeriodComparison>
+): number {
+  const currentValue = currentMetrics[metric]?.currentPeriod ?? 0;
+  const previousValue = previousMetrics[metric]?.previousPeriod ?? 0;
+  const percentChange = calculatePercentChange(currentValue, previousValue);
   return isNaN(percentChange) ? 0 : Math.abs(percentChange);
 }
 
@@ -153,8 +158,8 @@ export function analyzeMetricRelationships(data: CSVData[]): MetricAnalysis {
   Object.keys(relationships).forEach(metric => {
     relationships[metric].impact = determineImpact(
       metric,
-      { ...metrics, [metric]: metrics[metric]?.currentPeriod || 0 },
-      { ...metrics, [metric]: metrics[metric]?.previousPeriod || 0 }
+      metrics,
+      metrics
     );
   });
 
