@@ -49,61 +49,58 @@ const METRIC_RELATIONSHIPS: MetricRelationships = {
   }
 };
 
-function extractMetricValue(data: CSVData[], metricName: string, isCurrentPeriod: boolean): number {
-  if (!data || data.length === 0) return 0;
-
-  // Get the appropriate row based on period
-  const row = isCurrentPeriod ? data[data.length - 1] : data[0];
-
-  switch(metricName.toLowerCase()) {
-    case 'cost_per_result':
-      return row.cost_per_result || 0;
-    case 'conversion_rate':
-      return row.conversion_rate || 0;
-    case 'cpc':
-      return row.cpc || 0;
-    case 'ctr':
-      return row.ctr || 0;
-    case 'cpm':
-      return row.cpm || 0;
-    default:
-      return 0;
-  }
-}
-
-function calculatePeriodMetrics(data: CSVData[]): Record<string, number> {
-  if (!data || data.length === 0) {
-    return {};
+function calculatePeriodMetrics(data: CSVData[]): Record<string, PeriodComparison> {
+  if (!data || data.length < 2) {
+    throw new Error("Insufficient data for analysis. Need at least two periods of data.");
   }
 
-  // Get metrics from the last row (current period) and first row (previous period)
-  const currentPeriodData = data[data.length - 1];
+  const currentPeriod = data[0];
+  const previousPeriod = data[1];
 
-  return {
-    cost_per_result: Number(currentPeriodData.cost_per_result) || 0,
-    conversion_rate: Number(currentPeriodData.conversion_rate) || 0,
-    cpc: Number(currentPeriodData.cpc) || 0,
-    ctr: Number(currentPeriodData.ctr) || 0,
-    cpm: Number(currentPeriodData.cpm) || 0
+  const metrics: Record<string, PeriodComparison> = {
+    cost_per_result: {
+      currentPeriod: currentPeriod.cost_per_result,
+      previousPeriod: previousPeriod.cost_per_result,
+      percentChange: calculatePercentChange(currentPeriod.cost_per_result, previousPeriod.cost_per_result)
+    },
+    conversion_rate: {
+      currentPeriod: currentPeriod.conversion_rate,
+      previousPeriod: previousPeriod.conversion_rate,
+      percentChange: calculatePercentChange(currentPeriod.conversion_rate, previousPeriod.conversion_rate)
+    },
+    cpc: {
+      currentPeriod: currentPeriod.cpc,
+      previousPeriod: previousPeriod.cpc,
+      percentChange: calculatePercentChange(currentPeriod.cpc, previousPeriod.cpc)
+    },
+    ctr: {
+      currentPeriod: currentPeriod.ctr,
+      previousPeriod: previousPeriod.ctr,
+      percentChange: calculatePercentChange(currentPeriod.ctr, previousPeriod.ctr)
+    },
+    cpm: {
+      currentPeriod: currentPeriod.cpm,
+      previousPeriod: previousPeriod.cpm,
+      percentChange: calculatePercentChange(currentPeriod.cpm, previousPeriod.cpm)
+    }
   };
+
+  return metrics;
 }
 
 function calculatePercentChange(current: number, previous: number): number {
-  if (isNaN(current) || isNaN(previous) || previous === 0) {
-    return 0;
-  }
+  if (previous === 0) return 0;
   return ((current - previous) / previous) * 100;
 }
 
 function determineImpact(
   metric: string,
-  currentMetrics: Record<string, PeriodComparison>,
-  previousMetrics: Record<string, PeriodComparison>
+  metrics: Record<string, PeriodComparison>
 ): number {
-  const currentValue = currentMetrics[metric]?.currentPeriod ?? 0;
-  const previousValue = previousMetrics[metric]?.previousPeriod ?? 0;
-  const percentChange = calculatePercentChange(currentValue, previousValue);
-  return isNaN(percentChange) ? 0 : Math.abs(percentChange);
+  const metricData = metrics[metric];
+  if (!metricData) return 0;
+  
+  return Math.abs(metricData.percentChange);
 }
 
 function generateRecommendations(rootCauses: string[]): string[] {
@@ -139,28 +136,12 @@ export function analyzeMetricRelationships(data: CSVData[]): MetricAnalysis {
   }
 
   // Calculate metrics for both periods
-  const metrics: Record<string, PeriodComparison> = {};
-  const metricKeys = ['cost_per_result', 'conversion_rate', 'cpc', 'ctr', 'cpm'];
-
-  metricKeys.forEach(metric => {
-    const currentPeriod = extractMetricValue(data, metric, true);
-    const previousPeriod = extractMetricValue(data, metric, false);
-    
-    metrics[metric] = {
-      currentPeriod,
-      previousPeriod,
-      percentChange: calculatePercentChange(currentPeriod, previousPeriod)
-    };
-  });
+  const metrics = calculatePeriodMetrics(data);
 
   // Calculate impact scores
   const relationships = { ...METRIC_RELATIONSHIPS };
   Object.keys(relationships).forEach(metric => {
-    relationships[metric].impact = determineImpact(
-      metric,
-      metrics,
-      metrics
-    );
+    relationships[metric].impact = determineImpact(metric, metrics);
   });
 
   // Identify root causes
