@@ -21,6 +21,13 @@ export const InsightNotifications = () => {
 
   const fetchNotifications = async () => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("No authenticated user found");
+        return;
+      }
+
       // Get user's dismissed notifications
       const { data: dismissedNotifications } = await supabase
         .from("dismissed_notifications")
@@ -147,12 +154,20 @@ export const InsightNotifications = () => {
 
   const dismissNotification = async (notification: Notification) => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("No authenticated user found");
+        return;
+      }
+
       const { error } = await supabase
         .from("dismissed_notifications")
         .insert({
           notification_type: notification.type,
           client: notification.client,
           platform: notification.platform,
+          user_id: user.id
         });
 
       if (error) throw error;
