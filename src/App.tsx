@@ -6,6 +6,7 @@ import UserSettings from "./pages/UserSettings";
 import Insights from "./pages/Insights";
 import Index from "./pages/Index";
 import TestingSchedule from "./pages/TestingSchedule";
+import CreateTest from "./pages/CreateTest";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +25,7 @@ function TitleUpdater() {
       '/settings': 'User Settings',
       '/insights': 'Insights',
       '/testing-schedule': 'Testing Schedule',
-      '/testing-schedule/new': 'Create New Test'
+      '/testing-schedule/new': 'Create Test'
     };
 
     const pageTitle = pageTitles[location.pathname] || '';
@@ -79,7 +80,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/testing-schedule/new",
-    element: withTitleUpdate(TestingSchedule)(),
+    element: withTitleUpdate(CreateTest)(),
     errorElement: <ErrorBoundary />,
   },
 ]);
