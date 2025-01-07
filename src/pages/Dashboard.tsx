@@ -1,16 +1,16 @@
-import { Navigation } from "@/components/Navigation";
-import { FilterSection } from "@/components/dashboard/FilterSection";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { useUserClients } from "@/hooks/useUserClients";
-import { useNavigate } from "react-router-dom";
+import { Navigation } from "@/components/Navigation";
+import { FilterSection } from "@/components/dashboard/FilterSection";
 import { ClientSection } from "@/components/dashboard/ClientSection";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LoadingState } from "@/components/dashboard/LoadingState";
 import { useDashboardState } from "@/components/dashboard/DashboardState";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { useEffect } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -33,19 +33,13 @@ const Dashboard = () => {
     handleColumnToggle
   } = useDashboardState();
 
-  // Add session check effect
   useEffect(() => {
     const checkSession = async () => {
-      try {
-        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-        if (error || !currentSession) {
-          console.error("Session error:", error);
-          navigate("/login");
-          return;
-        }
-      } catch (error) {
-        console.error("Session check error:", error);
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.error("Session error:", error);
         navigate("/login");
+        return;
       }
     };
 
