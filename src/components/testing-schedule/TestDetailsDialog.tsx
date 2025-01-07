@@ -5,7 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TestInformation } from "./test-details/TestInformation";
 import { TestResultsForm } from "./test-details/TestResultsForm";
+import { TestResultsChart } from "./test-details/TestResultsChart";
+import { generateTestResultsPDF } from "./utils/pdfGenerator";
 import { Test, TestResult } from "./types";
+import { Download } from "lucide-react";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -43,6 +46,10 @@ export function TestDetailsDialog({ test, isOpen, onClose }: TestDetailsDialogPr
     }
   };
 
+  const handleDownload = () => {
+    generateTestResultsPDF({ ...test, results });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
@@ -57,6 +64,20 @@ export function TestDetailsDialog({ test, isOpen, onClose }: TestDetailsDialogPr
             kpi={test.kpi}
             onChange={setResults}
           />
+
+          {results.control && results.experiment && (
+            <>
+              <TestResultsChart results={results} kpi={test.kpi} />
+              <Button
+                onClick={handleDownload}
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Download Results PDF
+              </Button>
+            </>
+          )}
 
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={onClose}>
