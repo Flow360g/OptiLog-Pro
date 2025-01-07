@@ -17,7 +17,7 @@ export function useDashboardData(
   optimizationsByClient: OptimizationsByClient;
 } {
   const { toast } = useToast();
-  const [optimizationsByClient, setLocalOptimizationsByClient] = useState<OptimizationsByClient>({});
+  const [localOptimizationsByClient, setLocalOptimizationsByClient] = useState<OptimizationsByClient>({});
 
   const fetchOptimizations = async () => {
     try {
@@ -86,6 +86,6 @@ export function useDashboardData(
 
   return { 
     fetchOptimizations,
-    optimizationsByClient
+    optimizationsByClient: localOptimizationsByClient
   };
 }
