@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { InsightsCharts } from "@/components/insights/InsightsCharts";
 import { FilterSection } from "@/components/dashboard/FilterSection";
+import { InsightNotifications } from "@/components/insights/InsightNotifications";
 import { useState } from "react";
 
 const Insights = () => {
@@ -22,6 +23,7 @@ const Insights = () => {
           <p className="text-lg text-gray-600 mb-8 text-center">
             Analytics and visualization of your optimization data
           </p>
+          <InsightNotifications />
           <div className="mb-8">
             <FilterSection
               selectedClient={selectedClient}

@@ -36,6 +36,33 @@ export type Database = {
         }
         Relationships: []
       }
+      dismissed_notifications: {
+        Row: {
+          client: string | null
+          dismissed_at: string | null
+          id: string
+          notification_type: string
+          platform: string | null
+          user_id: string
+        }
+        Insert: {
+          client?: string | null
+          dismissed_at?: string | null
+          id?: string
+          notification_type: string
+          platform?: string | null
+          user_id: string
+        }
+        Update: {
+          client?: string | null
+          dismissed_at?: string | null
+          id?: string
+          notification_type?: string
+          platform?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       optimizations: {
         Row: {
           campaign_name: string
