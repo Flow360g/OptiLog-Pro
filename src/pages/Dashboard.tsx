@@ -10,13 +10,12 @@ import { LoadingState } from "@/components/dashboard/LoadingState";
 import { useDashboardState } from "@/components/dashboard/DashboardState";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { session, isLoading: isSessionLoading } = useSessionContext();
-  const { data: userClients = [] } = useUserClients();
+  const { data: userClients = [], isLoading: isClientsLoading } = useUserClients();
   const { toast } = useToast();
 
   const {
@@ -33,6 +32,35 @@ const Dashboard = () => {
     visibleColumns,
     handleColumnToggle
   } = useDashboardState();
+
+  // Add session check effect
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        if (error || !currentSession) {
+          console.error("Session error:", error);
+          navigate("/login");
+          return;
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+        navigate("/login");
+      }
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const { fetchOptimizations } = useDashboardData(
     userClients,
@@ -58,53 +86,6 @@ const Dashboard = () => {
     { key: "status", label: "Status" },
   ];
 
-  const handleDownload = () => {
-    // Prepare the data for CSV
-    const rows = [];
-    
-    // Add header row
-    const headers = ['Client', 'Campaign', 'Platform', 'KPI', 'Action', 'Categories', 
-                    'Date', 'Added By', 'Effort', 'Impact', 'Status'];
-    rows.push(headers.join(','));
-
-    // Add data rows
-    Object.entries(optimizationsByClient).forEach(([client, optimizations]) => {
-      optimizations.forEach(opt => {
-        const row = [
-          client,
-          opt.campaign_name,
-          opt.platform,
-          opt.kpi,
-          `"${opt.recommended_action.replace(/"/g, '""')}"`, // Escape quotes in action text
-          `"${opt.categories.join(', ')}"`,
-          opt.optimization_date,
-          opt.user_first_name,
-          opt.effort_level,
-          opt.impact_level,
-          opt.status
-        ];
-        rows.push(row.join(','));
-      });
-    });
-
-    // Create and download the CSV file
-    const csvContent = rows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `optimizations_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast({
-      title: "Success",
-      description: "Optimizations data downloaded successfully",
-      duration: 2000,
-    });
-  };
-
   const handleStatusChange = async (optimizationId: string, newStatus: string) => {
     try {
       const { error } = await supabase
@@ -119,15 +100,13 @@ const Dashboard = () => {
           title: "Success!",
           description: "Optimization marked as completed",
           variant: "default",
-          duration: 2000, // Auto dismiss after 2 seconds
+          duration: 2000,
         });
         
-        // Delay the data refresh by 1 second to allow the confetti animation to complete
         setTimeout(() => {
           fetchOptimizations();
         }, 1000);
       } else {
-        // For other status changes, refresh immediately
         fetchOptimizations();
       }
     } catch (error) {
@@ -140,7 +119,7 @@ const Dashboard = () => {
     }
   };
 
-  if (isSessionLoading) {
+  if (isSessionLoading || isClientsLoading) {
     return <LoadingState />;
   }
 
@@ -169,7 +148,6 @@ const Dashboard = () => {
             visibleColumns={visibleColumns}
             onColumnToggle={handleColumnToggle}
             columnDefinitions={columnDefinitions}
-            onDownload={handleDownload}
           />
         </div>
 
