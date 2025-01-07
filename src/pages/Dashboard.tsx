@@ -12,19 +12,15 @@ import { useEffect } from "react";
 const Dashboard = () => {
   const { session, isLoading: isSessionLoading } = useSessionContext();
   const navigate = useNavigate();
-  const { clients, isLoading: isClientsLoading } = useUserClients();
+  const { data: userClients = [], isLoading: isClientsLoading } = useUserClients();
   const {
     selectedClient,
     selectedPlatform,
-    selectedDateRange,
     selectedStatus,
-    selectedCategories,
     visibleColumns,
     setSelectedClient,
     setSelectedPlatform,
-    setSelectedDateRange,
     setSelectedStatus,
-    setSelectedCategories,
     handleColumnToggle
   } = useDashboardState();
 
@@ -34,52 +30,43 @@ const Dashboard = () => {
     }
   }, [session, isSessionLoading, navigate]);
 
-  const {
-    data: optimizations,
-    isLoading: isOptimizationsLoading,
-    error
-  } = useDashboardData({
-    client: selectedClient,
-    platform: selectedPlatform,
-    dateRange: selectedDateRange,
-    status: selectedStatus,
-    categories: selectedCategories,
-  });
+  const { fetchOptimizations, optimizationsByClient } = useDashboardData(
+    userClients || [],
+    selectedClient,
+    selectedPlatform,
+    null, // category
+    selectedStatus,
+    session,
+    () => {} // setOptimizationsByClient is handled internally
+  );
 
-  if (isSessionLoading || isClientsLoading || isOptimizationsLoading) {
+  if (isSessionLoading || isClientsLoading) {
     return <LoadingState />;
   }
 
-  if (error) {
-    console.error('Dashboard error:', error);
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-red-500">Error loading dashboard data</p>
-      </div>
-    );
-  }
+  const optimizations = Object.values(optimizationsByClient || {}).flat();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <DashboardHeader />
         <FilterSection
-          clients={clients || []}
+          clients={userClients}
           selectedClient={selectedClient}
-          setSelectedClient={setSelectedClient}
           selectedPlatform={selectedPlatform}
-          setSelectedPlatform={setSelectedPlatform}
-          selectedDateRange={selectedDateRange}
-          setSelectedDateRange={setSelectedDateRange}
+          selectedCategory={null}
           selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
-          selectedCategories={selectedCategories}
-          setSelectedCategories={setSelectedCategories}
+          onClientChange={setSelectedClient}
+          onPlatformChange={setSelectedPlatform}
+          onCategoryChange={() => {}}
+          onStatusChange={setSelectedStatus}
+          visibleColumns={visibleColumns}
+          onColumnToggle={handleColumnToggle}
         />
         <OptimizationTable
-          optimizations={optimizations || []}
+          optimizations={optimizations}
+          onStatusChange={() => {}}
           visibleColumns={visibleColumns}
-          handleColumnToggle={handleColumnToggle}
         />
       </main>
     </div>
