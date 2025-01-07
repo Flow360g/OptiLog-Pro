@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload } from "lucide-react";
+import { parseCSVFile } from "@/utils/csv/parser";
+import { analyzeMetricRelationships } from "@/utils/csv/metricAnalysis";
 
 interface AnalysisResult {
   metrics: Record<string, any>;
@@ -36,6 +38,10 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
         throw new Error("User not authenticated");
       }
 
+      // Parse and analyze CSV data
+      const csvData = await parseCSVFile(file);
+      const analysis = analyzeMetricRelationships(csvData);
+
       // Create a folder for the user's files
       const folderPath = `${user.id}/${crypto.randomUUID()}`;
       const fileName = `${folderPath}/${file.name}`;
@@ -52,19 +58,11 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
         .from('csv-uploads')
         .getPublicUrl(fileName);
 
-      // Simulate analysis (in a real app, you'd process the CSV here)
-      const mockAnalysis = {
-        metrics: {
-          totalRows: 100,
-          averageValue: 50,
-          topPerformer: "Campaign A"
-        },
-        recommendations: [
-          "Increase budget allocation for top-performing campaigns",
-          "Optimize targeting for underperforming segments",
-          "Review ad creative for low CTR campaigns"
-        ]
-      };
+      // Format metrics for display
+      const formattedMetrics = Object.entries(analysis.metrics).reduce((acc, [key, value]) => ({
+        ...acc,
+        [key]: `${value.percentChange.toFixed(2)}% (${value.currentPeriod.toFixed(2)} vs ${value.previousPeriod.toFixed(2)})`
+      }), {});
 
       // Store analysis results with user_id
       const { error: analysisError } = await supabase
@@ -72,14 +70,17 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
         .insert({
           user_id: user.id,
           file_name: file.name,
-          metrics_analysis: mockAnalysis.metrics,
-          recommendations: mockAnalysis.recommendations
+          metrics_analysis: formattedMetrics,
+          recommendations: analysis.recommendations
         });
 
       if (analysisError) throw analysisError;
 
       // Update UI with results
-      onAnalysisComplete(mockAnalysis);
+      onAnalysisComplete({
+        metrics: formattedMetrics,
+        recommendations: analysis.recommendations
+      });
 
       toast({
         title: "Analysis complete",
