@@ -13,33 +13,42 @@ export function Navigation() {
   const { toast } = useToast();
   
   useEffect(() => {
+    let isSubscribed = true;
+
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Session error:", error);
-          await supabase.auth.signOut();
+          setUserEmail(null);
           navigate("/login");
           return;
         }
         
         if (!session) {
+          setUserEmail(null);
           navigate("/login");
           return;
         }
 
-        setUserEmail(session.user.email);
+        if (isSubscribed) {
+          setUserEmail(session.user.email);
+        }
       } catch (error) {
         console.error("Session check error:", error);
-        await supabase.auth.signOut();
-        navigate("/login");
+        if (isSubscribed) {
+          setUserEmail(null);
+          navigate("/login");
+        }
       }
     };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isSubscribed) return;
+
       if (event === 'SIGNED_OUT' || !session) {
         setUserEmail(null);
         navigate("/login");
@@ -47,24 +56,12 @@ export function Navigation() {
       }
       
       if (session) {
-        try {
-          const { data: { user }, error } = await supabase.auth.getUser();
-          if (error) throw error;
-          setUserEmail(user?.email || null);
-        } catch (error) {
-          console.error("Error getting user:", error);
-          toast({
-            title: "Error",
-            description: "There was a problem with your session. Please log in again.",
-            variant: "destructive",
-          });
-          await supabase.auth.signOut();
-          navigate("/login");
-        }
+        setUserEmail(session.user.email);
       }
     });
 
     return () => {
+      isSubscribed = false;
       subscription.unsubscribe();
     };
   }, [navigate, toast]);

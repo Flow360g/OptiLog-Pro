@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserMenuProps {
   userEmail: string | null;
@@ -14,10 +15,26 @@ interface UserMenuProps {
 
 export function UserMenu({ userEmail }: UserMenuProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // If logout fails due to session issues, we still want to clear local state
+      localStorage.removeItem('supabase.auth.token');
+      navigate("/login");
+      
+      toast({
+        title: "Logout Error",
+        description: "There was an issue logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
