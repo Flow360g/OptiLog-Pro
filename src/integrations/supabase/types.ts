@@ -309,6 +309,7 @@ export type Database = {
       }
     }
     Enums: {
+      test_category: "Creative Test" | "Audience Test" | "Bid Strategy Test"
       test_platform: "facebook" | "google" | "tiktok"
       test_status:
         | "draft"

@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import UserSettings from "./pages/UserSettings";
 import Insights from "./pages/Insights";
 import Index from "./pages/Index";
+import TestingSchedule from "./pages/TestingSchedule";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
   {
     path: "/insights",
     element: withTitleUpdate(Insights)(),
+  },
+  {
+    path: "/testing-schedule",
+    element: withTitleUpdate(TestingSchedule)(),
   },
   // Performance Diagnosis route is hidden for now
   // {
