@@ -7,6 +7,7 @@ import { Loader2, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { ClientSelectionScreen } from "@/components/testing-schedule/ClientSelectionScreen";
 import { Button } from "@/components/ui/button";
+import { TestsTable } from "@/components/testing-schedule/TestsTable";
 
 export default function TestingSchedule() {
   const { toast } = useToast();
@@ -49,6 +50,15 @@ export default function TestingSchedule() {
     setSelectedClient(null);
   };
 
+  const groupTestsByStatus = (tests: any[]) => {
+    return {
+      pipeline: tests.filter(test => test.status === 'draft'),
+      upcoming: tests.filter(test => test.status === 'scheduled'),
+      live: tests.filter(test => test.status === 'in_progress'),
+      completed: tests.filter(test => test.status === 'completed')
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <Navigation />
@@ -78,47 +88,19 @@ export default function TestingSchedule() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {tests?.map((test) => (
-                    <Card key={test.id} className="p-6 space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{test.name}</h3>
-                        <p className="text-sm text-gray-500">
-                          {test.test_types?.test_categories?.name} - {test.test_types?.name}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm">
-                          <span className="font-medium">Client:</span> {test.client}
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium">Platform:</span> {test.platform}
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium">Status:</span>{" "}
-                          <span className={`capitalize ${
-                            test.status === 'completed' ? 'text-green-600' :
-                            test.status === 'in_progress' ? 'text-blue-600' :
-                            test.status === 'scheduled' ? 'text-yellow-600' :
-                            'text-gray-600'
-                          }`}>
-                            {test.status.replace('_', ' ')}
-                          </span>
-                        </p>
-                        {test.start_date && (
-                          <p className="text-sm">
-                            <span className="font-medium">Start Date:</span>{" "}
-                            {new Date(test.start_date).toLocaleDateString()}
-                          </p>
-                        )}
-                        {test.end_date && (
-                          <p className="text-sm">
-                            <span className="font-medium">End Date:</span>{" "}
-                            {new Date(test.end_date).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                    </Card>
+                <div className="space-y-8">
+                  {tests && Object.entries(groupTestsByStatus(tests)).map(([status, statusTests]) => (
+                    statusTests.length > 0 && (
+                      <section key={status} className="space-y-4">
+                        <h2 className="text-2xl font-semibold capitalize">
+                          {status === 'pipeline' ? 'Test Pipeline' :
+                           status === 'upcoming' ? 'Up Next' :
+                           status === 'live' ? 'Live Tests' :
+                           'Completed Tests'}
+                        </h2>
+                        <TestsTable tests={statusTests} />
+                      </section>
+                    )
                   ))}
                 </div>
               )}
