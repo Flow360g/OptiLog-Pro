@@ -57,6 +57,11 @@ function calculatePeriodMetrics(data: CSVData[]): Record<string, PeriodCompariso
   const currentPeriod = data[0];
   const previousPeriod = data[1];
 
+  const calculatePercentChange = (current: number, previous: number): number => {
+    if (previous === 0) return 0;
+    return ((current - previous) / previous) * 100;
+  };
+
   const metrics: Record<string, PeriodComparison> = {
     cost_per_result: {
       currentPeriod: currentPeriod.cost_per_result,
@@ -85,12 +90,8 @@ function calculatePeriodMetrics(data: CSVData[]): Record<string, PeriodCompariso
     }
   };
 
+  console.log('Calculated period metrics:', metrics);
   return metrics;
-}
-
-function calculatePercentChange(current: number, previous: number): number {
-  if (previous === 0) return 0;
-  return ((current - previous) / previous) * 100;
 }
 
 function determineImpact(
@@ -131,6 +132,8 @@ function generateRecommendations(rootCauses: string[]): string[] {
 }
 
 export function analyzeMetricRelationships(data: CSVData[]): MetricAnalysis {
+  console.log('Analyzing data:', data);
+  
   if (!data || data.length < 2) {
     throw new Error("Insufficient data for analysis. Need at least two periods of data.");
   }
@@ -144,17 +147,21 @@ export function analyzeMetricRelationships(data: CSVData[]): MetricAnalysis {
     relationships[metric].impact = determineImpact(metric, metrics);
   });
 
-  // Identify root causes
-  const rootCauses = Object.entries(relationships)
-    .filter(([metric, rel]) => {
-      const change = metrics[metric]?.percentChange || 0;
-      return rel.parent && Math.abs(change) > 10;
-    })
-    .sort((a, b) => b[1].impact - a[1].impact)
-    .map(([metric]) => metric);
+  // Identify root causes (metrics with significant changes)
+  const rootCauses = Object.entries(metrics)
+    .filter(([_, data]) => Math.abs(data.percentChange) > 10)
+    .map(([metric]) => metric)
+    .filter(metric => METRIC_RELATIONSHIPS[metric]?.parent);
 
-  // Generate recommendations
+  // Generate recommendations based on root causes
   const recommendations = generateRecommendations(rootCauses);
+
+  console.log('Analysis results:', {
+    metrics,
+    relationships,
+    rootCauses,
+    recommendations
+  });
 
   return {
     metrics,

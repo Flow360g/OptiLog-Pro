@@ -51,12 +51,12 @@ function parseNumericValue(value: string): number {
     return parseFloat(cleanValue) / 100;
   }
   
-  return parseFloat(cleanValue) || 0;
+  const parsedValue = parseFloat(cleanValue);
+  return isNaN(parsedValue) ? 0 : parsedValue;
 }
 
 function extractDateRangeFromHeader(header: string): { isPrevious: boolean } {
   const cleanHeader = header.toLowerCase();
-  // Look for date indicators in the header
   const isPrevious = cleanHeader.includes('previous') || 
                     cleanHeader.includes('prior') || 
                     cleanHeader.includes('last') ||
@@ -64,7 +64,23 @@ function extractDateRangeFromHeader(header: string): { isPrevious: boolean } {
   return { isPrevious };
 }
 
-function organizeMetricsByPeriod(data: any): ParsedMetrics {
+function identifyMetricType(header: string): string | null {
+  const cleanHeader = header.toLowerCase().trim();
+  
+  if (cleanHeader.includes('cost_per_result') || cleanHeader.includes('cost per result')) return 'cost_per_result';
+  if (cleanHeader.includes('conversion_rate') || cleanHeader.includes('conversion rate')) return 'conversion_rate';
+  if (cleanHeader.includes('cpc')) return 'cpc';
+  if (cleanHeader.includes('ctr')) return 'ctr';
+  if (cleanHeader.includes('cpm')) return 'cpm';
+  if (cleanHeader.includes('spend') || cleanHeader.includes('cost')) return 'spend';
+  if (cleanHeader.includes('impressions')) return 'impressions';
+  if (cleanHeader.includes('clicks')) return 'clicks';
+  if (cleanHeader.includes('conversions') || cleanHeader.includes('results')) return 'conversions';
+  
+  return null;
+}
+
+function organizeMetricsByPeriod(data: any[]): ParsedMetrics {
   const metrics: ParsedMetrics = {
     current: {
       spend: 0,
@@ -90,30 +106,48 @@ function organizeMetricsByPeriod(data: any): ParsedMetrics {
     }
   };
 
-  // Process each column in the data
-  Object.entries(data[0]).forEach(([header, value]) => {
+  // Process the first row of data which contains our metrics
+  const firstRow = data[0];
+  
+  Object.entries(firstRow).forEach(([header, value]) => {
     const { isPrevious } = extractDateRangeFromHeader(header);
     const period = isPrevious ? 'previous' : 'current';
+    const metricType = identifyMetricType(header);
     
-    // Try to identify the metric type from the header
-    if (header.toLowerCase().includes('spend') || header.toLowerCase().includes('cost')) {
-      metrics[period].spend = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('impressions')) {
-      metrics[period].impressions = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('clicks')) {
-      metrics[period].clicks = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('conversions') || header.toLowerCase().includes('results')) {
-      metrics[period].conversions = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('ctr')) {
-      metrics[period].ctr = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('cpc')) {
-      metrics[period].cpc = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('cpm')) {
-      metrics[period].cpm = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('conversion rate')) {
-      metrics[period].conversion_rate = parseNumericValue(value as string);
-    } else if (header.toLowerCase().includes('cost per result')) {
-      metrics[period].cost_per_result = parseNumericValue(value as string);
+    if (metricType && value !== undefined && value !== null) {
+      const numericValue = parseNumericValue(value.toString());
+      metrics[period][metricType as keyof typeof metrics.current] = numericValue;
+    }
+  });
+
+  // Calculate derived metrics if they're not present in the data
+  ['current', 'previous'].forEach(period => {
+    const p = period as keyof ParsedMetrics;
+    const m = metrics[p];
+
+    // Calculate CTR if not present
+    if (m.ctr === 0 && m.clicks > 0 && m.impressions > 0) {
+      m.ctr = (m.clicks / m.impressions) * 100;
+    }
+
+    // Calculate CPC if not present
+    if (m.cpc === 0 && m.clicks > 0 && m.spend > 0) {
+      m.cpc = m.spend / m.clicks;
+    }
+
+    // Calculate CPM if not present
+    if (m.cpm === 0 && m.impressions > 0 && m.spend > 0) {
+      m.cpm = (m.spend / m.impressions) * 1000;
+    }
+
+    // Calculate Conversion Rate if not present
+    if (m.conversion_rate === 0 && m.conversions > 0 && m.clicks > 0) {
+      m.conversion_rate = (m.conversions / m.clicks) * 100;
+    }
+
+    // Calculate Cost per Result if not present
+    if (m.cost_per_result === 0 && m.conversions > 0 && m.spend > 0) {
+      m.cost_per_result = m.spend / m.conversions;
     }
   });
 
@@ -132,8 +166,11 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
             throw new Error("CSV file appears to be empty");
           }
 
+          console.log('Parsed CSV data:', results.data);
+          
           // Process the data to organize metrics by period
           const metrics = organizeMetricsByPeriod(results.data);
+          console.log('Organized metrics:', metrics);
 
           // Create two data points representing current and previous periods
           const processedData: CSVData[] = [
@@ -147,12 +184,17 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
             }
           ];
 
+          console.log('Processed data:', processedData);
           resolve(processedData);
         } catch (error) {
+          console.error('Error processing CSV:', error);
           reject(new Error(`Failed to process CSV: ${error.message}`));
         }
       },
-      error: (error) => reject(new Error(`Failed to parse CSV: ${error.message}`)),
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
+        reject(new Error(`Failed to parse CSV: ${error.message}`));
+      },
     });
   });
 }
