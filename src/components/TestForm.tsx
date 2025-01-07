@@ -19,18 +19,21 @@ import {
 } from "@/components/ui/select";
 import { MetricsSection } from "./form-sections/MetricsSection";
 
+export type TestPlatform = "facebook" | "google" | "tiktok";
+export type TestType = "Creative Test" | "Audience Test" | "Bid Strategy Test";
+
 export function TestForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [platform, setPlatform] = useState<"facebook" | "google" | "tiktok">();
+  const [platform, setPlatform] = useState<TestPlatform>();
   const [testName, setTestName] = useState("");
   const [hypothesis, setHypothesis] = useState("");
   const [testVariable, setTestVariable] = useState("");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [client, setClient] = useState("");
-  const [testType, setTestType] = useState("");
+  const [testType, setTestType] = useState<TestType>();
   const [effortLevel, setEffortLevel] = useState<number>(0);
   const [impactLevel, setImpactLevel] = useState<number>(0);
 
@@ -51,28 +54,28 @@ export function TestForm() {
         return;
       }
 
-      if (!platform) {
+      if (!platform || !testType) {
         toast({
           title: "Error",
-          description: "Please select a platform",
+          description: "Please select both a platform and test type",
           variant: "destructive",
         });
         return;
       }
 
-      const { error } = await supabase.from('tests').insert({
+      const { error } = await supabase.from('tests').insert([{
         client,
         platform,
         name: testName,
         hypothesis,
         test_variable: testVariable,
-        test_type: testType as "Creative Test" | "Audience Test" | "Bid Strategy Test",
+        test_type: testType,
         start_date: startDate,
         end_date: endDate,
         effort_level: effortLevel,
         impact_level: impactLevel,
         user_id: user.id,
-      });
+      }]);
 
       if (error) {
         console.error('Error submitting test:', error);
@@ -125,7 +128,7 @@ export function TestForm() {
 
         <div className="space-y-4">
           <Label htmlFor="testType">Test Type</Label>
-          <Select value={testType} onValueChange={setTestType}>
+          <Select value={testType} onValueChange={(value: TestType) => setTestType(value)}>
             <SelectTrigger className="bg-white text-black">
               <SelectValue placeholder="Select test type" />
             </SelectTrigger>

@@ -6,9 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TestPlatform } from "../TestForm";
 
 interface PlatformSectionProps {
-  onPlatformChange: (value: string) => void;
+  onPlatformChange: (value: TestPlatform) => void;
 }
 
 export function PlatformSection({ onPlatformChange }: PlatformSectionProps) {
@@ -22,6 +23,7 @@ export function PlatformSection({ onPlatformChange }: PlatformSectionProps) {
         <SelectContent>
           <SelectItem value="facebook">Facebook</SelectItem>
           <SelectItem value="google">Google Ads</SelectItem>
+          <SelectItem value="tiktok">TikTok</SelectItem>
         </SelectContent>
       </Select>
     </div>
