@@ -1,7 +1,13 @@
 import { Card } from "@/components/ui/card";
 
+interface MetricValue {
+  currentPeriod: number;
+  previousPeriod: number;
+  percentChange: number;
+}
+
 interface AnalysisResultsProps {
-  metrics?: Record<string, any>;
+  metrics?: Record<string, MetricValue>;
   recommendations?: string[];
 }
 
@@ -32,6 +38,17 @@ export function AnalysisResults({ metrics, recommendations }: AnalysisResultsPro
     );
   }
 
+  const formatValue = (value: number): string => {
+    return value.toLocaleString(undefined, { 
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2 
+    });
+  };
+
+  const formatPercentage = (value: number): string => {
+    return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">Analysis Results</h2>
@@ -44,7 +61,17 @@ export function AnalysisResults({ metrics, recommendations }: AnalysisResultsPro
                 <span className="text-sm font-medium text-gray-600">
                   {key.split(/(?=[A-Z])/).join(' ')}
                 </span>
-                <span className="text-sm text-gray-900">{value}</span>
+                <div className="text-right">
+                  <div className="text-sm text-gray-900">
+                    Current: {formatValue(value.currentPeriod)}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Previous: {formatValue(value.previousPeriod)}
+                  </div>
+                  <div className={`text-sm ${value.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatPercentage(value.percentChange)}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
