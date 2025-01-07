@@ -227,6 +227,7 @@ export type Database = {
           kpi: string
           name: string
           platform: Database["public"]["Enums"]["test_platform"]
+          results: Json | null
           start_date: string | null
           status: Database["public"]["Enums"]["test_status"]
           test_type_id: string
@@ -244,6 +245,7 @@ export type Database = {
           kpi: string
           name: string
           platform: Database["public"]["Enums"]["test_platform"]
+          results?: Json | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["test_status"]
           test_type_id: string
@@ -261,6 +263,7 @@ export type Database = {
           kpi?: string
           name?: string
           platform?: Database["public"]["Enums"]["test_platform"]
+          results?: Json | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["test_status"]
           test_type_id?: string
