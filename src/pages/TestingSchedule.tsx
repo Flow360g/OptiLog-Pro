@@ -3,9 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { ClientSelectionScreen } from "@/components/testing-schedule/ClientSelectionScreen";
+import { Button } from "@/components/ui/button";
 
 export default function TestingSchedule() {
   const { toast } = useToast();
@@ -44,22 +45,36 @@ export default function TestingSchedule() {
     enabled: !!selectedClient,
   });
 
+  const handleBackClick = () => {
+    setSelectedClient(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <Navigation />
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2 text-gray-900">
-            Testing Schedule
-          </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            View and manage your tests
-          </p>
-
-          {!selectedClient ? (
-            <ClientSelectionScreen onClientSelect={setSelectedClient} />
-          ) : (
+          {selectedClient ? (
             <>
+              <div className="flex items-center gap-4 mb-8">
+                <Button
+                  variant="ghost"
+                  onClick={handleBackClick}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back to Client Selection
+                </Button>
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900">
+                    Testing Schedule
+                  </h1>
+                  <p className="text-lg text-gray-600">
+                    {selectedClient.toUpperCase()}
+                  </p>
+                </div>
+              </div>
+
               {isLoading ? (
                 <div className="flex justify-center items-center h-64">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -110,6 +125,8 @@ export default function TestingSchedule() {
                 </div>
               )}
             </>
+          ) : (
+            <ClientSelectionScreen onClientSelect={setSelectedClient} />
           )}
         </div>
       </div>
