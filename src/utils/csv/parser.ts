@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import { cleanData } from './dataCleanup';
+import { findMatchingColumn } from './columnMapping';
 
 export interface CSVData {
   date: string;
@@ -22,7 +23,7 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
       skipEmptyLines: true,
       transformHeader: (header: string) => {
         // Normalize headers by removing quotes and whitespace
-        return header.replace(/['"]+/g, '').trim().toLowerCase();
+        return header.replace(/['"]+/g, '').trim();
       },
       transform: (value: string) => {
         // Remove any malformed quotes from values
@@ -30,29 +31,47 @@ export async function parseCSVFile(file: File): Promise<CSVData[]> {
       },
       complete: (results) => {
         try {
-          // Check for required columns
-          const requiredColumns = ['date', 'spend', 'impressions', 'clicks', 'conversions'];
           const headers = results.meta.fields || [];
-          const missingColumns = requiredColumns.filter(col => 
-            !headers.map(h => h.toLowerCase()).includes(col.toLowerCase())
-          );
+          
+          // Check for required columns using smart mapping
+          const requiredColumns = ['date', 'spend', 'impressions', 'clicks', 'conversions'];
+          const columnMap: { [key: string]: string } = {};
+          const missingColumns: string[] = [];
+
+          for (const required of requiredColumns) {
+            const match = findMatchingColumn(headers, required);
+            if (match) {
+              columnMap[required] = match;
+            } else {
+              missingColumns.push(required);
+            }
+          }
 
           if (missingColumns.length > 0) {
-            throw new Error(`Missing required columns: ${missingColumns.join(', ')}. Please ensure your CSV contains these columns.`);
+            throw new Error(`Missing required columns: ${missingColumns.join(', ')}. Please ensure your CSV contains these or similar columns.`);
           }
+
+          // Transform the data to use standardized column names
+          const transformedData = results.data.map((row: any) => {
+            const newRow: any = {};
+            for (const [standardName, originalName] of Object.entries(columnMap)) {
+              newRow[standardName] = row[originalName];
+            }
+            return newRow;
+          });
 
           // Log parsing errors in a more user-friendly way
           if (results.errors && results.errors.length > 0) {
             const errorMessages = results.errors
               .map(error => `Row ${error.row + 1}: ${error.message}`)
-              .slice(0, 3); // Show only first 3 errors to avoid overwhelming the user
+              .slice(0, 3);
             
             throw new Error(`CSV parsing errors:\n${errorMessages.join('\n')}${
               results.errors.length > 3 ? `\n...and ${results.errors.length - 3} more errors` : ''
             }`);
           }
           
-          const cleanedData = cleanData(results.data as any[]);
+          const cleanedData = cleanData(transformedData);
           resolve(cleanedData);
         } catch (error) {
           reject(new Error(`Failed to process CSV: ${error.message}`));
