@@ -58,13 +58,16 @@ export function CSVUpload({ onAnalysisComplete }: { onAnalysisComplete: (result:
         .from('csv-uploads')
         .getPublicUrl(fileName);
 
+      // Convert metrics to a format compatible with Json type
+      const metricsJson = JSON.parse(JSON.stringify(analysis.metrics));
+
       // Store analysis results with user_id
       const { error: analysisError } = await supabase
         .from('csv_analysis')
         .insert({
           user_id: user.id,
           file_name: file.name,
-          metrics_analysis: analysis.metrics,
+          metrics_analysis: metricsJson,
           recommendations: analysis.recommendations
         });
 
