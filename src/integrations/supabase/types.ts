@@ -174,6 +174,53 @@ export type Database = {
         }
         Relationships: []
       }
+      test_templates: {
+        Row: {
+          created_at: string
+          effort_level: number | null
+          hypothesis: string
+          id: string
+          impact_level: number | null
+          kpi: string
+          name: string
+          platform: string
+          test_type_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          effort_level?: number | null
+          hypothesis: string
+          id?: string
+          impact_level?: number | null
+          kpi: string
+          name: string
+          platform: string
+          test_type_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          effort_level?: number | null
+          hypothesis?: string
+          id?: string
+          impact_level?: number | null
+          kpi?: string
+          name?: string
+          platform?: string
+          test_type_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_templates_test_type_id_fkey"
+            columns: ["test_type_id"]
+            isOneToOne: false
+            referencedRelation: "test_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_types: {
         Row: {
           category_id: string
@@ -315,6 +362,7 @@ export type Database = {
       }
     }
     Enums: {
+      template_category: "new" | "library"
       test_category: "Creative Test" | "Audience Test" | "Bid Strategy Test"
       test_platform: "facebook" | "google" | "tiktok"
       test_status:

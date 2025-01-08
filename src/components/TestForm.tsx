@@ -6,12 +6,16 @@ import { DateSection } from "./form-sections/DateSection";
 import { MetricsSection } from "./form-sections/MetricsSection";
 import { TestTypeSection } from "./test-form/TestTypeSection";
 import { TestDetailsSection } from "./test-form/TestDetailsSection";
+import { TestSourceSection } from "./test-form/TestSourceSection";
 import { useTestForm } from "./test-form/useTestForm";
+import { useState } from "react";
 
 export type TestPlatform = "facebook" | "google" | "tiktok";
 export type TestCategory = "Creative Test" | "Audience Test" | "Bid Strategy Test";
 
 export function TestForm() {
+  const [showSourceSelection, setShowSourceSelection] = useState(true);
+  const [testSource, setTestSource] = useState<'new' | 'library'>();
   const {
     isSubmitting,
     platform,
@@ -39,6 +43,11 @@ export function TestForm() {
     handleSubmit,
   } = useTestForm();
 
+  const handleSourceSelect = (source: 'new' | 'library') => {
+    setTestSource(source);
+    setShowSourceSelection(false);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-white rounded-lg border border-gray-200">
       <div className="space-y-6">
@@ -47,46 +56,54 @@ export function TestForm() {
         />
         
         <PlatformSection onPlatformChange={setPlatform} />
+
+        {platform && client && showSourceSelection && (
+          <TestSourceSection onSourceSelect={handleSourceSelect} />
+        )}
         
-        <TestDetailsSection
-          testName={testName}
-          setTestName={setTestName}
-          hypothesis={hypothesis}
-          setHypothesis={setHypothesis}
-          testKPI={testKPI}
-          setTestKPI={setTestKPI}
-        />
+        {platform && client && testSource && (
+          <>
+            <TestDetailsSection
+              testName={testName}
+              setTestName={setTestName}
+              hypothesis={hypothesis}
+              setHypothesis={setHypothesis}
+              testKPI={testKPI}
+              setTestKPI={setTestKPI}
+            />
 
-        <TestTypeSection
-          testCategory={testCategory}
-          setTestCategory={setTestCategory}
-          testType={testType}
-          setTestType={setTestType}
-        />
+            <TestTypeSection
+              testCategory={testCategory}
+              setTestCategory={setTestCategory}
+              testType={testType}
+              setTestType={setTestType}
+            />
 
-        <div className="space-y-4">
-          <DateSection selectedDate={startDate} onDateChange={setStartDate} />
-        </div>
+            <div className="space-y-4">
+              <DateSection selectedDate={startDate} onDateChange={setStartDate} />
+            </div>
 
-        <div className="space-y-4">
-          <DateSection selectedDate={endDate} onDateChange={setEndDate} />
-        </div>
+            <div className="space-y-4">
+              <DateSection selectedDate={endDate} onDateChange={setEndDate} />
+            </div>
 
-        <MetricsSection
-          onEffortChange={setEffortLevel}
-          onImpactChange={setImpactLevel}
-        />
+            <MetricsSection
+              onEffortChange={setEffortLevel}
+              onImpactChange={setImpactLevel}
+            />
 
-        <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            "Schedule Test"
-          )}
-        </Button>
+            <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Schedule Test"
+              )}
+            </Button>
+          </>
+        )}
       </div>
     </form>
   );
