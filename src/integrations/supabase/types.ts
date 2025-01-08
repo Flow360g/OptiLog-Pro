@@ -268,6 +268,7 @@ export type Database = {
           created_at: string
           effort_level: number | null
           end_date: string | null
+          executive_summary: string | null
           hypothesis: string
           id: string
           impact_level: number | null
@@ -286,6 +287,7 @@ export type Database = {
           created_at?: string
           effort_level?: number | null
           end_date?: string | null
+          executive_summary?: string | null
           hypothesis: string
           id?: string
           impact_level?: number | null
@@ -304,6 +306,7 @@ export type Database = {
           created_at?: string
           effort_level?: number | null
           end_date?: string | null
+          executive_summary?: string | null
           hypothesis?: string
           id?: string
           impact_level?: number | null

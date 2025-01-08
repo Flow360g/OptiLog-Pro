@@ -22,4 +22,5 @@ export interface Test {
       name: string;
     };
   };
+  executive_summary: string | null;
 }
