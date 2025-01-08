@@ -49,7 +49,7 @@ export function TestsTable({ tests }: TestsTableProps) {
     return priorityB - priorityA;
   });
 
-  const handleStatusChange = async (testId: string, newStatus: "draft" | "scheduled" | "in_progress" | "completed" | "cancelled") => {
+  const handleStatusChange = async (testId: string, newStatus: Test['status']) => {
     try {
       const { error } = await supabase
         .from('tests')
@@ -62,6 +62,12 @@ export function TestsTable({ tests }: TestsTableProps) {
         title: "Status updated",
         description: "Test status has been updated successfully.",
       });
+
+      // Update the local state to reflect the change
+      const updatedTests = tests.map(test => 
+        test.id === testId ? { ...test, status: newStatus } : test
+      );
+      tests = updatedTests;
     } catch (error) {
       toast({
         title: "Error updating status",
@@ -77,6 +83,19 @@ export function TestsTable({ tests }: TestsTableProps) {
       case 'in_progress': return 'Working on it';
       case 'completed': return 'Live';
       default: return status;
+    }
+  };
+
+  const getStatusStyles = (status: Test['status']) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-500 text-white hover:bg-green-600';
+      case 'in_progress':
+        return 'bg-blue-500 text-white hover:bg-blue-600';
+      case 'draft':
+        return 'bg-gray-100 hover:bg-gray-200';
+      default:
+        return '';
     }
   };
 
@@ -133,7 +152,7 @@ export function TestsTable({ tests }: TestsTableProps) {
                       value={test.status}
                       onValueChange={(value) => handleStatusChange(test.id, value as Test['status'])}
                     >
-                      <SelectTrigger className="w-[140px]">
+                      <SelectTrigger className={`w-[140px] ${getStatusStyles(test.status)}`}>
                         <SelectValue>
                           {getStatusLabel(test.status)}
                         </SelectValue>
