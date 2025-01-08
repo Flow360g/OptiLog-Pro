@@ -21,14 +21,20 @@ export function Navigation() {
         
         if (error) {
           console.error("Session error:", error);
-          setUserEmail(null);
-          navigate("/login");
+          if (isSubscribed) {
+            setUserEmail(null);
+            // Clear any stale auth data
+            await supabase.auth.signOut();
+            navigate("/login");
+          }
           return;
         }
         
         if (!session) {
-          setUserEmail(null);
-          navigate("/login");
+          if (isSubscribed) {
+            setUserEmail(null);
+            navigate("/login");
+          }
           return;
         }
 
@@ -39,15 +45,22 @@ export function Navigation() {
         console.error("Session check error:", error);
         if (isSubscribed) {
           setUserEmail(null);
+          // Clear any stale auth data
+          await supabase.auth.signOut();
           navigate("/login");
         }
       }
     };
 
-    checkSession();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isSubscribed) return;
+
+      if (event === 'TOKEN_REFRESHED') {
+        if (session) {
+          setUserEmail(session.user.email);
+        }
+        return;
+      }
 
       if (event === 'SIGNED_OUT' || !session) {
         setUserEmail(null);
@@ -59,6 +72,8 @@ export function Navigation() {
         setUserEmail(session.user.email);
       }
     });
+
+    checkSession();
 
     return () => {
       isSubscribed = false;
