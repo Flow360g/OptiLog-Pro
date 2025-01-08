@@ -8,7 +8,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, HelpCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { TestPlatform } from "../TestForm";
 
 interface TestTemplateDialogProps {
@@ -70,10 +76,30 @@ export function TestTemplateDialog({
                 className="h-auto p-6 flex flex-col items-start gap-2 hover:bg-primary/5 group relative"
                 onClick={() => onTemplateSelect(template)}
               >
-                <span className="font-semibold text-lg">{template.name}</span>
-                <span className="text-sm text-muted-foreground line-clamp-2">
-                  {template.hypothesis}
-                </span>
+                <div className="flex items-start justify-between w-full">
+                  <span className="font-semibold text-lg">{template.name}</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="p-0 h-auto hover:bg-transparent"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[300px]">
+                        <div className="space-y-2">
+                          <p className="font-medium">Description:</p>
+                          <p className="text-sm">{template.test_types?.description || 'No description available'}</p>
+                          <p className="font-medium mt-2">Hypothesis:</p>
+                          <p className="text-sm">{template.hypothesis}</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <span className="text-sm text-primary">
                   KPI: {template.kpi}
                 </span>
