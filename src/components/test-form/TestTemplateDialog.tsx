@@ -90,9 +90,9 @@ export function TestTemplateDialog({
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent 
-                        side="right" 
+                        side="top" 
                         className="w-[400px] p-6 space-y-4"
-                        align="start"
+                        align="center"
                         sideOffset={16}
                         style={{
                           position: 'absolute',
@@ -100,16 +100,6 @@ export function TestTemplateDialog({
                           maxWidth: '400px',
                           whiteSpace: 'normal',
                           wordBreak: 'break-word'
-                        }}
-                        onPointerEnterCapture={(e) => {
-                          const tooltip = e.currentTarget;
-                          const rect = tooltip.getBoundingClientRect();
-                          const viewportWidth = window.innerWidth;
-                          
-                          if (rect.right > viewportWidth) {
-                            tooltip.style.left = 'auto';
-                            tooltip.style.right = '100%';
-                          }
                         }}
                       >
                         <div className="space-y-4">
