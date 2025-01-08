@@ -58,11 +58,24 @@ export function TestForm() {
   };
 
   const handleTemplateSelect = (template: any) => {
+    // Auto-fill form with template data
     setTestName(template.name);
     setHypothesis(template.hypothesis);
     setTestKPI(template.kpi);
+    if (template.test_types?.category?.name as TestCategory) {
+      setTestCategory(template.test_types.category.name as TestCategory);
+    }
     setTestType(template.test_types.name);
+    if (template.effort_level) setEffortLevel(template.effort_level);
+    if (template.impact_level) setImpactLevel(template.impact_level);
+    
     setShowTemplateDialog(false);
+    setTestSource('library');
+    
+    toast({
+      title: "Template Selected",
+      description: "The form has been pre-filled with the template data.",
+    });
   };
 
   return (
@@ -76,7 +89,7 @@ export function TestForm() {
 
         <TestSourceSection onSourceSelect={handleSourceSelect} />
 
-        {testSource === 'new' && platform && client && (
+        {(testSource === 'new' || testSource === 'library') && platform && client && (
           <TestFormDetails
             testName={testName}
             setTestName={setTestName}

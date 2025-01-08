@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -34,7 +35,8 @@ export function TestTemplateDialog({
           *,
           test_types (
             name,
-            category_id
+            category_id,
+            category:test_categories(name)
           )
         `)
         .eq('platform', platform);
@@ -47,9 +49,12 @@ export function TestTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Choose a Test Template</DialogTitle>
+          <DialogDescription>
+            Select a template to pre-fill your test details
+          </DialogDescription>
         </DialogHeader>
         
         {isLoading ? (
@@ -62,14 +67,19 @@ export function TestTemplateDialog({
               <Button
                 key={template.id}
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-start gap-2 hover:bg-primary/5"
+                className="h-auto p-6 flex flex-col items-start gap-2 hover:bg-primary/5 group relative"
                 onClick={() => onTemplateSelect(template)}
               >
-                <span className="font-semibold">{template.name}</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="font-semibold text-lg">{template.name}</span>
+                <span className="text-sm text-muted-foreground line-clamp-2">
                   {template.hypothesis}
                 </span>
-                <span className="text-xs text-primary">KPI: {template.kpi}</span>
+                <span className="text-sm text-primary">
+                  KPI: {template.kpi}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {template.test_types?.category?.name}
+                </span>
               </Button>
             ))}
           </div>
