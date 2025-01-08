@@ -22,6 +22,15 @@ export function TemplateHelpTooltip({
 }: TemplateHelpTooltipProps) {
   const tooltipRef = useRef<HTMLDivElement>(null);
 
+  const handleTooltipMouseEnter = () => {
+    if (tooltipRef.current instanceof HTMLElement) {
+      const button = tooltipRef.current.parentElement?.querySelector('button');
+      if (button) {
+        onTooltipPosition({ currentTarget: button } as React.MouseEvent<HTMLButtonElement>);
+      }
+    }
+  };
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -37,7 +46,7 @@ export function TemplateHelpTooltip({
         <TooltipContent 
           ref={tooltipRef}
           className="w-[400px] p-6 space-y-4 z-[9999]"
-          onMouseEnter={onTooltipPosition}
+          onMouseEnter={handleTooltipMouseEnter}
         >
           <TemplateTooltipContent 
             description={description} 

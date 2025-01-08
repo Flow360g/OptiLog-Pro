@@ -21,7 +21,7 @@ export function TestTemplateCard({ template, onTemplateSelect }: TestTemplateCar
   const handleTooltipPosition = (event: React.MouseEvent<HTMLButtonElement>) => {
     const button = event.currentTarget;
     const tooltipElement = button.parentElement?.querySelector('[role="tooltip"]');
-    if (!tooltipElement) return;
+    if (!tooltipElement || !(tooltipElement instanceof HTMLElement)) return;
     
     const buttonRect = button.getBoundingClientRect();
     const tooltipRect = tooltipElement.getBoundingClientRect();

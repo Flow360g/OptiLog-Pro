@@ -5,10 +5,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Optimization } from "@/types/optimization";
+
+interface PriorityItem {
+  id: string;
+  impact_level: number | null;
+  effort_level: number | null;
+}
 
 interface PriorityTooltipProps {
-  optimizations: Optimization[];
+  optimizations: PriorityItem[];
 }
 
 export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
@@ -18,6 +23,7 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
 
   // Sort optimizations by priority score
   const sortedOptimizations = [...optimizations].sort((a, b) => {
+    if (!a.impact_level || !a.effort_level || !b.impact_level || !b.effort_level) return 0;
     const priorityA = calculatePriority(a.impact_level, a.effort_level);
     const priorityB = calculatePriority(b.impact_level, b.effort_level);
     return priorityB - priorityA;
@@ -44,6 +50,7 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
                 </div>
                 {/* Plot points */}
                 {sortedOptimizations.map((opt, index) => {
+                  if (!opt.impact_level || !opt.effort_level) return null;
                   // Calculate position (normalize to 0-100%)
                   const x = ((opt.effort_level - 1) * 20) + 10; // Adjust for better spacing
                   const y = ((opt.impact_level - 1) * 20) + 10; // Adjust for better spacing
