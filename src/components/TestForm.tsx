@@ -4,12 +4,16 @@ import { TestSourceSection } from "./test-form/TestSourceSection";
 import { TestFormDetails } from "./test-form/TestFormDetails";
 import { useTestForm } from "./test-form/useTestForm";
 import { useState } from "react";
+import { TestTemplateDialog } from "./test-form/TestTemplateDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export type TestPlatform = "facebook" | "google" | "tiktok";
 export type TestCategory = "Creative Test" | "Audience Test" | "Bid Strategy Test";
 
 export function TestForm() {
+  const { toast } = useToast();
   const [testSource, setTestSource] = useState<'new' | 'library'>();
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const {
     isSubmitting,
     platform,
@@ -38,7 +42,27 @@ export function TestForm() {
   } = useTestForm();
 
   const handleSourceSelect = (source: 'new' | 'library') => {
+    if (!platform) {
+      toast({
+        title: "Please select a platform first",
+        description: "A platform is required to view relevant test templates",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setTestSource(source);
+    if (source === 'library') {
+      setShowTemplateDialog(true);
+    }
+  };
+
+  const handleTemplateSelect = (template: any) => {
+    setTestName(template.name);
+    setHypothesis(template.hypothesis);
+    setTestKPI(template.kpi);
+    setTestType(template.test_types.name);
+    setShowTemplateDialog(false);
   };
 
   return (
@@ -52,7 +76,7 @@ export function TestForm() {
 
         <TestSourceSection onSourceSelect={handleSourceSelect} />
 
-        {testSource && platform && client && (
+        {testSource === 'new' && platform && client && (
           <TestFormDetails
             testName={testName}
             setTestName={setTestName}
@@ -73,6 +97,13 @@ export function TestForm() {
             isSubmitting={isSubmitting}
           />
         )}
+
+        <TestTemplateDialog
+          open={showTemplateDialog}
+          onOpenChange={setShowTemplateDialog}
+          platform={platform}
+          onTemplateSelect={handleTemplateSelect}
+        />
       </div>
     </form>
   );
