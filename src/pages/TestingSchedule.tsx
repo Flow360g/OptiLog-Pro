@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClientSelectionScreen } from "@/components/testing-schedule/ClientSelectionScreen";
 import { Button } from "@/components/ui/button";
 import { TestsTable } from "@/components/testing-schedule/TestsTable";
@@ -12,7 +12,7 @@ export default function TestingSchedule() {
   const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
 
-  const { data: tests, isLoading } = useQuery({
+  const { data: tests, isLoading, refetch } = useQuery({
     queryKey: ['tests', selectedClient],
     queryFn: async () => {
       if (!selectedClient) return [];
@@ -44,6 +44,30 @@ export default function TestingSchedule() {
     },
     enabled: !!selectedClient,
   });
+
+  useEffect(() => {
+    if (!selectedClient) return;
+
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tests',
+          filter: `client=eq.${selectedClient}`
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedClient, refetch]);
 
   const handleBackClick = () => {
     setSelectedClient(null);

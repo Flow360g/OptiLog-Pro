@@ -68,6 +68,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
       toast({
         title: "Status updated",
         description: "Test status has been updated successfully.",
+        duration: 2000, // 2 seconds
       });
     } catch (error) {
       toast({
