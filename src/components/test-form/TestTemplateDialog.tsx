@@ -91,8 +91,10 @@ export function TestTemplateDialog({
                       </TooltipTrigger>
                       <TooltipContent 
                         side="right" 
-                        className="w-[400px] p-6 space-y-4"
+                        className="w-[400px] p-6 space-y-4 z-[100]"
                         align="start"
+                        forceMount
+                        sideOffset={16}
                       >
                         <div className="space-y-4">
                           <div>
