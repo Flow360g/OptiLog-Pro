@@ -1,12 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { ClientSection } from "./form-sections/ClientSection";
 import { PlatformSection } from "./form-sections/PlatformSection";
-import { DateSection } from "./form-sections/DateSection";
-import { MetricsSection } from "./form-sections/MetricsSection";
-import { TestTypeSection } from "./test-form/TestTypeSection";
-import { TestDetailsSection } from "./test-form/TestDetailsSection";
 import { TestSourceSection } from "./test-form/TestSourceSection";
+import { TestFormDetails } from "./test-form/TestFormDetails";
 import { useTestForm } from "./test-form/useTestForm";
 import { useState } from "react";
 
@@ -58,47 +53,25 @@ export function TestForm() {
         <TestSourceSection onSourceSelect={handleSourceSelect} />
 
         {testSource && platform && client && (
-          <>
-            <TestDetailsSection
-              testName={testName}
-              setTestName={setTestName}
-              hypothesis={hypothesis}
-              setHypothesis={setHypothesis}
-              testKPI={testKPI}
-              setTestKPI={setTestKPI}
-            />
-
-            <TestTypeSection
-              testCategory={testCategory}
-              setTestCategory={setTestCategory}
-              testType={testType}
-              setTestType={setTestType}
-            />
-
-            <div className="space-y-4">
-              <DateSection selectedDate={startDate} onDateChange={setStartDate} />
-            </div>
-
-            <div className="space-y-4">
-              <DateSection selectedDate={endDate} onDateChange={setEndDate} />
-            </div>
-
-            <MetricsSection
-              onEffortChange={setEffortLevel}
-              onImpactChange={setImpactLevel}
-            />
-
-            <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Schedule Test"
-              )}
-            </Button>
-          </>
+          <TestFormDetails
+            testName={testName}
+            setTestName={setTestName}
+            hypothesis={hypothesis}
+            setHypothesis={setHypothesis}
+            testKPI={testKPI}
+            setTestKPI={setTestKPI}
+            testCategory={testCategory}
+            setTestCategory={setTestCategory}
+            testType={testType}
+            setTestType={setTestType}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            setEffortLevel={setEffortLevel}
+            setImpactLevel={setImpactLevel}
+            isSubmitting={isSubmitting}
+          />
         )}
       </div>
     </form>
