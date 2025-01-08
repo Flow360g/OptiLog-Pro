@@ -39,6 +39,11 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
   const { toast } = useToast();
 
+  // Update local state when props change
+  if (JSON.stringify(tests) !== JSON.stringify(initialTests)) {
+    setTests(initialTests);
+  }
+
   const calculatePriority = (impact: number, effort: number) => {
     return impact + (6 - effort);
   };
@@ -59,6 +64,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
 
       if (error) throw error;
 
+      // Update local state immediately
       setTests(prevTests => 
         prevTests.map(test => 
           test.id === testId ? { ...test, status: newStatus } : test
@@ -68,7 +74,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
       toast({
         title: "Status updated",
         description: "Test status has been updated successfully.",
-        duration: 2000, // 2 seconds
+        duration: 2000,
       });
     } catch (error) {
       toast({
