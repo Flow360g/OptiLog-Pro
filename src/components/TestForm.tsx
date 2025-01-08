@@ -49,57 +49,59 @@ export function TestForm() {
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-8 bg-white rounded-lg border border-gray-200">
       <div className="space-y-6">
-        <ClientSection 
-          onClientChange={(value) => setClient(value)}
-        />
+        <TestSourceSection onSourceSelect={handleSourceSelect} />
         
-        <PlatformSection onPlatformChange={setPlatform} />
-
-        {platform && client && (
-          <TestSourceSection onSourceSelect={handleSourceSelect} />
-        )}
-
-        {testSource && platform && client && (
+        {testSource && (
           <>
-            <TestDetailsSection
-              testName={testName}
-              setTestName={setTestName}
-              hypothesis={hypothesis}
-              setHypothesis={setHypothesis}
-              testKPI={testKPI}
-              setTestKPI={setTestKPI}
+            <ClientSection 
+              onClientChange={(value) => setClient(value)}
             />
+            
+            <PlatformSection onPlatformChange={setPlatform} />
 
-            <TestTypeSection
-              testCategory={testCategory}
-              setTestCategory={setTestCategory}
-              testType={testType}
-              setTestType={setTestType}
-            />
+            {platform && client && (
+              <>
+                <TestDetailsSection
+                  testName={testName}
+                  setTestName={setTestName}
+                  hypothesis={hypothesis}
+                  setHypothesis={setHypothesis}
+                  testKPI={testKPI}
+                  setTestKPI={setTestKPI}
+                />
 
-            <div className="space-y-4">
-              <DateSection selectedDate={startDate} onDateChange={setStartDate} />
-            </div>
+                <TestTypeSection
+                  testCategory={testCategory}
+                  setTestCategory={setTestCategory}
+                  testType={testType}
+                  setTestType={setTestType}
+                />
 
-            <div className="space-y-4">
-              <DateSection selectedDate={endDate} onDateChange={setEndDate} />
-            </div>
+                <div className="space-y-4">
+                  <DateSection selectedDate={startDate} onDateChange={setStartDate} />
+                </div>
 
-            <MetricsSection
-              onEffortChange={setEffortLevel}
-              onImpactChange={setImpactLevel}
-            />
+                <div className="space-y-4">
+                  <DateSection selectedDate={endDate} onDateChange={setEndDate} />
+                </div>
 
-            <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Schedule Test"
-              )}
-            </Button>
+                <MetricsSection
+                  onEffortChange={setEffortLevel}
+                  onImpactChange={setImpactLevel}
+                />
+
+                <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Schedule Test"
+                  )}
+                </Button>
+              </>
+            )}
           </>
         )}
       </div>
