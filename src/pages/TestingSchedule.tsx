@@ -1,7 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ChevronLeft } from "lucide-react";
 import { useState } from "react";
@@ -52,10 +51,10 @@ export default function TestingSchedule() {
 
   const groupTestsByStatus = (tests: any[]) => {
     return {
-      pipeline: tests.filter(test => test.status === 'draft'),
-      upcoming: tests.filter(test => test.status === 'in_progress'),
-      live: tests.filter(test => test.status === 'completed'),
-      completed: tests.filter(test => test.status === 'cancelled')
+      pipeline: tests.filter(test => test.status === 'draft'), // Planning
+      upcoming: tests.filter(test => test.status === 'in_progress'), // Working on it
+      live: tests.filter(test => test.status === 'completed'), // Live
+      completed: tests.filter(test => test.status === 'cancelled') // Completed
     };
   };
 
