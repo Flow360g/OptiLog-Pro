@@ -17,7 +17,7 @@ interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  status: string;
+  status: "draft" | "scheduled" | "in_progress" | "completed" | "cancelled";
   results: {
     control: string;
     experiment: string;
@@ -49,7 +49,7 @@ export function TestsTable({ tests }: TestsTableProps) {
     return priorityB - priorityA;
   });
 
-  const handleStatusChange = async (testId: string, newStatus: string) => {
+  const handleStatusChange = async (testId: string, newStatus: "draft" | "scheduled" | "in_progress" | "completed" | "cancelled") => {
     try {
       const { error } = await supabase
         .from('tests')
@@ -122,15 +122,15 @@ export function TestsTable({ tests }: TestsTableProps) {
                   <td className="p-4 text-gray-700" onClick={(e) => e.stopPropagation()}>
                     <Select
                       value={test.status}
-                      onValueChange={(value) => handleStatusChange(test.id, value)}
+                      onValueChange={(value) => handleStatusChange(test.id, value as Test['status'])}
                     >
                       <SelectTrigger className="w-[140px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Planning">Planning</SelectItem>
-                        <SelectItem value="Working on it">Working on it</SelectItem>
-                        <SelectItem value="Live">Live</SelectItem>
+                        <SelectItem value="draft">Planning</SelectItem>
+                        <SelectItem value="in_progress">Working on it</SelectItem>
+                        <SelectItem value="live">Live</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
