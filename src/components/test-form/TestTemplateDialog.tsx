@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TestPlatform } from "../TestForm";
+import { useRef, useCallback } from "react";
 
 interface TestTemplateDialogProps {
   open: boolean;
@@ -30,6 +31,37 @@ export function TestTemplateDialog({
   platform,
   onTemplateSelect,
 }: TestTemplateDialogProps) {
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  const handleTooltipPosition = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!tooltipRef.current) return;
+    
+    const button = event.currentTarget;
+    const buttonRect = button.getBoundingClientRect();
+    const tooltipRect = tooltipRef.current.getBoundingClientRect();
+    
+    // Check if tooltip would overflow right side of viewport
+    const rightOverflow = buttonRect.left + tooltipRect.width > window.innerWidth;
+    // Check if tooltip would overflow bottom of viewport
+    const bottomOverflow = buttonRect.bottom + tooltipRect.height > window.innerHeight;
+
+    tooltipRef.current.style.position = 'absolute';
+    
+    if (rightOverflow || bottomOverflow) {
+      tooltipRef.current.style.top = 'auto';
+      tooltipRef.current.style.bottom = '100%';
+      tooltipRef.current.style.left = '50%';
+      tooltipRef.current.style.transform = 'translateX(-50%)';
+      tooltipRef.current.style.marginBottom = '8px';
+    } else {
+      tooltipRef.current.style.top = '100%';
+      tooltipRef.current.style.bottom = 'auto';
+      tooltipRef.current.style.left = '50%';
+      tooltipRef.current.style.transform = 'translateX(-50%)';
+      tooltipRef.current.style.marginTop = '8px';
+    }
+  }, []);
+
   const { data: templates, isLoading } = useQuery({
     queryKey: ['testTemplates', platform],
     queryFn: async () => {
@@ -75,6 +107,7 @@ export function TestTemplateDialog({
                 variant="outline"
                 className="h-auto p-6 flex flex-col items-start gap-2 hover:bg-primary/5 group relative"
                 onClick={() => onTemplateSelect(template)}
+                onMouseEnter={handleTooltipPosition}
               >
                 <div className="flex items-start justify-between w-full">
                   <span className="font-semibold text-lg">{template.name}</span>
@@ -90,17 +123,8 @@ export function TestTemplateDialog({
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent 
-                        side="top" 
-                        className="w-[400px] p-6 space-y-4"
-                        align="center"
-                        sideOffset={16}
-                        style={{
-                          position: 'absolute',
-                          zIndex: 9999,
-                          maxWidth: '400px',
-                          whiteSpace: 'normal',
-                          wordBreak: 'break-word'
-                        }}
+                        ref={tooltipRef}
+                        className="w-[400px] p-6 space-y-4 z-[9999]"
                       >
                         <div className="space-y-4">
                           <div>
