@@ -2,6 +2,15 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Test, TestResult } from "../types";
 
+// Extend the jsPDF type to include the lastAutoTable property
+declare module 'jspdf' {
+  interface jsPDF {
+    lastAutoTable: {
+      finalY: number;
+    };
+  }
+}
+
 interface PDFTest extends Test {
   results: TestResult;
 }
