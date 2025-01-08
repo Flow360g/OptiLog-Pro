@@ -95,11 +95,21 @@ export function TestTemplateDialog({
                         align="start"
                         sideOffset={16}
                         style={{
-                          position: 'fixed',
+                          position: 'absolute',
                           zIndex: 9999,
                           maxWidth: '400px',
                           whiteSpace: 'normal',
                           wordBreak: 'break-word'
+                        }}
+                        onPointerEnterCapture={(e) => {
+                          const tooltip = e.currentTarget;
+                          const rect = tooltip.getBoundingClientRect();
+                          const viewportWidth = window.innerWidth;
+                          
+                          if (rect.right > viewportWidth) {
+                            tooltip.style.left = 'auto';
+                            tooltip.style.right = '100%';
+                          }
                         }}
                       >
                         <div className="space-y-4">
