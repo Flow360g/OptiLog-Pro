@@ -90,12 +90,23 @@ export function TestTemplateDialog({
                           <HelpCircle className="h-4 w-4 text-muted-foreground" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-[300px]">
-                        <div className="space-y-2">
-                          <p className="font-medium">Description:</p>
-                          <p className="text-sm">{template.test_types?.description || 'No description available'}</p>
-                          <p className="font-medium mt-2">Hypothesis:</p>
-                          <p className="text-sm">{template.hypothesis}</p>
+                      <TooltipContent 
+                        side="right" 
+                        className="w-[350px] p-4"
+                      >
+                        <div className="space-y-3">
+                          <div>
+                            <p className="font-medium mb-1">Description:</p>
+                            <p className="text-sm text-muted-foreground">
+                              {template.test_types?.description || 'No description available'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium mb-1">Hypothesis:</p>
+                            <p className="text-sm text-muted-foreground">
+                              {template.hypothesis}
+                            </p>
+                          </div>
                         </div>
                       </TooltipContent>
                     </Tooltip>
