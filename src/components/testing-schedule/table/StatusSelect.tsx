@@ -35,7 +35,7 @@ export function StatusSelect({ status, onStatusChange }: StatusSelectProps) {
   return (
     <Select
       value={status}
-      onValueChange={onStatusChange}
+      onValueChange={(value: Test['status']) => onStatusChange(value)}
     >
       <SelectTrigger className={`w-[140px] ${getStatusStyles(status)}`}>
         <SelectValue>
