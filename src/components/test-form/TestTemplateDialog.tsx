@@ -55,7 +55,7 @@ export function TestTemplateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-visible">
         <DialogHeader>
           <DialogTitle>Choose a Test Template</DialogTitle>
           <DialogDescription>
@@ -91,10 +91,16 @@ export function TestTemplateDialog({
                       </TooltipTrigger>
                       <TooltipContent 
                         side="right" 
-                        className="w-[400px] p-6 space-y-4 z-[9999]"
+                        className="w-[400px] p-6 space-y-4"
                         align="start"
                         sideOffset={16}
-                        avoidCollisions={true}
+                        style={{
+                          position: 'fixed',
+                          zIndex: 9999,
+                          maxWidth: '400px',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word'
+                        }}
                       >
                         <div className="space-y-4">
                           <div>
