@@ -100,7 +100,7 @@ export function useTestForm() {
         description: "Test has been scheduled successfully!",
       });
       
-      navigate('/dashboard');
+      navigate('/testing-schedule');
     } catch (error) {
       console.error('Error:', error);
       toast({
