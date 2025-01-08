@@ -34,7 +34,8 @@ interface TestsTableProps {
   tests: Test[];
 }
 
-export function TestsTable({ tests }: TestsTableProps) {
+export function TestsTable({ tests: initialTests }: TestsTableProps) {
+  const [tests, setTests] = useState<Test[]>(initialTests);
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
   const { toast } = useToast();
 
@@ -58,16 +59,17 @@ export function TestsTable({ tests }: TestsTableProps) {
 
       if (error) throw error;
 
+      // Update the local state to reflect the change
+      setTests(prevTests => 
+        prevTests.map(test => 
+          test.id === testId ? { ...test, status: newStatus } : test
+        )
+      );
+
       toast({
         title: "Status updated",
         description: "Test status has been updated successfully.",
       });
-
-      // Update the local state to reflect the change
-      const updatedTests = tests.map(test => 
-        test.id === testId ? { ...test, status: newStatus } : test
-      );
-      tests = updatedTests;
     } catch (error) {
       toast({
         title: "Error updating status",
