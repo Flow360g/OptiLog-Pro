@@ -9,7 +9,8 @@ export function TestSourceSection({ onSourceSelect }: TestSourceSectionProps) {
     <div className="grid grid-cols-2 gap-4">
       <Button
         type="button"
-        className="p-6 h-auto flex flex-col gap-2 gradient-bg"
+        variant="outline"
+        className="p-6 h-auto flex flex-col gap-2 border-2 border-primary hover:bg-primary/5"
         onClick={() => onSourceSelect('new')}
       >
         <span className="text-lg font-semibold">Create New</span>
@@ -19,7 +20,8 @@ export function TestSourceSection({ onSourceSelect }: TestSourceSectionProps) {
       </Button>
       <Button
         type="button"
-        className="p-6 h-auto flex flex-col gap-2 gradient-bg"
+        variant="outline"
+        className="p-6 h-auto flex flex-col gap-2 border-2 border-primary hover:bg-primary/5"
         onClick={() => onSourceSelect('library')}
       >
         <span className="text-lg font-semibold">Choose From Test Library</span>
