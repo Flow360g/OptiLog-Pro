@@ -71,6 +71,15 @@ export function TestsTable({ tests }: TestsTableProps) {
     }
   };
 
+  const getStatusLabel = (status: Test['status']) => {
+    switch (status) {
+      case 'draft': return 'Planning';
+      case 'in_progress': return 'Working on it';
+      case 'completed': return 'Live';
+      default: return status;
+    }
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -125,12 +134,14 @@ export function TestsTable({ tests }: TestsTableProps) {
                       onValueChange={(value) => handleStatusChange(test.id, value as Test['status'])}
                     >
                       <SelectTrigger className="w-[140px]">
-                        <SelectValue />
+                        <SelectValue>
+                          {getStatusLabel(test.status)}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="draft">Planning</SelectItem>
                         <SelectItem value="in_progress">Working on it</SelectItem>
-                        <SelectItem value="live">Live</SelectItem>
+                        <SelectItem value="completed">Live</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>
