@@ -42,7 +42,6 @@ export function TestTemplateDialog({
           test_types (
             name,
             description,
-            category_id,
             category:test_categories(name)
           )
         `)
