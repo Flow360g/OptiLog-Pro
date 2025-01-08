@@ -59,7 +59,6 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
 
       if (error) throw error;
 
-      // Update the local state to reflect the change
       setTests(prevTests => 
         prevTests.map(test => 
           test.id === testId ? { ...test, status: newStatus } : test
@@ -84,6 +83,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
       case 'draft': return 'Planning';
       case 'in_progress': return 'Working on it';
       case 'completed': return 'Live';
+      case 'cancelled': return 'Completed';
       default: return status;
     }
   };
@@ -96,6 +96,8 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
         return 'bg-blue-500 text-white hover:bg-blue-600';
       case 'draft':
         return 'bg-gray-100 hover:bg-gray-200';
+      case 'cancelled':
+        return 'bg-gray-500 text-white hover:bg-gray-600';
       default:
         return '';
     }
@@ -163,6 +165,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
                         <SelectItem value="draft">Planning</SelectItem>
                         <SelectItem value="in_progress">Working on it</SelectItem>
                         <SelectItem value="completed">Live</SelectItem>
+                        <SelectItem value="cancelled">Completed</SelectItem>
                       </SelectContent>
                     </Select>
                   </td>

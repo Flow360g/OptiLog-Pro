@@ -53,11 +53,18 @@ export default function TestingSchedule() {
   const groupTestsByStatus = (tests: any[]) => {
     return {
       pipeline: tests.filter(test => test.status === 'draft'),
-      upcoming: tests.filter(test => test.status === 'scheduled'),
-      live: tests.filter(test => test.status === 'in_progress'),
-      completed: tests.filter(test => test.status === 'completed')
+      upcoming: tests.filter(test => test.status === 'in_progress'),
+      live: tests.filter(test => test.status === 'completed'),
+      completed: tests.filter(test => test.status === 'cancelled')
     };
   };
+
+  const sections = [
+    { key: 'pipeline', title: 'Test Pipeline' },
+    { key: 'upcoming', title: 'Up Next' },
+    { key: 'live', title: 'Live Tests' },
+    { key: 'completed', title: 'Completed Tests' }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
@@ -89,19 +96,23 @@ export default function TestingSchedule() {
                 </div>
               ) : (
                 <div className="space-y-8">
-                  {tests && Object.entries(groupTestsByStatus(tests)).map(([status, statusTests]) => (
-                    statusTests.length > 0 && (
-                      <section key={status} className="space-y-4">
-                        <h2 className="text-2xl font-semibold capitalize">
-                          {status === 'pipeline' ? 'Test Pipeline' :
-                           status === 'upcoming' ? 'Up Next' :
-                           status === 'live' ? 'Live Tests' :
-                           'Completed Tests'}
+                  {tests && sections.map(({ key, title }) => {
+                    const sectionTests = groupTestsByStatus(tests)[key as keyof ReturnType<typeof groupTestsByStatus>];
+                    return (
+                      <section key={key} className="space-y-4">
+                        <h2 className="text-2xl font-semibold">
+                          {title}
                         </h2>
-                        <TestsTable tests={statusTests} />
+                        {sectionTests.length > 0 ? (
+                          <TestsTable tests={sectionTests} />
+                        ) : (
+                          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500">
+                            No tests are currently in this section
+                          </div>
+                        )}
                       </section>
-                    )
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>
