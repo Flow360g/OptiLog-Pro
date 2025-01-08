@@ -3,6 +3,9 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { TestDetailsDialog } from "./TestDetailsDialog";
 import { PriorityTooltip } from "@/components/dashboard/optimization-table/PriorityTooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Test {
   id: string;
@@ -14,6 +17,7 @@ interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
+  status: string;
   results: {
     control: string;
     experiment: string;
@@ -32,6 +36,7 @@ interface TestsTableProps {
 
 export function TestsTable({ tests }: TestsTableProps) {
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
+  const { toast } = useToast();
 
   const calculatePriority = (impact: number, effort: number) => {
     return impact + (6 - effort);
@@ -44,6 +49,28 @@ export function TestsTable({ tests }: TestsTableProps) {
     return priorityB - priorityA;
   });
 
+  const handleStatusChange = async (testId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('tests')
+        .update({ status: newStatus })
+        .eq('id', testId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Status updated",
+        description: "Test status has been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error updating status",
+        description: "There was a problem updating the test status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -53,8 +80,8 @@ export function TestsTable({ tests }: TestsTableProps) {
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="p-4 text-left text-gray-600 font-medium w-12">
                   <div className="flex items-center gap-1">
-                    #
-                    <PriorityTooltip optimizations={sortedTests} />
+                    Priority
+                    <PriorityTooltip optimizations={sortedTests as any} />
                   </div>
                 </th>
                 <th className="p-4 text-left text-gray-600 font-medium w-48">Name</th>
@@ -66,6 +93,7 @@ export function TestsTable({ tests }: TestsTableProps) {
                 <th className="p-4 text-left text-gray-600 font-medium w-32">End Date</th>
                 <th className="p-4 text-left text-gray-600 font-medium w-24">Effort</th>
                 <th className="p-4 text-left text-gray-600 font-medium w-24">Impact</th>
+                <th className="p-4 text-left text-gray-600 font-medium w-32">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -91,6 +119,21 @@ export function TestsTable({ tests }: TestsTableProps) {
                   </td>
                   <td className="p-4 text-gray-700">{test.effort_level || "-"}</td>
                   <td className="p-4 text-gray-700">{test.impact_level || "-"}</td>
+                  <td className="p-4 text-gray-700" onClick={(e) => e.stopPropagation()}>
+                    <Select
+                      value={test.status}
+                      onValueChange={(value) => handleStatusChange(test.id, value)}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Planning">Planning</SelectItem>
+                        <SelectItem value="Working on it">Working on it</SelectItem>
+                        <SelectItem value="Live">Live</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </td>
                 </tr>
               ))}
             </tbody>

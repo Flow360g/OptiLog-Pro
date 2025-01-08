@@ -71,7 +71,7 @@ export function TestDetailsDialog({ test, isOpen, onClose }: TestDetailsDialogPr
               <Button
                 onClick={handleDownload}
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0"
               >
                 <Download className="w-4 h-4" />
                 Download Results PDF
