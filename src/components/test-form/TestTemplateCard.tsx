@@ -57,7 +57,7 @@ export function TestTemplateCard({ template, onTemplateSelect }: TestTemplateCar
   return (
     <Button
       variant="outline"
-      className="h-auto p-6 flex flex-col items-start gap-2 hover:bg-primary/5 group relative"
+      className="h-auto p-6 flex flex-col items-start gap-2 hover:bg-primary/5 group relative hover:text-foreground"
       onClick={() => onTemplateSelect(template)}
       onMouseEnter={handleTooltipPosition}
     >

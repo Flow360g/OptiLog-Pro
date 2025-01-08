@@ -10,7 +10,7 @@ export function TestSourceSection({ onSourceSelect }: TestSourceSectionProps) {
       <Button
         type="button"
         variant="outline"
-        className="p-6 h-auto flex flex-col gap-2 border-2 border-primary hover:bg-primary/5"
+        className="p-6 h-auto flex flex-col gap-2 border-2 border-primary hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-primary-foreground hover:border-0"
         onClick={() => onSourceSelect('new')}
       >
         <span className="text-lg font-semibold">Create New</span>
@@ -21,7 +21,7 @@ export function TestSourceSection({ onSourceSelect }: TestSourceSectionProps) {
       <Button
         type="button"
         variant="outline"
-        className="p-6 h-auto flex flex-col gap-2 border-2 border-primary hover:bg-primary/5"
+        className="p-6 h-auto flex flex-col gap-2 border-2 border-primary hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-primary-foreground hover:border-0"
         onClick={() => onSourceSelect('library')}
       >
         <span className="text-lg font-semibold">Choose From Test Library</span>
