@@ -94,7 +94,6 @@ export function TestTemplateDialog({
                         className="w-[400px] p-6 space-y-4"
                         align="start"
                         sideOffset={16}
-                        portal={true}
                       >
                         <div className="space-y-4">
                           <div>
