@@ -91,18 +91,19 @@ export function TestTemplateDialog({
                       </TooltipTrigger>
                       <TooltipContent 
                         side="right" 
-                        className="w-[350px] p-4"
+                        className="w-[400px] p-6 space-y-4"
+                        align="start"
                       >
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           <div>
-                            <p className="font-medium mb-1">Description:</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="font-medium mb-2">Description:</p>
+                            <p className="text-sm text-muted-foreground whitespace-normal break-words leading-relaxed">
                               {template.test_types?.description || 'No description available'}
                             </p>
                           </div>
                           <div>
-                            <p className="font-medium mb-1">Hypothesis:</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="font-medium mb-2">Hypothesis:</p>
+                            <p className="text-sm text-muted-foreground whitespace-normal break-words leading-relaxed">
                               {template.hypothesis}
                             </p>
                           </div>
