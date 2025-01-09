@@ -27,7 +27,7 @@ const generateChartImage = async (test: PDFTest): Promise<string> => {
   const experiment = parseFloat(test.results.experiment);
   const winningValue = Math.max(control, experiment);
 
-  new Chart(ctx, {
+  const chart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['Control', 'Experiment'],
@@ -41,7 +41,8 @@ const generateChartImage = async (test: PDFTest): Promise<string> => {
       }]
     },
     options: {
-      responsive: true,
+      responsive: false,
+      animation: false,
       scales: {
         y: {
           beginAtZero: true
@@ -50,7 +51,16 @@ const generateChartImage = async (test: PDFTest): Promise<string> => {
     }
   });
 
-  return canvas.toDataURL('image/png');
+  // Wait for the chart to render
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Get the image data
+  const imageData = canvas.toDataURL('image/png');
+  
+  // Destroy the chart to prevent memory leaks
+  chart.destroy();
+  
+  return imageData;
 };
 
 export const generatePDF = async (test: PDFTest) => {
@@ -79,19 +89,23 @@ export const generatePDF = async (test: PDFTest) => {
 
   // Add chart
   if (test.results) {
-    const chartImage = await generateChartImage(test);
-    if (chartImage) {
-      const startY = doc.lastAutoTable.finalY + 10;
-      const imgWidth = 150;
-      const imgHeight = 75;
-      doc.addImage(
-        chartImage,
-        'PNG',
-        (pageWidth - imgWidth) / 2,
-        startY,
-        imgWidth,
-        imgHeight
-      );
+    try {
+      const chartImage = await generateChartImage(test);
+      if (chartImage) {
+        const startY = doc.lastAutoTable.finalY + 10;
+        const imgWidth = 150;
+        const imgHeight = 75;
+        doc.addImage(
+          chartImage,
+          'PNG',
+          (pageWidth - imgWidth) / 2,
+          startY,
+          imgWidth,
+          imgHeight
+        );
+      }
+    } catch (error) {
+      console.error('Error generating chart image:', error);
     }
   }
 
