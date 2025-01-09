@@ -15,56 +15,57 @@ interface PDFTest extends Test {
   results: TestResult;
 }
 
-export const generateTestResultsPDF = (test: PDFTest) => {
+export const generatePDF = async (test: PDFTest) => {
   const doc = new jsPDF();
-  
+  const pageWidth = doc.internal.pageSize.width;
+
   // Add title
   doc.setFontSize(20);
-  doc.text(test.name, 20, 20);
-  
+  doc.text(test.name, pageWidth / 2, 20, { align: "center" });
+
   // Add test information
   doc.setFontSize(12);
-  const testInfo = [
-    ["Platform", test.platform],
-    ["KPI", test.kpi],
-    ["Test Type", `${test.test_types.test_categories.name} - ${test.test_types.name}`],
-    ["Hypothesis", test.hypothesis],
-    ["Start Date", test.start_date || "Not set"],
-    ["End Date", test.end_date || "Not set"],
-  ];
-  
   autoTable(doc, {
-    body: testInfo,
-    theme: "plain",
     startY: 30,
-  });
-  
-  // Add results
-  const resultsData = [
-    ["Metric", "Control", "Experiment", "% Change"],
-    [
-      test.kpi,
-      test.results.control,
-      test.results.experiment,
-      `${(((parseFloat(test.results.experiment) - parseFloat(test.results.control)) / parseFloat(test.results.control)) * 100).toFixed(1)}%`
+    head: [["Test Information"]],
+    body: [
+      ["Client", test.client],
+      ["Platform", test.platform],
+      ["Status", test.status],
+      ["Start Date", test.start_date?.toString() || "Not set"],
+      ["End Date", test.end_date?.toString() || "Not set"],
+      ["KPI", test.kpi],
+      ["Hypothesis", test.hypothesis],
     ],
-  ];
-  
-  autoTable(doc, {
-    head: [["Test Results"]],
-    body: resultsData,
-    startY: doc.lastAutoTable.finalY + 10,
   });
-  
-  // Add executive summary if available
-  if (test.executive_summary) {
+
+  // Add results
+  if (test.results) {
+    const { control, experiment } = test.results;
+    const startY = doc.lastAutoTable.finalY + 10;
+
     autoTable(doc, {
-      head: [["Executive Summary"]],
-      body: [[test.executive_summary]],
-      startY: doc.lastAutoTable.finalY + 10,
+      startY,
+      head: [["Results"]],
+      body: [
+        ["Control Group", `${control.value}%`],
+        ["Experiment Group", `${experiment.value}%`],
+        ["Improvement", `${((experiment.value - control.value) / control.value * 100).toFixed(2)}%`],
+      ],
     });
   }
-  
+
+  // Add executive summary if available
+  if (test.executive_summary) {
+    const startY = doc.lastAutoTable.finalY + 10;
+    autoTable(doc, {
+      startY,
+      head: [["Executive Summary"]],
+      body: [[test.executive_summary]],
+    });
+  }
+
   // Save the PDF
-  doc.save(`${test.name}_results.pdf`);
+  const fileName = `${test.name.replace(/\s+/g, '_')}_report.pdf`;
+  doc.save(fileName);
 };
