@@ -45,8 +45,8 @@ export function TestDetailsDialog({
 
           {test.status === "completed" ? (
             <>
-              <TestResultsChart results={test.results} />
-              <TestResultsForm test={test} />
+              <TestResultsChart results={test.results} kpi={test.kpi} />
+              <TestResultsForm results={test.results} kpi={test.kpi} onChange={() => {}} />
             </>
           ) : (
             <div className="text-center py-8 text-gray-500">

@@ -29,7 +29,6 @@ export const generatePDF = async (test: PDFTest) => {
     startY: 30,
     head: [["Test Information"]],
     body: [
-      ["Client", test.client],
       ["Platform", test.platform],
       ["Status", test.status],
       ["Start Date", test.start_date?.toString() || "Not set"],
@@ -48,9 +47,9 @@ export const generatePDF = async (test: PDFTest) => {
       startY,
       head: [["Results"]],
       body: [
-        ["Control Group", `${control.value}%`],
-        ["Experiment Group", `${experiment.value}%`],
-        ["Improvement", `${((experiment.value - control.value) / control.value * 100).toFixed(2)}%`],
+        ["Control Group", control],
+        ["Experiment Group", experiment],
+        ["Improvement", `${((parseFloat(experiment) - parseFloat(control)) / parseFloat(control) * 100).toFixed(2)}%`],
       ],
     });
   }
