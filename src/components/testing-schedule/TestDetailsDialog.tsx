@@ -23,7 +23,10 @@ export function TestDetailsDialog({
     await generatePDF(test);
   };
 
-  const showResults = test.status === "completed" && test.results;
+  const defaultResults = {
+    control: "0",
+    experiment: "0"
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -45,14 +48,16 @@ export function TestDetailsDialog({
 
           <TestInformation test={test} />
 
-          {showResults ? (
-            <>
-              <TestResultsChart results={test.results} kpi={test.kpi} />
-              <TestResultsForm results={test.results} kpi={test.kpi} onChange={() => {}} />
-            </>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              Results will be available once the test is completed
+          <TestResultsChart results={test.results || defaultResults} kpi={test.kpi} />
+          <TestResultsForm 
+            results={test.results || defaultResults} 
+            kpi={test.kpi} 
+            onChange={() => {}}
+          />
+          
+          {!test.results && (
+            <div className="text-center text-sm text-gray-500 mt-2">
+              No results have been recorded yet
             </div>
           )}
         </div>
