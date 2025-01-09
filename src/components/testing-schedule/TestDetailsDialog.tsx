@@ -23,6 +23,8 @@ export function TestDetailsDialog({
     await generatePDF(test);
   };
 
+  const showResults = test.status === "completed" && test.results;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -43,7 +45,7 @@ export function TestDetailsDialog({
 
           <TestInformation test={test} />
 
-          {test.status === "completed" ? (
+          {showResults ? (
             <>
               <TestResultsChart results={test.results} kpi={test.kpi} />
               <TestResultsForm results={test.results} kpi={test.kpi} onChange={() => {}} />
