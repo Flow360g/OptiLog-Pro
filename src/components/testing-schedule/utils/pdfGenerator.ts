@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Test, TestResult } from "../types";
 import { Chart } from "chart.js/auto";
+import { Test, TestResult } from "../types";
 
 declare module 'jspdf' {
   interface jsPDF {
