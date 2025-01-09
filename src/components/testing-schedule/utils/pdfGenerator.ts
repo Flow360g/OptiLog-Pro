@@ -1,8 +1,8 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Test, TestResult } from "../types";
+import { Chart } from "chart.js/auto";
 
-// Extend the jsPDF type to include the lastAutoTable property
 declare module 'jspdf' {
   interface jsPDF {
     lastAutoTable: {
@@ -14,6 +14,44 @@ declare module 'jspdf' {
 interface PDFTest extends Test {
   results: TestResult;
 }
+
+const generateChartImage = async (test: PDFTest): Promise<string> => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 300;
+  const ctx = canvas.getContext('2d');
+  
+  if (!ctx) return '';
+
+  const control = parseFloat(test.results.control);
+  const experiment = parseFloat(test.results.experiment);
+  const winningValue = Math.max(control, experiment);
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Control', 'Experiment'],
+      datasets: [{
+        label: test.kpi,
+        data: [control, experiment],
+        backgroundColor: [
+          control === winningValue ? '#22c55e' : '#64748b',
+          experiment === winningValue ? '#22c55e' : '#64748b'
+        ],
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  return canvas.toDataURL('image/png');
+};
 
 export const generatePDF = async (test: PDFTest) => {
   const doc = new jsPDF();
@@ -35,21 +73,41 @@ export const generatePDF = async (test: PDFTest) => {
       ["End Date", test.end_date?.toString() || "Not set"],
       ["KPI", test.kpi],
       ["Hypothesis", test.hypothesis],
+      ["Test Type", `${test.test_types.test_categories.name} - ${test.test_types.name}`],
     ],
   });
+
+  // Add chart
+  if (test.results) {
+    const chartImage = await generateChartImage(test);
+    if (chartImage) {
+      const startY = doc.lastAutoTable.finalY + 10;
+      const imgWidth = 150;
+      const imgHeight = 75;
+      doc.addImage(
+        chartImage,
+        'PNG',
+        (pageWidth - imgWidth) / 2,
+        startY,
+        imgWidth,
+        imgHeight
+      );
+    }
+  }
 
   // Add results
   if (test.results) {
     const { control, experiment } = test.results;
-    const startY = doc.lastAutoTable.finalY + 10;
+    const percentageChange = ((parseFloat(experiment) - parseFloat(control)) / parseFloat(control) * 100);
+    const startY = doc.lastAutoTable.finalY + 90; // Add more space for the chart
 
     autoTable(doc, {
       startY,
       head: [["Results"]],
       body: [
-        ["Control Group", control],
-        ["Experiment Group", experiment],
-        ["Improvement", `${((parseFloat(experiment) - parseFloat(control)) / parseFloat(control) * 100).toFixed(2)}%`],
+        ["Control Group", `${control} ${test.kpi}`],
+        ["Experiment Group", `${experiment} ${test.kpi}`],
+        ["Improvement", `${percentageChange.toFixed(2)}%`],
       ],
     });
   }

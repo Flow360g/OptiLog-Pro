@@ -6,6 +6,11 @@ import { TestResultsChart } from "./test-details/TestResultsChart";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { generatePDF } from "./utils/pdfGenerator";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -18,9 +23,50 @@ export function TestDetailsDialog({
   isOpen,
   onClose,
 }: TestDetailsDialogProps) {
+  const { toast } = useToast();
+  const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
+
   const handleDownloadPDF = async () => {
     if (!test.results) return;
     await generatePDF(test);
+  };
+
+  const generateExecutiveSummary = () => {
+    if (!test.results) return;
+    
+    const control = parseFloat(test.results.control);
+    const experiment = parseFloat(test.results.experiment);
+    const percentageChange = ((experiment - control) / control) * 100;
+    const improvement = percentageChange > 0;
+    
+    const summary = `Test Results Summary:
+The ${test.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${test.kpi}.
+The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
+Control group: ${test.results.control}
+Experiment group: ${test.results.experiment}`;
+
+    setExecutiveSummary(summary);
+    updateExecutiveSummary(summary);
+  };
+
+  const updateExecutiveSummary = async (summary: string) => {
+    const { error } = await supabase
+      .from('tests')
+      .update({ executive_summary: summary })
+      .eq('id', test.id);
+
+    if (error) {
+      toast({
+        title: "Error updating executive summary",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Executive summary updated",
+        description: "The executive summary has been saved successfully.",
+      });
+    }
   };
 
   const defaultResults = {
@@ -60,6 +106,29 @@ export function TestDetailsDialog({
               No results have been recorded yet
             </div>
           )}
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="executive-summary">Executive Summary</Label>
+              {test.results && (
+                <Button
+                  onClick={generateExecutiveSummary}
+                  variant="outline"
+                  size="sm"
+                >
+                  Generate Summary
+                </Button>
+              )}
+            </div>
+            <Textarea
+              id="executive-summary"
+              value={executiveSummary}
+              onChange={(e) => setExecutiveSummary(e.target.value)}
+              onBlur={() => updateExecutiveSummary(executiveSummary)}
+              placeholder="Enter or generate an executive summary for this test..."
+              className="min-h-[100px]"
+            />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
