@@ -20,7 +20,7 @@ export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number) =>
     head: [["Test Information", "Details"]],
     body: testInfo,
     theme: 'striped',
-    headStyles: { fillColor: [34, 197, 94] },
+    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
     columnStyles: { 
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -43,7 +43,7 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
   const resultsData = [
     ["Control Group", `${control} ${test.kpi}`],
     ["Experiment Group", `${experiment} ${test.kpi}`],
-    ["Improvement", `${percentageChange.toFixed(2)}%`],
+    ["Improvement", `${Math.abs(percentageChange).toFixed(2)}%`],
     ["Direction", improvement ? "Positive" : "Negative"],
   ];
 
@@ -52,7 +52,7 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     head: [["Results", "Value"]],
     body: resultsData,
     theme: 'striped',
-    headStyles: { fillColor: [34, 197, 94] },
+    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -60,6 +60,7 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     },
   });
 
+  // Add Statistical Significance section
   const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
   const results = calculateStatisticalSignificance(
     { conversions: Math.round(controlValue * 1000), impressions: 1000 },
@@ -88,7 +89,7 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     head: [["Statistical Analysis", "Details"]],
     body: significanceData,
     theme: 'striped',
-    headStyles: { fillColor: [34, 197, 94] },
+    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -107,7 +108,7 @@ export const addExecutiveSummary = (doc: jsPDF, test: PDFTest, startY: number) =
     head: [["Executive Summary"]],
     body: [[test.executive_summary]],
     theme: 'striped',
-    headStyles: { fillColor: [34, 197, 94] },
+    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
   });
 
