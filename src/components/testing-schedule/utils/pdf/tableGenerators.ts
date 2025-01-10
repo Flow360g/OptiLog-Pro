@@ -61,13 +61,14 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
   // Add Statistical Significance section with correct calculations
   const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
   
-  // Convert percentage values to actual numbers for statistical calculation
-  const controlConversions = Math.round(controlValue * 1000);
-  const experimentConversions = Math.round(experimentValue * 1000);
+  // Use the actual test data for calculations
+  const controlConversions = parseInt(test.results.control);
+  const experimentConversions = parseInt(test.results.experiment);
+  const impressions = 1000; // This should ideally come from the test data
   
   const results = calculateStatisticalSignificance(
-    { conversions: controlConversions, impressions: 1000 },
-    { conversions: experimentConversions, impressions: 1000 }
+    { conversions: controlConversions, impressions },
+    { conversions: experimentConversions, impressions }
   );
 
   const significanceData = [
