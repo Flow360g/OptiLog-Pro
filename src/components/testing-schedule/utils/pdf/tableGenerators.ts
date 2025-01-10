@@ -61,10 +61,10 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
   // Add Statistical Significance section with correct calculations
   const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
   
-  // Use the actual test data for calculations
-  const controlConversions = parseInt(test.results.control);
-  const experimentConversions = parseInt(test.results.experiment);
-  const impressions = 1000; // This should ideally come from the test data
+  // Calculate conversions based on the actual values
+  const controlConversions = Math.round(controlValue * 100);
+  const experimentConversions = Math.round(experimentValue * 100);
+  const impressions = 100; // Base number for percentage calculation
   
   const results = calculateStatisticalSignificance(
     { conversions: controlConversions, impressions },
@@ -83,8 +83,8 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     [
       "Interpretation",
       results.isSignificant
-        ? `Variation B's observed conversion rate (${(results.experimentRate * 100).toFixed(2)}%) was ${Math.abs(results.relativeLift).toFixed(2)}% ${results.relativeLift > 0 ? 'higher' : 'lower'} than Variation A's conversion rate (${(results.controlRate * 100).toFixed(2)}%). You can be 95% confident that this result is a consequence of the changes made and not random chance.`
-        : `The difference between the variants is not statistically significant.`,
+        ? `The experiment group's ${test.kpi} (${experimentValue}) was ${Math.abs(percentageChange).toFixed(2)}% ${improvement ? 'higher' : 'lower'} than the control group's ${test.kpi} (${controlValue}). This difference is statistically significant (p < 0.05).`
+        : `The difference between the control (${controlValue}) and experiment (${experimentValue}) groups is not statistically significant.`,
     ],
   ];
 
