@@ -2,34 +2,34 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Chart } from "chart.js/auto";
 import type { PDFTest } from "../types";
-import { calculateStatisticalSignificance } from "../utils/statisticalCalculations";
+import { calculateStatisticalSignificance } from "./statisticalCalculations";
 
 const generateChartImage = async (test: PDFTest): Promise<string> => {
-  // Create a canvas element in memory
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = 600;
   canvas.height = 300;
-  
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return '';
 
-  const control = parseFloat(test.results?.control || '0');
-  const experiment = parseFloat(test.results?.experiment || '0');
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "";
+
+  const control = parseFloat(test.results?.control || "0");
+  const experiment = parseFloat(test.results?.experiment || "0");
   const winningValue = Math.max(control, experiment);
 
-  // Create and configure the chart
   const chart = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
-      labels: ['Control', 'Experiment'],
-      datasets: [{
-        label: test.kpi,
-        data: [control, experiment],
-        backgroundColor: [
-          control === winningValue ? '#22c55e' : '#64748b',
-          experiment === winningValue ? '#22c55e' : '#64748b'
-        ]
-      }]
+      labels: ["Control", "Experiment"],
+      datasets: [
+        {
+          label: test.kpi,
+          data: [control, experiment],
+          backgroundColor: [
+            control === winningValue ? "#22c55e" : "#64748b",
+            experiment === winningValue ? "#22c55e" : "#64748b",
+          ],
+        },
+      ],
     },
     options: {
       responsive: false,
@@ -38,30 +38,104 @@ const generateChartImage = async (test: PDFTest): Promise<string> => {
       plugins: {
         legend: {
           display: true,
-          position: 'top'
-        }
+          position: "top",
+        },
       },
       scales: {
         y: {
-          beginAtZero: true
-        }
-      }
-    }
+          beginAtZero: true,
+        },
+      },
+    },
   });
 
-  // Ensure chart is rendered
-  await new Promise(resolve => setTimeout(resolve, 200));
+  await new Promise((resolve) => setTimeout(resolve, 200));
 
   try {
-    // Get base64 image data
-    const imageData = canvas.toDataURL('image/png', 1.0);
+    const imageData = canvas.toDataURL("image/png", 1.0);
     chart.destroy();
     return imageData;
   } catch (error) {
-    console.error('Error generating chart image:', error);
+    console.error("Error generating chart image:", error);
     chart.destroy();
-    return '';
+    return "";
   }
+};
+
+const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number) => {
+  autoTable(doc, {
+    startY,
+    head: [["Test Information"]],
+    body: [
+      ["Platform", test.platform],
+      ["Status", test.status],
+      ["Start Date", test.start_date?.toString() || "Not set"],
+      ["End Date", test.end_date?.toString() || "Not set"],
+      ["KPI", test.kpi],
+      ["Hypothesis", test.hypothesis],
+      [
+        "Test Type",
+        `${test.test_types.test_categories.name} - ${test.test_types.name}`,
+      ],
+    ],
+  });
+};
+
+const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
+  if (!test.results) return;
+
+  const { control, experiment } = test.results;
+  const percentageChange =
+    ((parseFloat(experiment) - parseFloat(control)) / parseFloat(control)) * 100;
+  const controlRate = parseFloat(control);
+  const experimentRate = parseFloat(experiment);
+
+  autoTable(doc, {
+    startY,
+    head: [["Results"]],
+    body: [
+      ["Control Group", `${control} ${test.kpi}`],
+      ["Experiment Group", `${experiment} ${test.kpi}`],
+      ["Improvement", `${percentageChange.toFixed(2)}%`],
+    ],
+  });
+
+  const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
+  const results = calculateStatisticalSignificance(
+    { conversions: Math.round(controlRate * 1000), impressions: 1000 },
+    { conversions: Math.round(experimentRate * 1000), impressions: 1000 }
+  );
+
+  autoTable(doc, {
+    startY: significanceStartY,
+    head: [["Statistical Significance"]],
+    body: [
+      [
+        "Result",
+        results.isSignificant
+          ? "Significant test result!"
+          : "No significant difference",
+      ],
+      ["P-value", results.pValue.toFixed(4)],
+      ["Relative Lift", `${Math.abs(results.relativeLift).toFixed(2)}%`],
+      [
+        "Interpretation",
+        results.isSignificant
+          ? `You can be 95% confident that this result is a consequence of the changes made and not random chance.`
+          : `The difference between the variants is not statistically significant.`,
+      ],
+    ],
+  });
+};
+
+const addExecutiveSummary = (doc: jsPDF, test: PDFTest, startY: number) => {
+  if (!test.executive_summary) return;
+
+  autoTable(doc, {
+    startY,
+    head: [["Executive Summary"]],
+    body: [[test.executive_summary]],
+  });
 };
 
 export const generatePDF = async (test: PDFTest) => {
@@ -74,19 +148,7 @@ export const generatePDF = async (test: PDFTest) => {
 
   // Add test information
   doc.setFontSize(12);
-  autoTable(doc, {
-    startY: 30,
-    head: [["Test Information"]],
-    body: [
-      ["Platform", test.platform],
-      ["Status", test.status],
-      ["Start Date", test.start_date?.toString() || "Not set"],
-      ["End Date", test.end_date?.toString() || "Not set"],
-      ["KPI", test.kpi],
-      ["Hypothesis", test.hypothesis],
-      ["Test Type", `${test.test_types.test_categories.name} - ${test.test_types.name}`]
-    ]
-  });
+  addTestInformation(doc, test, 30);
 
   // Add chart if results exist
   if (test.results) {
@@ -96,10 +158,10 @@ export const generatePDF = async (test: PDFTest) => {
         const startY = (doc as any).lastAutoTable.finalY + 10;
         const imgWidth = 150;
         const imgHeight = 75;
-        
+
         doc.addImage(
           chartImage,
-          'PNG',
+          "PNG",
           (pageWidth - imgWidth) / 2,
           startY,
           imgWidth,
@@ -107,62 +169,23 @@ export const generatePDF = async (test: PDFTest) => {
         );
       }
     } catch (error) {
-      console.error('Error adding chart to PDF:', error);
+      console.error("Error adding chart to PDF:", error);
     }
   }
 
   // Add results if they exist
   if (test.results) {
-    const { control, experiment } = test.results;
-    const percentageChange = ((parseFloat(experiment) - parseFloat(control)) / parseFloat(control)) * 100;
-    const controlRate = parseFloat(control);
-    const experimentRate = parseFloat(experiment);
-    
     const startY = (doc as any).lastAutoTable.finalY + (test.results ? 90 : 10);
-    
-    autoTable(doc, {
-      startY,
-      head: [["Results"]],
-      body: [
-        ["Control Group", `${control} ${test.kpi}`],
-        ["Experiment Group", `${experiment} ${test.kpi}`],
-        ["Improvement", `${percentageChange.toFixed(2)}%`]
-      ]
-    });
-
-    // Add statistical significance results
-    const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
-    const results = calculateStatisticalSignificance(
-      { conversions: Math.round(controlRate * 1000), impressions: 1000 },
-      { conversions: Math.round(experimentRate * 1000), impressions: 1000 }
-    );
-
-    autoTable(doc, {
-      startY: significanceStartY,
-      head: [["Statistical Significance"]],
-      body: [
-        ["Result", results.isSignificant ? "Significant test result!" : "No significant difference"],
-        ["P-value", results.pValue.toFixed(4)],
-        ["Relative Lift", `${Math.abs(results.relativeLift).toFixed(2)}%`],
-        ["Interpretation", results.isSignificant 
-          ? `You can be 95% confident that this result is a consequence of the changes made and not random chance.`
-          : `The difference between the variants is not statistically significant.`
-        ]
-      ]
-    });
+    addTestResults(doc, test, startY);
   }
 
   // Add executive summary if available
   if (test.executive_summary) {
     const startY = (doc as any).lastAutoTable.finalY + 10;
-    autoTable(doc, {
-      startY,
-      head: [["Executive Summary"]],
-      body: [[test.executive_summary]]
-    });
+    addExecutiveSummary(doc, test, startY);
   }
 
   // Save the PDF
-  const fileName = `${test.name.replace(/\s+/g, '_')}_report.pdf`;
+  const fileName = `${test.name.replace(/\s+/g, "_")}_report.pdf`;
   doc.save(fileName);
 };
