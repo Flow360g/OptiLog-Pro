@@ -1,15 +1,15 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Test } from "./types";
-import { TestInformation } from "./test-details/TestInformation";
-import { TestResultsForm } from "./test-details/TestResultsForm";
-import { TestResultsChart } from "./test-details/TestResultsChart";
-import { TestSignificanceResults } from "./test-details/TestSignificanceResults";
+import { Test } from "../types";
+import { TestInformation } from "./TestInformation";
+import { TestResultsForm } from "./TestResultsForm";
+import { TestResultsChart } from "./TestResultsChart";
+import { TestSignificanceResults } from "./TestSignificanceResults";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { generatePDF } from "./utils/pdfGenerator";
-import { DialogHeader } from "./test-details/DialogHeader";
-import { ExecutiveSummarySection } from "./test-details/ExecutiveSummarySection";
+import { generatePDF } from "../utils/pdfGenerator";
+import { DialogHeader } from "./DialogHeader";
+import { ExecutiveSummarySection } from "./ExecutiveSummarySection";
 
 interface TestDetailsDialogProps {
   test: Test;
