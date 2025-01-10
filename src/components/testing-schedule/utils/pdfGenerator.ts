@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Chart } from "chart.js/auto";
 import type { PDFTest } from "../types";
+import { calculateStatisticalSignificance } from "../utils/statisticalCalculations";
 
 const generateChartImage = async (test: PDFTest): Promise<string> => {
   // Create a canvas element in memory
@@ -114,6 +115,8 @@ export const generatePDF = async (test: PDFTest) => {
   if (test.results) {
     const { control, experiment } = test.results;
     const percentageChange = ((parseFloat(experiment) - parseFloat(control)) / parseFloat(control)) * 100;
+    const controlRate = parseFloat(control);
+    const experimentRate = parseFloat(experiment);
     
     const startY = (doc as any).lastAutoTable.finalY + (test.results ? 90 : 10);
     
@@ -124,6 +127,27 @@ export const generatePDF = async (test: PDFTest) => {
         ["Control Group", `${control} ${test.kpi}`],
         ["Experiment Group", `${experiment} ${test.kpi}`],
         ["Improvement", `${percentageChange.toFixed(2)}%`]
+      ]
+    });
+
+    // Add statistical significance results
+    const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
+    const results = calculateStatisticalSignificance(
+      { conversions: Math.round(controlRate * 1000), impressions: 1000 },
+      { conversions: Math.round(experimentRate * 1000), impressions: 1000 }
+    );
+
+    autoTable(doc, {
+      startY: significanceStartY,
+      head: [["Statistical Significance"]],
+      body: [
+        ["Result", results.isSignificant ? "Significant test result!" : "No significant difference"],
+        ["P-value", results.pValue.toFixed(4)],
+        ["Relative Lift", `${Math.abs(results.relativeLift).toFixed(2)}%`],
+        ["Interpretation", results.isSignificant 
+          ? `You can be 95% confident that this result is a consequence of the changes made and not random chance.`
+          : `The difference between the variants is not statistically significant.`
+        ]
       ]
     });
   }

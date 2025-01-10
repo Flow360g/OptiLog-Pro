@@ -124,7 +124,7 @@ export function TestSignificanceResults({
                 </TooltipTrigger>
                 <TooltipContent className="max-w-sm p-4">
                   <p>A p-value, or probability value, is a number describing how likely it is that your data would have occurred by random chance (i.e., that the null hypothesis is true).</p>
-                  <p className="mt-2">The level of statistical significance is often expressed as a p-value between 0 and 1.</p>
+                  <p className="mt-2">The level of statistical significance is often expressed as a p-value between 0 and 1. To achieve a statistical significance of 95%, we need a p-value of 0.05 or lower.</p>
                   <p className="mt-2">The smaller the p-value, the less likely the results occurred by random chance, and the stronger the evidence that you should reject the null hypothesis.</p>
                 </TooltipContent>
               </Tooltip>
