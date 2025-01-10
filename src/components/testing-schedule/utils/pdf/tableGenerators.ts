@@ -17,10 +17,8 @@ export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number) =>
 
   autoTable(doc, {
     startY,
-    head: [["Test Information", "Details"]],
     body: testInfo,
     theme: 'striped',
-    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
     columnStyles: { 
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -60,11 +58,16 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     },
   });
 
-  // Add Statistical Significance section
+  // Add Statistical Significance section with correct calculations
   const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
+  
+  // Convert percentage values to actual numbers for statistical calculation
+  const controlConversions = Math.round(controlValue * 1000);
+  const experimentConversions = Math.round(experimentValue * 1000);
+  
   const results = calculateStatisticalSignificance(
-    { conversions: Math.round(controlValue * 1000), impressions: 1000 },
-    { conversions: Math.round(experimentValue * 1000), impressions: 1000 }
+    { conversions: controlConversions, impressions: 1000 },
+    { conversions: experimentConversions, impressions: 1000 }
   );
 
   const significanceData = [
@@ -79,7 +82,7 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     [
       "Interpretation",
       results.isSignificant
-        ? `You can be 95% confident that this result is a consequence of the changes made and not random chance.`
+        ? `Variation B's observed conversion rate (${(results.experimentRate * 100).toFixed(2)}%) was ${Math.abs(results.relativeLift).toFixed(2)}% ${results.relativeLift > 0 ? 'higher' : 'lower'} than Variation A's conversion rate (${(results.controlRate * 100).toFixed(2)}%). You can be 95% confident that this result is a consequence of the changes made and not random chance.`
         : `The difference between the variants is not statistically significant.`,
     ],
   ];
