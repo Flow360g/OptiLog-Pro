@@ -3,6 +3,7 @@ import { Test } from "./types";
 import { TestInformation } from "./test-details/TestInformation";
 import { TestResultsForm } from "./test-details/TestResultsForm";
 import { TestResultsChart } from "./test-details/TestResultsChart";
+import { TestSignificanceResults } from "./test-details/TestSignificanceResults";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { generatePDF } from "./utils/pdfGenerator";
@@ -95,11 +96,19 @@ Experiment group: ${test.results.experiment}`;
           <TestInformation test={test} />
 
           <TestResultsChart results={test.results || defaultResults} kpi={test.kpi} />
+          
           <TestResultsForm 
             results={test.results || defaultResults} 
             kpi={test.kpi} 
             onChange={() => {}}
           />
+
+          {test.results && (
+            <TestSignificanceResults
+              controlRate={parseFloat(test.results.control)}
+              experimentRate={parseFloat(test.results.experiment)}
+            />
+          )}
           
           {!test.results && (
             <div className="text-center text-sm text-gray-500 mt-2">
