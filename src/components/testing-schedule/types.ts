@@ -24,3 +24,7 @@ export interface Test {
   };
   executive_summary: string | null;
 }
+
+export interface PDFTest extends Test {
+  results: TestResult;
+}
