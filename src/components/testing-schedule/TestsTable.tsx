@@ -6,6 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Test } from "./types";
 import { TableHeader } from "./table/TableHeader";
 import { TableRow } from "./table/TableRow";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { generateGanttChartPDF } from "./utils/pdf/ganttChartGenerator";
 
 interface TestsTableProps {
   tests: Test[];
@@ -41,7 +44,6 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
 
       if (error) throw error;
 
-      // Update local state immediately
       setTests(prevTests => 
         prevTests.map(test => 
           test.id === testId ? { ...test, status: newStatus } : test
@@ -62,9 +64,37 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
     }
   };
 
+  const handleDownloadGantt = async () => {
+    try {
+      await generateGanttChartPDF(sortedTests);
+      toast({
+        title: "Success",
+        description: "Gantt chart PDF has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating Gantt chart:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem generating the Gantt chart PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Tests</h3>
+          <Button
+            onClick={handleDownloadGantt}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download Gantt Chart
+          </Button>
+        </div>
         <div className="overflow-x-auto">
           <Table>
             <thead>
