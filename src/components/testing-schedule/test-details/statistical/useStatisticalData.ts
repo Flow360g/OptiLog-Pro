@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { StatisticalData, StatisticalGroupData, Json } from "../../types";
+import { StatisticalData, StatisticalGroupData } from "../../types";
+import { Json } from "@/integrations/supabase/types";
 
 export function useStatisticalData(testId: string) {
   const { toast } = useToast();
