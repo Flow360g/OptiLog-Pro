@@ -36,11 +36,8 @@ export const generatePDF = async (test: PDFTest) => {
         img.src = data.publicUrl;
       });
 
-      // Increase base width by 15% (from 40 to 46)
-      const imgWidth = 46;
+      const imgWidth = 40;
       const imgHeight = (img.height * imgWidth) / img.width;
-      
-      // Center the image with padding to prevent cropping
       doc.addImage(
         img,
         'PNG',
