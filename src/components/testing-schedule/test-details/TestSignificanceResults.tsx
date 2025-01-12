@@ -48,9 +48,11 @@ export function TestSignificanceResults({
       }
 
       if (test?.results && typeof test.results === 'object' && 'statistical_data' in test.results) {
-        const statisticalData = test.results.statistical_data as StatisticalData;
-        setControlData(statisticalData.control);
-        setExperimentData(statisticalData.experiment);
+        const statisticalData = (test.results.statistical_data as unknown) as StatisticalData;
+        if (statisticalData && 'control' in statisticalData && 'experiment' in statisticalData) {
+          setControlData(statisticalData.control);
+          setExperimentData(statisticalData.experiment);
+        }
       }
     };
 
@@ -86,7 +88,7 @@ export function TestSignificanceResults({
     }
 
     const updatedResults = {
-      ...currentTest?.results,
+      ...(currentTest?.results || {}),
       statistical_data: {
         control: variant === "control" ? newData : controlData,
         experiment: variant === "experiment" ? newData : experimentData
@@ -201,4 +203,4 @@ export function TestSignificanceResults({
       )}
     </div>
   );
-};
+}
