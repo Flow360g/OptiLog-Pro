@@ -58,13 +58,14 @@ export const GanttChart = ({ tests }: GanttChartProps) => {
 
     data.addRows(rows);
 
-    const options = {
+    const options: google.visualization.GanttChartOptions = {
       height: 400,
       gantt: {
         trackHeight: 30,
         labelStyle: {
           fontName: 'Inter',
-          fontSize: 12
+          fontSize: 12,
+          color: '#333'
         },
         palette: [
           {
