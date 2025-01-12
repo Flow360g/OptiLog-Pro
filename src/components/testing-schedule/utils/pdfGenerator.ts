@@ -4,7 +4,7 @@ import { generateChartImage } from "./pdf/chartGenerator";
 import { generateBellCurveImage } from "./pdf/bellCurveGenerator";
 import { addLogo } from "./pdf/logoHandler";
 import { addTestInformation } from "./pdf/testInformationTable";
-import { addTestResults } from "./pdf/statisticalAnalysisTable";
+import { addStatisticalAnalysis } from "./pdf/statisticalAnalysisTable";
 import { addExecutiveSummary } from "./pdf/executiveSummaryTable";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -67,7 +67,7 @@ export const generatePDF = async (test: PDFTest) => {
   // Add test results if available
   if (test.results) {
     console.log("Adding test results to PDF");
-    currentY = addTestResults(doc, currentY, test.results, test.kpi, profile?.secondary_color);
+    currentY = addStatisticalAnalysis(doc, currentY, test.results, test.kpi, profile?.secondary_color);
 
     // Add bell curve chart
     try {

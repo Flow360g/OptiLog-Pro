@@ -1,9 +1,9 @@
 import { addTestInformation } from "./testInformationTable";
-import { addStatisticalAnalysis as addTestResults } from "./statisticalAnalysisTable";
+import { addStatisticalAnalysis } from "./statisticalAnalysisTable";
 import { addExecutiveSummary } from "./executiveSummaryTable";
 
 export {
   addTestInformation,
-  addTestResults,
+  addStatisticalAnalysis,
   addExecutiveSummary,
 };
