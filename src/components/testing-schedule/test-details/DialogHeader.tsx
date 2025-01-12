@@ -14,7 +14,7 @@ export function DialogHeader({ test, onDownloadPDF }: DialogHeaderProps) {
       {test.results && (
         <Button
           onClick={onDownloadPDF}
-          className="gradient-bg"
+          className="gradient-bg flex items-center gap-2"
           variant={null}
         >
           <Download className="h-4 w-4" />
