@@ -12,6 +12,7 @@ export const generatePDF = async (test: PDFTest) => {
   console.log("Starting PDF generation with test data:", test);
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
+  let currentY = 20; // Initialize currentY
 
   // Get user's brand settings
   const { data: profile } = await supabase
@@ -41,7 +42,7 @@ export const generatePDF = async (test: PDFTest) => {
         img,
         'PNG',
         (pageWidth - imgWidth) / 2,
-        10,
+        currentY,
         imgWidth,
         imgHeight
       );
@@ -54,13 +55,13 @@ export const generatePDF = async (test: PDFTest) => {
       console.error('Error adding logo to PDF:', error);
       // Fallback to default title position if logo fails
       doc.setFontSize(20);
-      doc.text(test.name, pageWidth / 2, 20, { align: "center" });
+      doc.text(test.name, pageWidth / 2, currentY, { align: "center" });
       currentY = 30;
     }
   } else {
     // No logo, use default title position
     doc.setFontSize(20);
-    doc.text(test.name, pageWidth / 2, 20, { align: "center" });
+    doc.text(test.name, pageWidth / 2, currentY, { align: "center" });
     currentY = 30;
   }
 

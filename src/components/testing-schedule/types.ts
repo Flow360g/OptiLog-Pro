@@ -35,6 +35,7 @@ export interface Test {
     };
   };
   executive_summary: string | null;
+  user_id: string;
 }
 
 export interface PDFTest extends Test {
