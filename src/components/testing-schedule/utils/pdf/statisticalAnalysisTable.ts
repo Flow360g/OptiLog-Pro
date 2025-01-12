@@ -18,7 +18,6 @@ interface TestResults {
 }
 
 const parsePercentage = (value: string): number => {
-  // Remove % sign if present and convert to decimal
   return parseFloat(value.replace('%', '')) / 100;
 };
 
@@ -29,8 +28,6 @@ export const addStatisticalAnalysis = (
   kpi: string,
   secondaryColor?: string | null
 ) => {
-  console.log("Adding statistical analysis with:", { results, kpi, startY });
-  
   const controlValue = parsePercentage(results.control);
   const experimentValue = parsePercentage(results.experiment);
   const percentageChange = ((experimentValue - controlValue) / controlValue) * 100;
@@ -41,7 +38,6 @@ export const addStatisticalAnalysis = (
   let experimentImpressions: number;
   
   if (results.statistical_data) {
-    // Use actual statistical data if available
     controlImpressions = parseInt(results.statistical_data.control.impressions);
     experimentImpressions = parseInt(results.statistical_data.experiment.impressions);
     
@@ -56,7 +52,6 @@ export const addStatisticalAnalysis = (
       }
     );
   } else {
-    // Fallback to basic sample size if no statistical data
     const BASE_SAMPLE_SIZE = 10000;
     controlImpressions = BASE_SAMPLE_SIZE;
     experimentImpressions = BASE_SAMPLE_SIZE;
@@ -68,8 +63,6 @@ export const addStatisticalAnalysis = (
       { conversions: experimentConversions, impressions: BASE_SAMPLE_SIZE }
     );
   }
-
-  console.log("Calculated statistics:", stats);
 
   const rgbColor = secondaryColor ? hexToRgb(secondaryColor) : [76, 175, 80];
 
@@ -85,7 +78,10 @@ export const addStatisticalAnalysis = (
     head: [["Results", "Value"]],
     body: resultsData,
     theme: 'striped',
-    headStyles: { fillColor: rgbColor, textColor: [255, 255, 255] },
+    headStyles: { 
+      fillColor: rgbColor as [number, number, number],
+      textColor: [255, 255, 255] 
+    },
     styles: { cellPadding: 5 },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -115,7 +111,10 @@ export const addStatisticalAnalysis = (
     head: [["Statistical Analysis", "Details"]],
     body: significanceData,
     theme: 'striped',
-    headStyles: { fillColor: rgbColor, textColor: [255, 255, 255] },
+    headStyles: { 
+      fillColor: rgbColor as [number, number, number],
+      textColor: [255, 255, 255] 
+    },
     styles: { cellPadding: 5 },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -127,11 +126,11 @@ export const addStatisticalAnalysis = (
 };
 
 // Helper function to convert hex to RGB
-function hexToRgb(hex: string): number[] {
+function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? [
     parseInt(result[1], 16),
     parseInt(result[2], 16),
     parseInt(result[3], 16)
-  ] : [76, 175, 80]; // Default green
+  ] : [76, 175, 80];
 }

@@ -13,7 +13,7 @@ export const addExecutiveSummary = (doc: jsPDF, test: PDFTest, startY: number, s
     body: [[test.executive_summary]],
     theme: 'striped',
     headStyles: { 
-      fillColor: rgbColor,
+      fillColor: rgbColor as [number, number, number],
       textColor: [255, 255, 255] 
     },
     styles: { cellPadding: 5 },
@@ -23,11 +23,11 @@ export const addExecutiveSummary = (doc: jsPDF, test: PDFTest, startY: number, s
 };
 
 // Helper function to convert hex to RGB
-function hexToRgb(hex: string): number[] {
+function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? [
     parseInt(result[1], 16),
     parseInt(result[2], 16),
     parseInt(result[3], 16)
-  ] : [76, 175, 80]; // Default green
+  ] : [76, 175, 80];
 }

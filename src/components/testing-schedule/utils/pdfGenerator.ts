@@ -49,11 +49,11 @@ export const generatePDF = async (test: PDFTest) => {
 
       // Adjust starting Y position for title with reduced spacing
       doc.setFontSize(20);
-      doc.text("Test Overview", pageWidth / 2, imgHeight + 20, { align: "center" });
+      doc.text("Test Overview", pageWidth / 2, imgHeight + 15, { align: "center" });
       // Add test name below the main title in slightly smaller font
       doc.setFontSize(16);
-      doc.text(test.name, pageWidth / 2, imgHeight + 35, { align: "center" });
-      currentY = imgHeight + 45;
+      doc.text(test.name, pageWidth / 2, imgHeight + 30, { align: "center" });
+      currentY = imgHeight + 40;
     } catch (error) {
       console.error('Error adding logo to PDF:', error);
       // Fallback to default title position if logo fails
@@ -72,8 +72,8 @@ export const generatePDF = async (test: PDFTest) => {
     currentY = 45;
   }
 
-  // Add test information
-  currentY = addTestInformation(doc, test, currentY);
+  // Add test information with secondary color
+  currentY = addTestInformation(doc, test, currentY, profile?.secondary_color);
 
   // Add chart if results exist
   if (test.results) {
@@ -106,11 +106,7 @@ export const generatePDF = async (test: PDFTest) => {
     currentY = addExecutiveSummary(doc, test, currentY, profile?.secondary_color);
   }
 
-  // Start a new page for results and statistical analysis
-  doc.addPage();
-  currentY = 20;
-
-  // Add results if they exist
+  // Add results if they exist (now on the same page as executive summary)
   if (test.results) {
     console.log("Adding test results to PDF:", {
       results: test.results,
