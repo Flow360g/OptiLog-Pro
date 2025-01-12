@@ -5,6 +5,15 @@ interface TestInformationProps {
 }
 
 export function TestInformation({ test }: TestInformationProps) {
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case 'cancelled':
+        return 'Complete';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
   return (
     <div className="space-y-2.5">
       <div className="grid grid-cols-2 bg-gray-50 py-2.5 px-4">
@@ -17,7 +26,7 @@ export function TestInformation({ test }: TestInformationProps) {
       </div>
       <div className="grid grid-cols-2 bg-gray-50 py-2.5 px-4">
         <span className="text-gray-600 font-medium">Status</span>
-        <span className="text-gray-700">{test.status}</span>
+        <span className="text-gray-700">{formatStatus(test.status)}</span>
       </div>
       <div className="grid grid-cols-2 py-2.5 px-4">
         <span className="text-gray-600 font-medium">Start Date</span>
