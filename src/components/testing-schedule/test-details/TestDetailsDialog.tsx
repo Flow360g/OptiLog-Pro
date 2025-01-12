@@ -84,7 +84,7 @@ Experiment group: ${test.results.experiment}`;
             {test.results && (
               <Button
                 onClick={handleDownloadPDF}
-                className="gradient-bg flex items-center gap-2"
+                className="gradient-bg flex items-center gap-2 text-white"
               >
                 <Download className="h-4 w-4" />
                 Download PDF
@@ -122,7 +122,7 @@ Experiment group: ${test.results.experiment}`;
               {test.results && (
                 <Button
                   onClick={generateExecutiveSummary}
-                  className="gradient-bg"
+                  className="gradient-bg text-white"
                   size="sm"
                 >
                   Generate Summary
