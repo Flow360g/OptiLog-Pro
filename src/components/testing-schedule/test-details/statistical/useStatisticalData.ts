@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { StatisticalData, StatisticalGroupData } from "../../types";
+import { StatisticalData, StatisticalGroupData, Json } from "../../types";
 
 export function useStatisticalData(testId: string) {
   const { toast } = useToast();
@@ -31,12 +31,28 @@ export function useStatisticalData(testId: string) {
     }
 
     if (test?.results && typeof test.results === 'object' && 'statistical_data' in test.results) {
-      const statisticalData = test.results.statistical_data as StatisticalData;
-      if (statisticalData && 'control' in statisticalData && 'experiment' in statisticalData) {
-        setControlData(statisticalData.control);
-        setExperimentData(statisticalData.experiment);
+      const rawData = test.results.statistical_data as unknown;
+      if (isStatisticalData(rawData)) {
+        setControlData(rawData.control);
+        setExperimentData(rawData.experiment);
       }
     }
+  };
+
+  // Type guard to ensure the data matches StatisticalData structure
+  const isStatisticalData = (data: unknown): data is StatisticalData => {
+    if (!data || typeof data !== 'object') return false;
+    const d = data as any;
+    return (
+      'control' in d &&
+      'experiment' in d &&
+      typeof d.control === 'object' &&
+      typeof d.experiment === 'object' &&
+      'conversions' in d.control &&
+      'impressions' in d.control &&
+      'conversions' in d.experiment &&
+      'impressions' in d.experiment
+    );
   };
 
   const handleInputChange = async (
@@ -73,12 +89,15 @@ export function useStatisticalData(testId: string) {
       return;
     }
 
-    const updatedResults = {
+    // Create the statistical data object that matches the Json type
+    const statisticalData: { [key: string]: Json } = {
+      control: variant === "control" ? newData : controlData,
+      experiment: variant === "experiment" ? newData : experimentData
+    };
+
+    const updatedResults: Json = {
       ...currentResults,
-      statistical_data: {
-        control: variant === "control" ? newData : controlData,
-        experiment: variant === "experiment" ? newData : experimentData
-      }
+      statistical_data: statisticalData
     };
 
     const { error: updateError } = await supabase
