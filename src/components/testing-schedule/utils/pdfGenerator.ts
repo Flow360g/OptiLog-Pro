@@ -49,20 +49,27 @@ export const generatePDF = async (test: PDFTest) => {
 
       // Adjust starting Y position for title
       doc.setFontSize(20);
-      doc.text(test.name, pageWidth / 2, imgHeight + 25, { align: "center" });
-      currentY = imgHeight + 35;
+      doc.text("Test Overview", pageWidth / 2, imgHeight + 25, { align: "center" });
+      // Add test name below the main title in slightly smaller font
+      doc.setFontSize(16);
+      doc.text(test.name, pageWidth / 2, imgHeight + 40, { align: "center" });
+      currentY = imgHeight + 50;
     } catch (error) {
       console.error('Error adding logo to PDF:', error);
       // Fallback to default title position if logo fails
       doc.setFontSize(20);
-      doc.text(test.name, pageWidth / 2, currentY, { align: "center" });
-      currentY = 30;
+      doc.text("Test Overview", pageWidth / 2, currentY, { align: "center" });
+      doc.setFontSize(16);
+      doc.text(test.name, pageWidth / 2, currentY + 15, { align: "center" });
+      currentY = 45;
     }
   } else {
     // No logo, use default title position
     doc.setFontSize(20);
-    doc.text(test.name, pageWidth / 2, currentY, { align: "center" });
-    currentY = 30;
+    doc.text("Test Overview", pageWidth / 2, currentY, { align: "center" });
+    doc.setFontSize(16);
+    doc.text(test.name, pageWidth / 2, currentY + 15, { align: "center" });
+    currentY = 45;
   }
 
   // Add test information
