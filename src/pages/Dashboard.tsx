@@ -11,7 +11,6 @@ import { LoadingState } from "@/components/dashboard/LoadingState";
 import { useDashboardState } from "@/components/dashboard/DashboardState";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { Toaster } from "@/components/ui/toaster";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -126,7 +125,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <Navigation />
-      <Toaster />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <DashboardHeader />
 
