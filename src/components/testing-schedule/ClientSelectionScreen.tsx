@@ -32,7 +32,7 @@ export function ClientSelectionScreen({ onClientSelect }: ClientSelectionScreenP
           >
             <Button
               variant="ghost"
-              className="w-full h-full text-lg font-medium"
+              className="w-full h-full text-lg font-medium hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white"
             >
               {client.toUpperCase()}
             </Button>
