@@ -31,7 +31,7 @@ export function useStatisticalData(testId: string) {
     }
 
     if (test?.results && typeof test.results === 'object' && 'statistical_data' in test.results) {
-      const statisticalData = (test.results.statistical_data as unknown) as StatisticalData;
+      const statisticalData = test.results.statistical_data as StatisticalData;
       if (statisticalData && 'control' in statisticalData && 'experiment' in statisticalData) {
         setControlData(statisticalData.control);
         setExperimentData(statisticalData.experiment);
@@ -67,8 +67,14 @@ export function useStatisticalData(testId: string) {
       return;
     }
 
+    const currentResults = currentTest?.results || {};
+    if (typeof currentResults !== 'object') {
+      console.error('Current results is not an object');
+      return;
+    }
+
     const updatedResults = {
-      ...(currentTest?.results || {}),
+      ...currentResults,
       statistical_data: {
         control: variant === "control" ? newData : controlData,
         experiment: variant === "experiment" ? newData : experimentData
