@@ -18,7 +18,10 @@ export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number) =>
     startY,
     body: testInfo,
     theme: 'striped',
-    styles: { cellPadding: 5 },
+    styles: { 
+      cellPadding: 4,  // Reduced from 5 to 4
+      minCellHeight: 8.5  // Reduced by 15% from 10
+    },
     columnStyles: { 
       0: { fontStyle: 'bold', cellWidth: 80 },
       1: { cellWidth: 'auto' }
