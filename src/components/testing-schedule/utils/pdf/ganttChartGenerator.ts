@@ -76,7 +76,7 @@ const createGanttChart = async (tests: Test[], visualization: any) => {
       innerGridDarkTrack: { fill: '#f0f0f0' },
       labelMaxWidth: 200,
       barLabelStyle: {
-        left: true // This will place labels on the left side of bars
+        left: true
       }
     }
   };
@@ -144,7 +144,7 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
     const pageHeight = doc.internal.pageSize.height;
     let currentY = 10;
 
-    // Add logo if available
+    // Add logo if available with increased size
     if (profile?.logo_path) {
       try {
         const { data } = supabase.storage
@@ -158,7 +158,7 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
           img.src = data.publicUrl;
         });
 
-        const imgWidth = 30;
+        const imgWidth = 90; // Increased from 30 to 90 (3x bigger)
         const imgHeight = (img.height * imgWidth) / img.width;
         doc.addImage(
           img,
@@ -179,13 +179,39 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
     doc.text("Test Schedule - Gantt Chart", pageWidth / 2, currentY, { align: "center" });
     currentY += 20;
 
+    // Add color legend
+    const legendY = currentY;
+    const legendX = 20;
+    const boxSize = 5;
+    const textOffset = 10;
+    
+    // Define status colors and labels
+    const statusLegend = [
+      { label: 'Draft (0%)', color: '#e0e0e0' },
+      { label: 'Scheduled (25%)', color: '#ffd700' },
+      { label: 'In Progress (50%)', color: '#4CAF50' },
+      { label: 'Completed (100%)', color: '#2196F3' }
+    ];
+
+    doc.setFontSize(10);
+    statusLegend.forEach((status, index) => {
+      // Draw colored box
+      doc.setFillColor(status.color);
+      doc.rect(legendX + (index * 50), legendY, boxSize, boxSize, 'F');
+      
+      // Add label
+      doc.text(status.label, legendX + (index * 50) + textOffset, legendY + 4);
+    });
+
+    currentY += 15; // Add space after legend
+
     // Add chart with adjusted dimensions for landscape
-    const chartWidth = pageWidth - 20; // Leave some margins
-    const chartHeight = pageHeight - currentY - 10; // Leave some bottom margin
+    const chartWidth = pageWidth - 20;
+    const chartHeight = pageHeight - currentY - 10;
     doc.addImage(
       chartImage,
       'PNG',
-      10, // Left margin
+      10,
       currentY,
       chartWidth,
       chartHeight
