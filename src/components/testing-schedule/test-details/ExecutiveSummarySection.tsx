@@ -22,7 +22,11 @@ export function ExecutiveSummarySection({
       <div className="flex justify-between items-center">
         <Label htmlFor="executive-summary">Executive Summary</Label>
         {hasResults && (
-          <Button onClick={onGenerateSummary} variant="outline" size="sm">
+          <Button
+            onClick={onGenerateSummary}
+            className="gradient-bg text-white"
+            size="sm"
+          >
             Generate Summary
           </Button>
         )}

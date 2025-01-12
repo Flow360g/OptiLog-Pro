@@ -4,14 +4,12 @@ import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
 import { TestSignificanceResults } from "./TestSignificanceResults";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
 import { generatePDF } from "../utils/pdfGenerator";
 import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { DialogHeader } from "./DialogHeader";
+import { ExecutiveSummarySection } from "./ExecutiveSummarySection";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -79,18 +77,7 @@ Experiment group: ${test.results.experiment}`;
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="space-y-6 py-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">{test.name}</h2>
-            {test.results && (
-              <Button
-                onClick={handleDownloadPDF}
-                className="gradient-bg flex items-center gap-2 text-white"
-              >
-                <Download className="h-4 w-4" />
-                Download PDF
-              </Button>
-            )}
-          </div>
+          <DialogHeader test={test} onDownloadPDF={handleDownloadPDF} />
 
           <TestInformation test={test} />
 
@@ -116,28 +103,13 @@ Experiment group: ${test.results.experiment}`;
             </div>
           )}
 
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="executive-summary">Executive Summary</Label>
-              {test.results && (
-                <Button
-                  onClick={generateExecutiveSummary}
-                  className="gradient-bg text-white"
-                  size="sm"
-                >
-                  Generate Summary
-                </Button>
-              )}
-            </div>
-            <Textarea
-              id="executive-summary"
-              value={executiveSummary}
-              onChange={(e) => setExecutiveSummary(e.target.value)}
-              onBlur={() => updateExecutiveSummary(executiveSummary)}
-              placeholder="Enter or generate an executive summary for this test..."
-              className="min-h-[100px]"
-            />
-          </div>
+          <ExecutiveSummarySection
+            executiveSummary={executiveSummary}
+            onSummaryChange={setExecutiveSummary}
+            onSummaryBlur={() => updateExecutiveSummary(executiveSummary)}
+            onGenerateSummary={generateExecutiveSummary}
+            hasResults={!!test.results}
+          />
         </div>
       </DialogContent>
     </Dialog>
