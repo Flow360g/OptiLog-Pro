@@ -27,12 +27,12 @@ export function ClientSelectionScreen({ onClientSelect }: ClientSelectionScreenP
         {userClients.map((client) => (
           <Card
             key={client}
-            className="p-6 hover:shadow-lg transition-all cursor-pointer hover:bg-gradient-to-r hover:from-primary hover:to-secondary"
+            className="p-6 hover:shadow-lg transition-all cursor-pointer hover:bg-gradient-to-r hover:from-primary hover:to-secondary group"
             onClick={() => onClientSelect(client)}
           >
             <Button
               variant="ghost"
-              className="w-full h-full text-lg font-medium text-gray-900 hover:text-white"
+              className="w-full h-full text-lg font-medium group-hover:text-white"
             >
               {client.toUpperCase()}
             </Button>
