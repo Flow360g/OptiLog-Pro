@@ -8,6 +8,7 @@ import { ClientSelectionScreen } from "@/components/testing-schedule/ClientSelec
 import { Button } from "@/components/ui/button";
 import { TestsTable } from "@/components/testing-schedule/TestsTable";
 import { generateGanttChartPDF } from "@/components/testing-schedule/utils/pdf/ganttChartGenerator";
+import { Test, isTestResult } from "@/components/testing-schedule/types";
 
 export default function TestingSchedule() {
   const { toast } = useToast();
@@ -41,7 +42,11 @@ export default function TestingSchedule() {
         return [];
       }
 
-      return data;
+      // Transform the data to ensure it matches the Test type
+      return data.map((test): Test => ({
+        ...test,
+        results: test.results ? (isTestResult(test.results) ? test.results : null) : null,
+      }));
     },
     enabled: !!selectedClient,
   });
