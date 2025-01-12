@@ -26,7 +26,7 @@ export interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  results: TestResult | null | Json;  // Updated to allow Json type
+  results: TestResult | null;
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
   test_types: {
     name: string;
@@ -36,9 +36,11 @@ export interface Test {
   };
   executive_summary: string | null;
   user_id: string;
+  client: string;
+  test_type_id: string;
 }
 
-export interface PDFTest extends Test {
+export interface PDFTest extends Omit<Test, 'results'> {
   results: TestResult;
 }
 
@@ -55,5 +57,14 @@ export interface SignificanceResult {
   pValue: number;
 }
 
-// Add Json type to handle Supabase's jsonb type
-type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+// Type guard to check if a value is a TestResult
+export function isTestResult(value: any): value is TestResult {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    'control' in value &&
+    'experiment' in value &&
+    typeof value.control === 'string' &&
+    typeof value.experiment === 'string'
+  );
+}

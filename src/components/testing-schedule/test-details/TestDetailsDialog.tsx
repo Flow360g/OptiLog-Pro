@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Test } from "../types";
+import { Test, isTestResult } from "../types";
 import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
@@ -26,12 +26,12 @@ export function TestDetailsDialog({
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
 
   const handleDownloadPDF = async () => {
-    if (!test.results) return;
-    await generatePDF(test);
+    if (!test.results || !isTestResult(test.results)) return;
+    await generatePDF({ ...test, results: test.results });
   };
 
   const generateExecutiveSummary = () => {
-    if (!test.results) return;
+    if (!test.results || !isTestResult(test.results)) return;
     
     const control = parseFloat(test.results.control);
     const experiment = parseFloat(test.results.experiment);
@@ -81,15 +81,18 @@ Experiment group: ${test.results.experiment}`;
 
           <TestInformation test={test} />
 
-          <TestResultsChart results={test.results || defaultResults} kpi={test.kpi} />
+          <TestResultsChart 
+            results={isTestResult(test.results) ? test.results : defaultResults} 
+            kpi={test.kpi} 
+          />
           
           <TestResultsForm 
-            results={test.results || defaultResults} 
+            results={isTestResult(test.results) ? test.results : defaultResults}
             kpi={test.kpi} 
             onChange={() => {}}
           />
 
-          {test.results && (
+          {test.results && isTestResult(test.results) && (
             <TestSignificanceResults
               controlRate={parseFloat(test.results.control)}
               experimentRate={parseFloat(test.results.experiment)}
@@ -108,7 +111,7 @@ Experiment group: ${test.results.experiment}`;
             onSummaryChange={setExecutiveSummary}
             onSummaryBlur={() => updateExecutiveSummary(executiveSummary)}
             onGenerateSummary={generateExecutiveSummary}
-            hasResults={!!test.results}
+            hasResults={!!test.results && isTestResult(test.results)}
           />
         </div>
       </DialogContent>
