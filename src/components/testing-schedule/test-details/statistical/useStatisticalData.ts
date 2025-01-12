@@ -40,7 +40,6 @@ export function useStatisticalData(testId: string) {
     }
   };
 
-  // Type guard to ensure the data matches StatisticalData structure
   const isStatisticalData = (data: unknown): data is StatisticalData => {
     if (!data || typeof data !== 'object') return false;
     const d = data as any;
@@ -90,16 +89,16 @@ export function useStatisticalData(testId: string) {
       return;
     }
 
-    // Create the statistical data object that matches the Json type
-    const statisticalData: { [key: string]: Json } = {
-      control: variant === "control" ? newData : controlData,
-      experiment: variant === "experiment" ? newData : experimentData
+    // Convert StatisticalGroupData to a Json-compatible object
+    const statisticalData = {
+      control: { ...controlData } as Json,
+      experiment: { ...experimentData } as Json
     };
 
-    const updatedResults: Json = {
+    const updatedResults = {
       ...currentResults,
       statistical_data: statisticalData
-    };
+    } as Json;
 
     const { error: updateError } = await supabase
       .from('tests')
