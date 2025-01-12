@@ -44,10 +44,6 @@
     @apply bg-[#f8f8f8] text-foreground relative;
   }
   
-  .gradient-bg {
-    @apply !bg-gradient-to-r !from-primary !to-secondary hover:opacity-90 transition-opacity;
-  }
-  
   .category-pill {
     @apply px-4 py-2 rounded-full border-2 border-primary cursor-pointer transition-all
            text-gray-700 bg-gray-100 hover:border-0 hover:gradient-bg hover:text-white;
