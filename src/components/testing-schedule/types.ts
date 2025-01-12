@@ -27,7 +27,7 @@ export interface Test {
   effort_level: number | null;
   impact_level: number | null;
   results: TestResult | null;
-  status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
+  status: 'draft' | 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
   test_types: {
     name: string;
     test_categories: {
