@@ -45,7 +45,7 @@ export const generatePDF = async (test: PDFTest) => {
 
   // Add results if they exist
   if (test.results) {
-    currentY = addTestResults(doc, test, currentY);
+    currentY = addTestResults(doc, test.results, currentY, test.kpi);
   }
 
   // Add executive summary if available
