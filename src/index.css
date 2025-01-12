@@ -45,7 +45,7 @@
   }
   
   .gradient-bg {
-    @apply bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity;
+    @apply !bg-gradient-to-r !from-primary !to-secondary hover:opacity-90 transition-opacity;
   }
   
   .category-pill {
