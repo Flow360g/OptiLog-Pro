@@ -43,14 +43,16 @@
   body {
     @apply bg-[#f8f8f8] text-foreground relative;
   }
-  
+}
+
+@layer components {
   .category-pill {
     @apply px-4 py-2 rounded-full border-2 border-primary cursor-pointer transition-all
-           text-gray-700 bg-gray-100 hover:border-0 hover:gradient-bg hover:text-white;
+           text-gray-700 bg-gray-100 hover:border-0 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white;
   }
   
   .category-pill.selected {
-    @apply gradient-bg border-0 text-white;
+    @apply bg-gradient-to-r from-primary to-secondary border-0 text-white;
   }
 
   /* Style for email sign-in button */
