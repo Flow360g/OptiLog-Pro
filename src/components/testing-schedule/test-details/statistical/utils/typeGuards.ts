@@ -1,16 +1,21 @@
-import { StatisticalData } from "../../../types";
+import { StatisticalData, StatisticalGroupData } from "../../../types";
 
-export const isStatisticalData = (data: unknown): data is StatisticalData => {
+export function isStatisticalGroupData(data: unknown): data is StatisticalGroupData {
   if (!data || typeof data !== 'object') return false;
-  const d = data as any;
+  
+  const groupData = data as StatisticalGroupData;
   return (
-    'control' in d &&
-    'experiment' in d &&
-    typeof d.control === 'object' &&
-    typeof d.experiment === 'object' &&
-    'conversions' in d.control &&
-    'impressions' in d.control &&
-    'conversions' in d.experiment &&
-    'impressions' in d.experiment
+    typeof groupData.conversions === 'string' &&
+    typeof groupData.impressions === 'string'
   );
-};
+}
+
+export function isStatisticalData(data: unknown): data is StatisticalData {
+  if (!data || typeof data !== 'object') return false;
+  
+  const statData = data as StatisticalData;
+  return (
+    isStatisticalGroupData(statData.control) &&
+    isStatisticalGroupData(statData.experiment)
+  );
+}
