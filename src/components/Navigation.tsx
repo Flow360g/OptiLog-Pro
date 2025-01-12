@@ -23,7 +23,7 @@ export function Navigation() {
           console.error("Session error:", error);
           if (isSubscribed) {
             setUserEmail(null);
-            // Clear any stale auth data
+            // Clear session data and redirect to login
             await supabase.auth.signOut();
             navigate("/login");
           }
@@ -38,6 +38,24 @@ export function Navigation() {
           return;
         }
 
+        // Check if the session is valid and has a valid refresh token
+        const { data: { user }, error: refreshError } = await supabase.auth.getUser();
+        
+        if (refreshError || !user) {
+          console.error("User validation error:", refreshError);
+          if (isSubscribed) {
+            setUserEmail(null);
+            await supabase.auth.signOut();
+            navigate("/login");
+            toast({
+              title: "Session Expired",
+              description: "Please sign in again",
+              variant: "destructive",
+            });
+          }
+          return;
+        }
+
         if (isSubscribed) {
           setUserEmail(session.user.email);
         }
@@ -45,7 +63,6 @@ export function Navigation() {
         console.error("Session check error:", error);
         if (isSubscribed) {
           setUserEmail(null);
-          // Clear any stale auth data
           await supabase.auth.signOut();
           navigate("/login");
         }
@@ -69,6 +86,14 @@ export function Navigation() {
       }
       
       if (session) {
+        // Validate the session when auth state changes
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          setUserEmail(null);
+          await supabase.auth.signOut();
+          navigate("/login");
+          return;
+        }
         setUserEmail(session.user.email);
       }
     });
