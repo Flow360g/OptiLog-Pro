@@ -40,3 +40,16 @@ export interface Test {
 export interface PDFTest extends Test {
   results: TestResult;
 }
+
+export interface StatisticalGroupData {
+  conversions: string;
+  impressions: string;
+}
+
+export interface SignificanceResult {
+  isSignificant: boolean;
+  controlRate: number;
+  experimentRate: number;
+  relativeLift: number;
+  pValue: number;
+}
