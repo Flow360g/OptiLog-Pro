@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { Test } from "../types";
 import { StatusSelect } from "./StatusSelect";
+import { PlatformIcon } from "@/components/dashboard/optimization-table/PlatformIcon";
 
 interface TableRowProps {
   test: Test;
@@ -17,7 +18,11 @@ export function TableRow({ test, index, onStatusChange, onRowClick }: TableRowPr
     >
       <td className="p-4 text-gray-700">{index + 1}</td>
       <td className="p-4 text-gray-700">{test.name}</td>
-      <td className="p-4 text-gray-700">{test.platform}</td>
+      <td className="p-4">
+        <div className="flex justify-center">
+          <PlatformIcon platform={test.platform} />
+        </div>
+      </td>
       <td className="p-4 text-gray-700">{test.kpi}</td>
       <td className="p-4 text-gray-700">
         {test.test_types.test_categories.name} - {test.test_types.name}
