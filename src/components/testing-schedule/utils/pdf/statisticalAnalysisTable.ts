@@ -36,22 +36,29 @@ export const addStatisticalAnalysis = (
   const improvement = percentageChange > 0;
 
   let stats;
+  let controlImpressions: number;
+  let experimentImpressions: number;
   
   if (results.statistical_data) {
     // Use actual statistical data if available
+    controlImpressions = parseInt(results.statistical_data.control.impressions);
+    experimentImpressions = parseInt(results.statistical_data.experiment.impressions);
+    
     stats = calculateStatisticalSignificance(
       {
         conversions: parseInt(results.statistical_data.control.conversions),
-        impressions: parseInt(results.statistical_data.control.impressions)
+        impressions: controlImpressions
       },
       {
         conversions: parseInt(results.statistical_data.experiment.conversions),
-        impressions: parseInt(results.statistical_data.experiment.impressions)
+        impressions: experimentImpressions
       }
     );
   } else {
     // Fallback to basic sample size if no statistical data
     const BASE_SAMPLE_SIZE = 10000;
+    controlImpressions = BASE_SAMPLE_SIZE;
+    experimentImpressions = BASE_SAMPLE_SIZE;
     const controlConversions = Math.round(controlValue * BASE_SAMPLE_SIZE);
     const experimentConversions = Math.round(experimentValue * BASE_SAMPLE_SIZE);
     
@@ -95,8 +102,8 @@ export const addStatisticalAnalysis = (
     [
       "Interpretation",
       stats.isSignificant
-        ? `The experiment group's ${kpi} (${(experimentValue * 100).toFixed(2)}%) was ${Math.abs(percentageChange).toFixed(2)}% ${improvement ? 'higher' : 'lower'} than the control group's ${kpi} (${(controlValue * 100).toFixed(2)}%). This difference is statistically significant (p < 0.05).`
-        : `The difference between the control (${(controlValue * 100).toFixed(2)}%) and experiment (${(experimentValue * 100).toFixed(2)}%) groups is not statistically significant.`,
+        ? `The experiment group's ${kpi} (${(experimentValue * 100).toFixed(2)}%) was ${Math.abs(percentageChange).toFixed(2)}% ${improvement ? 'higher' : 'lower'} than the control group's ${kpi} (${(controlValue * 100).toFixed(2)}%). At the given sample sizes (Control: ${controlImpressions.toLocaleString()}, Experiment: ${experimentImpressions.toLocaleString()}), this difference is statistically significant (p < 0.05), indicating that the observed uplift is unlikely due to random chance.`
+        : `The difference between the control (${(controlValue * 100).toFixed(2)}%) and experiment (${(experimentValue * 100).toFixed(2)}%) groups is not statistically significant at the current sample sizes (Control: ${controlImpressions.toLocaleString()}, Experiment: ${experimentImpressions.toLocaleString()}).`,
     ],
   ];
 
