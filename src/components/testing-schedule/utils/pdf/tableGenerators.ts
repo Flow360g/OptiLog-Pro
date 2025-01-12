@@ -1,12 +1,11 @@
 import { Test } from "../../types";
 import { calculateStatisticalSignificance } from "../statisticalCalculations";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from 'jspdf-autotable';
 
 export const generateTestInformationTable = (doc: jsPDF, test: Test) => {
   const testInfo = [
     ["Test Name", test.name],
-    ["Client", test.client],
     ["Platform", test.platform],
     ["Start Date", test.start_date ? new Date(test.start_date).toLocaleDateString() : "Not set"],
     ["End Date", test.end_date ? new Date(test.end_date).toLocaleDateString() : "Not set"],
@@ -14,7 +13,7 @@ export const generateTestInformationTable = (doc: jsPDF, test: Test) => {
     ["Hypothesis", test.hypothesis],
   ];
 
-  doc.autoTable({
+  (doc as any).autoTable({
     body: testInfo,
     theme: "plain",
     styles: {
@@ -47,7 +46,7 @@ export const generateResultsTable = (doc: jsPDF, test: Test) => {
     ],
   ];
 
-  doc.autoTable({
+  (doc as any).autoTable({
     head: [resultsData[0]],
     body: [resultsData[1]],
     theme: "striped",
@@ -65,14 +64,9 @@ export const generateResultsTable = (doc: jsPDF, test: Test) => {
   // Add Statistical Significance section
   const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
 
-  // Convert the values to proper format for statistical calculations
-  const controlRate = parseFloat(test.results.control) / 100;
-  const experimentRate = parseFloat(test.results.experiment) / 100;
-  const sampleSize = 1000; // Base sample size for statistical calculations
-
   const results = calculateStatisticalSignificance(
-    { conversions: Math.round(controlRate * sampleSize), impressions: sampleSize },
-    { conversions: Math.round(experimentRate * sampleSize), impressions: sampleSize }
+    { conversions: Math.round(controlValue), impressions: 1000 },
+    { conversions: Math.round(experimentValue), impressions: 1000 }
   );
 
   const significanceData = [
@@ -87,7 +81,7 @@ export const generateResultsTable = (doc: jsPDF, test: Test) => {
     ],
   ];
 
-  doc.autoTable({
+  (doc as any).autoTable({
     startY: significanceStartY,
     body: significanceData,
     theme: "plain",

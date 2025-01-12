@@ -1,11 +1,7 @@
 import jsPDF from "jspdf";
 import type { PDFTest } from "../types";
 import { generateChartImage } from "./pdf/chartGenerator";
-import { 
-  addTestInformation, 
-  addTestResults, 
-  addExecutiveSummary 
-} from "./pdf/tableGenerators";
+import { generateTestInformationTable, generateResultsTable } from "./pdf/tableGenerators";
 
 export const generatePDF = async (test: PDFTest) => {
   const doc = new jsPDF();
@@ -17,14 +13,14 @@ export const generatePDF = async (test: PDFTest) => {
 
   // Add test information
   let currentY = 30;
-  currentY = addTestInformation(doc, test, currentY);
+  generateTestInformationTable(doc, test);
+  currentY = (doc as any).lastAutoTable.finalY + 10;
 
   // Add chart if results exist
   if (test.results) {
     try {
       const chartImage = await generateChartImage(test);
       if (chartImage) {
-        currentY += 10;
         const imgWidth = 150;
         const imgHeight = 75;
 
@@ -45,12 +41,7 @@ export const generatePDF = async (test: PDFTest) => {
 
   // Add results if they exist
   if (test.results) {
-    currentY = addTestResults(doc, test, currentY);
-  }
-
-  // Add executive summary if available
-  if (test.executive_summary) {
-    currentY = addExecutiveSummary(doc, test, currentY);
+    generateResultsTable(doc, test);
   }
 
   // Save the PDF
