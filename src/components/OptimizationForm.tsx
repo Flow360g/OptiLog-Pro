@@ -217,7 +217,7 @@ export function OptimizationForm({ preselectedClient }: { preselectedClient?: st
           onImpactChange={setImpactLevel}
         />
 
-        <Button disabled={isSubmitting} type="submit" className="w-full gradient-bg">
+        <Button disabled={isSubmitting} type="submit" className="w-full bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

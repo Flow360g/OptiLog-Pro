@@ -42,7 +42,7 @@ export function ClientSection({
         <h2 className="text-2xl font-semibold text-gray-900">{getFormattedClientName(client)}</h2>
         <Button 
           onClick={() => handleCreateOptimization(client)}
-          className="gradient-bg"
+          className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity"
         >
           <Plus className="mr-2 h-4 w-4" />
           Create Optimization
