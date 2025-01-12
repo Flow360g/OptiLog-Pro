@@ -1,5 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { StatisticalGroupData } from "../../../types";
+import { Json } from "@/integrations/supabase/types";
+
+const convertToJson = (data: StatisticalGroupData): Json => {
+  return {
+    conversions: data.conversions,
+    impressions: data.impressions
+  };
+};
 
 export async function updateTestStatistics(
   testId: string,
@@ -11,8 +19,8 @@ export async function updateTestStatistics(
     .update({
       results: {
         statistical_data: {
-          control: controlData,
-          experiment: experimentData
+          control: convertToJson(controlData),
+          experiment: convertToJson(experimentData)
         }
       }
     })
