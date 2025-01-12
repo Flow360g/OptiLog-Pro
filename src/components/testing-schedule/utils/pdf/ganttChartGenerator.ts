@@ -1,122 +1,187 @@
 import jsPDF from "jspdf";
 import { Test } from "../../types";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
 
-const CHART_START_Y = 60;
-const CHART_HEIGHT_PER_TEST = 30;
-const CHART_PADDING = 10;
-const DATE_COLUMN_WIDTH = 40;
-const CHART_AREA_WIDTH = 180; // Increased width for landscape
+declare var google: any;
+
+const loadGoogleCharts = async () => {
+  return new Promise((resolve) => {
+    if (typeof google !== 'undefined' && google.visualization) {
+      resolve(google.visualization);
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://www.gstatic.com/charts/loader.js';
+      script.onload = () => {
+        google.charts.load('current', { packages: ['gantt'] });
+        google.charts.setOnLoadCallback(() => resolve(google.visualization));
+      };
+      document.head.appendChild(script);
+    }
+  });
+};
+
+const getStatusPercentage = (status: Test['status']) => {
+  switch (status) {
+    case 'completed':
+      return 100;
+    case 'in_progress':
+      return 50;
+    case 'scheduled':
+      return 25;
+    case 'draft':
+    default:
+      return 0;
+  }
+};
+
+const createGanttChart = async (tests: Test[], visualization: any) => {
+  const data = new visualization.DataTable();
+  data.addColumn('string', 'Task ID');
+  data.addColumn('string', 'Task Name');
+  data.addColumn('string', 'Resource');
+  data.addColumn('date', 'Start Date');
+  data.addColumn('date', 'End Date');
+  data.addColumn('number', 'Duration');
+  data.addColumn('number', 'Percent Complete');
+  data.addColumn('string', 'Dependencies');
+
+  const rows = tests.map(test => [
+    test.id,
+    test.name,
+    test.platform,
+    test.start_date ? new Date(test.start_date) : new Date(),
+    test.end_date ? new Date(test.end_date) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    null,
+    getStatusPercentage(test.status),
+    null
+  ]);
+
+  data.addRows(rows);
+
+  const options = {
+    height: 400,
+    gantt: {
+      trackHeight: 30,
+      labelStyle: {
+        fontName: 'Arial',
+        fontSize: 12
+      },
+      barCornerRadius: 3,
+      innerGridHorizLine: {
+        stroke: '#e0e0e0',
+        strokeWidth: 1
+      },
+      innerGridTrack: { fill: '#f5f5f5' },
+      innerGridDarkTrack: { fill: '#f0f0f0' }
+    }
+  };
+
+  const container = document.createElement('div');
+  container.style.width = '800px';
+  container.style.height = '400px';
+  document.body.appendChild(container);
+
+  const chart = new visualization.Gantt(container);
+  chart.draw(data, options);
+
+  return new Promise<string>((resolve) => {
+    setTimeout(() => {
+      const svg = container.querySelector('svg');
+      if (svg) {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx?.drawImage(img, 0, 0);
+          const pngData = canvas.toDataURL('image/png');
+          document.body.removeChild(container);
+          resolve(pngData);
+        };
+        
+        img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+      } else {
+        document.body.removeChild(container);
+        resolve('');
+      }
+    }, 1000); // Give chart time to render
+  });
+};
 
 export const generateGanttChartPDF = async (tests: Test[]) => {
-  // Initialize PDF in landscape orientation
-  const doc = new jsPDF({ orientation: 'landscape' });
-  const pageWidth = doc.internal.pageSize.width;
-  let currentY = 10;
-
-  // Get user's brand settings
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('primary_color, secondary_color, logo_path')
-    .eq('id', tests[0]?.user_id)
-    .single();
-
-  const primaryColor = profile?.primary_color || '#9b87f5';
-  const secondaryColor = profile?.secondary_color || '#7E69AB';
-
-  // Add logo if available
-  if (profile?.logo_path) {
-    try {
-      const { data } = supabase.storage
-        .from('logos')
-        .getPublicUrl(profile.logo_path);
-      
-      const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = data.publicUrl;
-      });
-
-      const imgWidth = 80;
-      const imgHeight = (img.height * imgWidth) / img.width;
-      doc.addImage(
-        img,
-        'PNG',
-        (pageWidth - imgWidth) / 2,
-        currentY,
-        imgWidth,
-        imgHeight
-      );
-      currentY = imgHeight + 20;
-    } catch (error) {
-      console.error('Error adding logo to PDF:', error);
-      currentY = 20;
-    }
-  }
-
-  // Add title
-  doc.setFontSize(20);
-  doc.text("Testing Schedule - Gantt Chart", pageWidth / 2, currentY, { align: "center" });
-  currentY += 20;
-
-  // Filter tests with dates
-  const testsWithDates = tests.filter(test => test.start_date && test.end_date);
-
-  if (testsWithDates.length === 0) {
-    doc.setFontSize(12);
-    doc.text("No tests with scheduled dates found.", pageWidth / 2, currentY + 20, { align: "center" });
-    doc.save("testing_schedule_gantt.pdf");
-    return;
-  }
-
-  // Find date range
-  const startDates = testsWithDates.map(test => new Date(test.start_date!));
-  const endDates = testsWithDates.map(test => new Date(test.end_date!));
-  const minDate = new Date(Math.min(...startDates.map(d => d.getTime())));
-  const maxDate = new Date(Math.max(...endDates.map(d => d.getTime())));
-
-  // Draw timeline
-  doc.setFontSize(10);
-  doc.setDrawColor(200);
-  doc.line(DATE_COLUMN_WIDTH, CHART_START_Y - 5, pageWidth - 20, CHART_START_Y - 5);
-
-  // Draw tests
-  testsWithDates.forEach((test, index) => {
-    const y = CHART_START_Y + (index * CHART_HEIGHT_PER_TEST);
+  try {
+    const visualization = await loadGoogleCharts();
+    const chartImage = await createGanttChart(tests, visualization);
     
-    // Add alternating background colors
-    if (index % 2 === 0) {
-      doc.setFillColor(255, 255, 255); // White
-    } else {
-      doc.setFillColor(245, 245, 245); // Light grey
+    if (!chartImage) {
+      console.error('Failed to generate chart image');
+      return;
     }
-    doc.rect(10, y - 5, pageWidth - 30, CHART_HEIGHT_PER_TEST, 'F');
-    
-    // Draw test name
-    doc.setFontSize(10);
-    doc.text(test.name, 10, y + 5, { maxWidth: DATE_COLUMN_WIDTH - 5 });
 
-    // Calculate bar position and width
-    const startDate = new Date(test.start_date!);
-    const endDate = new Date(test.end_date!);
-    const totalDays = (maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24);
-    const startOffset = (startDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24);
-    const duration = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+    // Get user's brand settings
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('primary_color, secondary_color, logo_path')
+      .eq('id', tests[0]?.user_id)
+      .single();
 
-    const barX = DATE_COLUMN_WIDTH + (startOffset / totalDays * CHART_AREA_WIDTH);
-    const barWidth = (duration / totalDays * CHART_AREA_WIDTH);
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    let currentY = 10;
 
-    // Draw bar
-    doc.setFillColor(test.status === 'completed' ? secondaryColor : primaryColor);
-    doc.rect(barX, y, barWidth, 10, 'F');
+    // Add logo if available
+    if (profile?.logo_path) {
+      try {
+        const { data } = supabase.storage
+          .from('logos')
+          .getPublicUrl(profile.logo_path);
+        
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = data.publicUrl;
+        });
 
-    // Add dates
-    doc.setFontSize(8);
-    doc.text(format(startDate, 'MM/dd'), barX, y + 20);
-    doc.text(format(endDate, 'MM/dd'), barX + barWidth, y + 20);
-  });
+        const imgWidth = 40;
+        const imgHeight = (img.height * imgWidth) / img.width;
+        doc.addImage(
+          img,
+          'PNG',
+          (pageWidth - imgWidth) / 2,
+          currentY,
+          imgWidth,
+          imgHeight
+        );
+        currentY += imgHeight + 10;
+      } catch (error) {
+        console.error('Error adding logo to PDF:', error);
+      }
+    }
 
-  doc.save("testing_schedule_gantt.pdf");
+    // Add title
+    doc.setFontSize(16);
+    doc.text("Test Schedule - Gantt Chart", pageWidth / 2, currentY, { align: "center" });
+    currentY += 20;
+
+    // Add chart
+    const chartWidth = 180;
+    const chartHeight = 90;
+    doc.addImage(
+      chartImage,
+      'PNG',
+      (pageWidth - chartWidth) / 2,
+      currentY,
+      chartWidth,
+      chartHeight
+    );
+
+    // Save the PDF
+    doc.save('test_schedule_gantt.pdf');
+  } catch (error) {
+    console.error('Error generating Gantt chart PDF:', error);
+  }
 };
