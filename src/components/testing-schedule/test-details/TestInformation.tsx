@@ -7,8 +7,14 @@ interface TestInformationProps {
 export function TestInformation({ test }: TestInformationProps) {
   const formatStatus = (status: string) => {
     switch (status) {
+      case 'draft':
+        return 'Planning';
+      case 'in_progress':
+        return 'Working on it';
+      case 'completed':
+        return 'Live';
       case 'cancelled':
-        return 'Complete';
+        return 'Completed';
       default:
         return status.charAt(0).toUpperCase() + status.slice(1);
     }

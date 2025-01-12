@@ -2,11 +2,26 @@ import type { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { PDFTest } from "../../types";
 
+const formatStatus = (status: string) => {
+  switch (status) {
+    case 'draft':
+      return 'Planning';
+    case 'in_progress':
+      return 'Working on it';
+    case 'completed':
+      return 'Live';
+    case 'cancelled':
+      return 'Completed';
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+};
+
 export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number, secondaryColor?: string | null) => {
   const testInfo = [
     ["Test Name", test.name],
     ["Platform", test.platform],
-    ["Status", test.status],
+    ["Status", formatStatus(test.status)],
     ["Start Date", test.start_date ? new Date(test.start_date).toLocaleDateString() : "Not set"],
     ["End Date", test.end_date ? new Date(test.end_date).toLocaleDateString() : "Not set"],
     ["KPI", test.kpi],
@@ -26,8 +41,8 @@ export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number, se
       textColor: [255, 255, 255] 
     },
     styles: { 
-      cellPadding: 3, // Reduced from 4
-      minCellHeight: 6 // Reduced from 8.5
+      cellPadding: 3,
+      minCellHeight: 6
     },
     columnStyles: { 
       0: { fontStyle: 'bold', cellWidth: 80 },
