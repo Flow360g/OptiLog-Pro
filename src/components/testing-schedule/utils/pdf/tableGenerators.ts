@@ -1,85 +1,84 @@
-import type { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-import type { PDFTest } from "../../types";
+import { Test } from "../../types";
 import { calculateStatisticalSignificance } from "../statisticalCalculations";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
-export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number) => {
+export const generateTestInformationTable = (doc: jsPDF, test: Test) => {
   const testInfo = [
     ["Test Name", test.name],
+    ["Client", test.client],
     ["Platform", test.platform],
-    ["Status", test.status],
     ["Start Date", test.start_date ? new Date(test.start_date).toLocaleDateString() : "Not set"],
     ["End Date", test.end_date ? new Date(test.end_date).toLocaleDateString() : "Not set"],
     ["KPI", test.kpi],
     ["Hypothesis", test.hypothesis],
-    ["Test Type", `${test.test_types.test_categories.name} - ${test.test_types.name}`],
   ];
 
-  autoTable(doc, {
-    startY,
+  doc.autoTable({
     body: testInfo,
-    theme: 'striped',
-    styles: { cellPadding: 5 },
-    columnStyles: { 
-      0: { fontStyle: 'bold', cellWidth: 80 },
-      1: { cellWidth: 'auto' }
+    theme: "plain",
+    styles: {
+      cellPadding: 5,
+      fontSize: 10,
+      textColor: [60, 60, 60],
+    },
+    columnStyles: {
+      0: { fontStyle: "bold", cellWidth: 100 },
+      1: { cellWidth: "auto" },
     },
   });
-
-  return (doc as any).lastAutoTable.finalY;
 };
 
-export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
-  if (!test.results) return startY;
+export const generateResultsTable = (doc: jsPDF, test: Test) => {
+  if (!test.results) return;
 
-  const { control, experiment } = test.results;
-  const controlValue = parseFloat(control);
-  const experimentValue = parseFloat(experiment);
+  const controlValue = parseFloat(test.results.control);
+  const experimentValue = parseFloat(test.results.experiment);
   const percentageChange = ((experimentValue - controlValue) / controlValue) * 100;
   const improvement = percentageChange > 0;
 
   const resultsData = [
-    ["Control Group", `${control} ${test.kpi}`],
-    ["Experiment Group", `${experiment} ${test.kpi}`],
-    ["Improvement", `${Math.abs(percentageChange).toFixed(2)}%`],
-    ["Direction", improvement ? "Positive" : "Negative"],
+    ["Metric", "Control", "Experiment", "% Change"],
+    [
+      test.kpi,
+      test.results.control,
+      test.results.experiment,
+      `${percentageChange.toFixed(2)}%`,
+    ],
   ];
 
-  autoTable(doc, {
-    startY: startY + 10,
-    head: [["Results", "Value"]],
-    body: resultsData,
-    theme: 'striped',
-    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
-    styles: { cellPadding: 5 },
-    columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 80 },
-      1: { cellWidth: 'auto' }
+  doc.autoTable({
+    head: [resultsData[0]],
+    body: [resultsData[1]],
+    theme: "striped",
+    headStyles: {
+      fillColor: [76, 175, 80],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+    },
+    styles: {
+      cellPadding: 5,
+      fontSize: 10,
     },
   });
 
-  // Add Statistical Significance section with correct calculations
+  // Add Statistical Significance section
   const significanceStartY = (doc as any).lastAutoTable.finalY + 10;
-  
-  // Calculate conversions based on the actual values
-  const controlConversions = Math.round(controlValue * 100);
-  const experimentConversions = Math.round(experimentValue * 100);
-  const impressions = 100; // Base number for percentage calculation
-  
+
+  // Convert the values to proper format for statistical calculations
+  const controlRate = parseFloat(test.results.control) / 100;
+  const experimentRate = parseFloat(test.results.experiment) / 100;
+  const sampleSize = 1000; // Base sample size for statistical calculations
+
   const results = calculateStatisticalSignificance(
-    { conversions: controlConversions, impressions },
-    { conversions: experimentConversions, impressions }
+    { conversions: Math.round(controlRate * sampleSize), impressions: sampleSize },
+    { conversions: Math.round(experimentRate * sampleSize), impressions: sampleSize }
   );
 
   const significanceData = [
-    [
-      "Statistical Significance",
-      results.isSignificant
-        ? "Significant test result!"
-        : "No significant difference",
-    ],
-    ["P-value", results.pValue.toFixed(4)],
-    ["Relative Lift", `${Math.abs(results.relativeLift).toFixed(2)}%`],
+    ["Metric", "Value"],
+    ["P-Value", results.pValue.toFixed(4)],
+    ["Confidence Level", `${((1 - results.pValue) * 100).toFixed(2)}%`],
     [
       "Interpretation",
       results.isSignificant
@@ -88,33 +87,17 @@ export const addTestResults = (doc: jsPDF, test: PDFTest, startY: number) => {
     ],
   ];
 
-  autoTable(doc, {
+  doc.autoTable({
     startY: significanceStartY,
-    head: [["Statistical Analysis", "Details"]],
     body: significanceData,
-    theme: 'striped',
-    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
-    styles: { cellPadding: 5 },
+    theme: "plain",
+    styles: {
+      cellPadding: 5,
+      fontSize: 10,
+    },
     columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 80 },
-      1: { cellWidth: 'auto' }
+      0: { fontStyle: "bold", cellWidth: 100 },
+      1: { cellWidth: "auto" },
     },
   });
-
-  return (doc as any).lastAutoTable.finalY;
-};
-
-export const addExecutiveSummary = (doc: jsPDF, test: PDFTest, startY: number) => {
-  if (!test.executive_summary) return startY;
-
-  autoTable(doc, {
-    startY: startY + 10,
-    head: [["Executive Summary"]],
-    body: [[test.executive_summary]],
-    theme: 'striped',
-    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
-    styles: { cellPadding: 5 },
-  });
-
-  return (doc as any).lastAutoTable.finalY;
 };
