@@ -39,7 +39,7 @@ export function TestResultsChart({ results, kpi }: TestResultsChartProps) {
               {chartData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.value === winningValue ? "#22c55e" : "#64748b"}
+                  fill={index === 0 ? "#000000" : (entry.value === winningValue ? "#22c55e" : "#64748b")}
                 />
               ))}
             </Bar>

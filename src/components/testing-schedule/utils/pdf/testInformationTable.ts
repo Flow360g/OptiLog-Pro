@@ -26,8 +26,8 @@ export const addTestInformation = (doc: jsPDF, test: PDFTest, startY: number, se
       textColor: [255, 255, 255] 
     },
     styles: { 
-      cellPadding: 4,
-      minCellHeight: 8.5
+      cellPadding: 3, // Reduced from 4
+      minCellHeight: 6 // Reduced from 8.5
     },
     columnStyles: { 
       0: { fontStyle: 'bold', cellWidth: 80 },

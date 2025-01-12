@@ -30,7 +30,7 @@ export const generateChartImage = async (
           label: test.kpi,
           data: [control, experiment],
           backgroundColor: [
-            control === winningValue ? successColor : defaultColor,
+            "#000000", // Control bar is always black
             experiment === winningValue ? successColor : defaultColor,
           ],
         },

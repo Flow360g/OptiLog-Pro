@@ -82,7 +82,10 @@ export const addStatisticalAnalysis = (
       fillColor: rgbColor as [number, number, number],
       textColor: [255, 255, 255] 
     },
-    styles: { cellPadding: 5 },
+    styles: { 
+      cellPadding: 3, // Reduced from 5
+      minCellHeight: 6 // Reduced from default
+    },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
       1: { cellWidth: 'auto' }
@@ -107,7 +110,7 @@ export const addStatisticalAnalysis = (
   ];
 
   autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 10,
+    startY: (doc as any).lastAutoTable.finalY + 5, // Reduced spacing between tables
     head: [["Statistical Analysis", "Details"]],
     body: significanceData,
     theme: 'striped',
@@ -115,7 +118,10 @@ export const addStatisticalAnalysis = (
       fillColor: rgbColor as [number, number, number],
       textColor: [255, 255, 255] 
     },
-    styles: { cellPadding: 5 },
+    styles: { 
+      cellPadding: 3, // Reduced from 5
+      minCellHeight: 6 // Reduced from default
+    },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
       1: { cellWidth: 'auto' }
