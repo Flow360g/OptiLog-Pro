@@ -12,7 +12,7 @@ export const generatePDF = async (test: PDFTest) => {
   console.log("Starting PDF generation with test data:", test);
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  let currentY = 10; // Reduced from 20 to 10 to move logo higher
+  let currentY = 10; // Keeps logo high on page
 
   // Get user's brand settings
   const { data: profile } = await supabase
@@ -36,7 +36,7 @@ export const generatePDF = async (test: PDFTest) => {
         img.src = data.publicUrl;
       });
 
-      const imgWidth = 80; // Doubled from 40 to 80
+      const imgWidth = 80;
       const imgHeight = (img.height * imgWidth) / img.width;
       doc.addImage(
         img,
@@ -47,13 +47,13 @@ export const generatePDF = async (test: PDFTest) => {
         imgHeight
       );
 
-      // Adjust starting Y position for title
+      // Adjust starting Y position for title with reduced spacing
       doc.setFontSize(20);
-      doc.text("Test Overview", pageWidth / 2, imgHeight + 25, { align: "center" });
+      doc.text("Test Overview", pageWidth / 2, imgHeight + 20, { align: "center" });
       // Add test name below the main title in slightly smaller font
       doc.setFontSize(16);
-      doc.text(test.name, pageWidth / 2, imgHeight + 40, { align: "center" });
-      currentY = imgHeight + 50;
+      doc.text(test.name, pageWidth / 2, imgHeight + 35, { align: "center" });
+      currentY = imgHeight + 45;
     } catch (error) {
       console.error('Error adding logo to PDF:', error);
       // Fallback to default title position if logo fails
@@ -103,7 +103,7 @@ export const generatePDF = async (test: PDFTest) => {
   // Add executive summary if available
   if (test.executive_summary) {
     console.log("Adding executive summary to PDF");
-    currentY = addExecutiveSummary(doc, test, currentY);
+    currentY = addExecutiveSummary(doc, test, currentY, profile?.secondary_color);
   }
 
   // Start a new page for results and statistical analysis
@@ -117,7 +117,7 @@ export const generatePDF = async (test: PDFTest) => {
       kpi: test.kpi,
       currentY
     });
-    currentY = addTestResults(doc, currentY, test.results, test.kpi);
+    currentY = addTestResults(doc, currentY, test.results, test.kpi, profile?.secondary_color);
   }
 
   // Save the PDF

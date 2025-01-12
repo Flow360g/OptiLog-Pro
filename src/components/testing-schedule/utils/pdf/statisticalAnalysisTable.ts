@@ -26,7 +26,8 @@ export const addStatisticalAnalysis = (
   doc: jsPDF,
   startY: number,
   results: TestResults,
-  kpi: string
+  kpi: string,
+  secondaryColor?: string | null
 ) => {
   console.log("Adding statistical analysis with:", { results, kpi, startY });
   
@@ -70,6 +71,8 @@ export const addStatisticalAnalysis = (
 
   console.log("Calculated statistics:", stats);
 
+  const rgbColor = secondaryColor ? hexToRgb(secondaryColor) : [76, 175, 80];
+
   const resultsData = [
     ["Control Group", `${(controlValue * 100).toFixed(2)}% ${kpi}`],
     ["Experiment Group", `${(experimentValue * 100).toFixed(2)}% ${kpi}`],
@@ -82,7 +85,7 @@ export const addStatisticalAnalysis = (
     head: [["Results", "Value"]],
     body: resultsData,
     theme: 'striped',
-    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
+    headStyles: { fillColor: rgbColor, textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -112,7 +115,7 @@ export const addStatisticalAnalysis = (
     head: [["Statistical Analysis", "Details"]],
     body: significanceData,
     theme: 'striped',
-    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
+    headStyles: { fillColor: rgbColor, textColor: [255, 255, 255] },
     styles: { cellPadding: 5 },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -122,3 +125,13 @@ export const addStatisticalAnalysis = (
 
   return (doc as any).lastAutoTable.finalY;
 };
+
+// Helper function to convert hex to RGB
+function hexToRgb(hex: string): number[] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16)
+  ] : [76, 175, 80]; // Default green
+}
