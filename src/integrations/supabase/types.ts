@@ -125,7 +125,10 @@ export type Database = {
           has_seen_welcome: boolean | null
           id: string
           last_name: string | null
+          logo_path: string | null
           position: Database["public"]["Enums"]["user_position"] | null
+          primary_color: string | null
+          secondary_color: string | null
           updated_at: string
         }
         Insert: {
@@ -135,7 +138,10 @@ export type Database = {
           has_seen_welcome?: boolean | null
           id: string
           last_name?: string | null
+          logo_path?: string | null
           position?: Database["public"]["Enums"]["user_position"] | null
+          primary_color?: string | null
+          secondary_color?: string | null
           updated_at?: string
         }
         Update: {
@@ -145,7 +151,10 @@ export type Database = {
           has_seen_welcome?: boolean | null
           id?: string
           last_name?: string | null
+          logo_path?: string | null
           position?: Database["public"]["Enums"]["user_position"] | null
+          primary_color?: string | null
+          secondary_color?: string | null
           updated_at?: string
         }
         Relationships: []

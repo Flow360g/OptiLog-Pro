@@ -10,6 +10,9 @@ export function useProfileData(userId: string | undefined) {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [position, setPosition] = useState<UserPosition | null>(null);
+  const [primaryColor, setPrimaryColor] = useState<string | null>(null);
+  const [secondaryColor, setSecondaryColor] = useState<string | null>(null);
+  const [logoPath, setLogoPath] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -20,7 +23,7 @@ export function useProfileData(userId: string | undefined) {
       try {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('position, first_name, last_name, email')
+          .select('position, first_name, last_name, email, primary_color, secondary_color, logo_path')
           .eq('id', userId)
           .single();
 
@@ -29,6 +32,9 @@ export function useProfileData(userId: string | undefined) {
           setFirstName(profile.first_name || '');
           setLastName(profile.last_name || '');
           setEmail(profile.email || '');
+          setPrimaryColor(profile.primary_color || null);
+          setSecondaryColor(profile.secondary_color || null);
+          setLogoPath(profile.logo_path || null);
         }
 
         setLoading(false);
@@ -51,7 +57,10 @@ export function useProfileData(userId: string | undefined) {
         .update({ 
           position,
           first_name: firstName,
-          last_name: lastName
+          last_name: lastName,
+          primary_color: primaryColor,
+          secondary_color: secondaryColor,
+          logo_path: logoPath
         })
         .eq('id', userId);
 
@@ -74,11 +83,17 @@ export function useProfileData(userId: string | undefined) {
     firstName,
     lastName,
     position,
+    primaryColor,
+    secondaryColor,
+    logoPath,
     loading,
     isSaving,
     setFirstName,
     setLastName,
     setPosition,
+    setPrimaryColor,
+    setSecondaryColor,
+    setLogoPath,
     saveProfileData
   };
 }

@@ -1,7 +1,11 @@
 import { Chart } from "chart.js/auto";
 import type { PDFTest } from "../../types";
 
-export const generateChartImage = async (test: PDFTest): Promise<string> => {
+export const generateChartImage = async (
+  test: PDFTest,
+  primaryColor?: string | null,
+  secondaryColor?: string | null
+): Promise<string> => {
   const canvas = document.createElement("canvas");
   canvas.width = 600;
   canvas.height = 300;
@@ -13,6 +17,10 @@ export const generateChartImage = async (test: PDFTest): Promise<string> => {
   const experiment = parseFloat(test.results?.experiment || "0");
   const winningValue = Math.max(control, experiment);
 
+  // Use brand colors if available, otherwise fallback to defaults
+  const defaultColor = "#64748b";
+  const successColor = primaryColor || "#22c55e";
+
   const chart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -22,8 +30,8 @@ export const generateChartImage = async (test: PDFTest): Promise<string> => {
           label: test.kpi,
           data: [control, experiment],
           backgroundColor: [
-            control === winningValue ? "#22c55e" : "#64748b",
-            experiment === winningValue ? "#22c55e" : "#64748b",
+            control === winningValue ? successColor : defaultColor,
+            experiment === winningValue ? successColor : defaultColor,
           ],
         },
       ],

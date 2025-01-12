@@ -15,10 +15,16 @@ export function SettingsForm({ userId, userClients }: SettingsFormProps) {
     firstName,
     lastName,
     position,
+    primaryColor,
+    secondaryColor,
+    logoPath,
     isProfileSaving,
     setFirstName,
     setLastName,
     setPosition,
+    setPrimaryColor,
+    setSecondaryColor,
+    setLogoPath,
     selectedClients,
     handleClientToggle,
     isClientSaving,
@@ -32,9 +38,15 @@ export function SettingsForm({ userId, userClients }: SettingsFormProps) {
         firstName={firstName}
         lastName={lastName}
         position={position}
+        primaryColor={primaryColor}
+        secondaryColor={secondaryColor}
+        logoUrl={logoPath}
         onFirstNameChange={setFirstName}
         onLastNameChange={setLastName}
         onPositionChange={setPosition}
+        onPrimaryColorChange={setPrimaryColor}
+        onSecondaryColorChange={setSecondaryColor}
+        onLogoChange={setLogoPath}
       />
 
       <ClientSelector
