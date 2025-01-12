@@ -41,7 +41,7 @@ export function UserMenu({ userEmail }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button 
-          className="p-2 rounded-full bg-primary hover:bg-primary/90 transition-colors"
+          className="p-2 rounded-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
           aria-label="User menu"
         >
           <User className="w-6 h-6 text-white" />
