@@ -5,7 +5,22 @@ import { calculateStatisticalSignificance } from "../statisticalCalculations";
 interface TestResults {
   control: string;
   experiment: string;
+  statistical_data?: {
+    control: {
+      conversions: string;
+      impressions: string;
+    };
+    experiment: {
+      conversions: string;
+      impressions: string;
+    };
+  };
 }
+
+const parsePercentage = (value: string): number => {
+  // Remove % sign if present and convert to decimal
+  return parseFloat(value.replace('%', '')) / 100;
+};
 
 export const addStatisticalAnalysis = (
   doc: jsPDF,
@@ -15,25 +30,42 @@ export const addStatisticalAnalysis = (
 ) => {
   console.log("Adding statistical analysis with:", { results, kpi, startY });
   
-  const controlValue = parseFloat(results.control);
-  const experimentValue = parseFloat(results.experiment);
+  const controlValue = parsePercentage(results.control);
+  const experimentValue = parsePercentage(results.experiment);
   const percentageChange = ((experimentValue - controlValue) / controlValue) * 100;
   const improvement = percentageChange > 0;
 
-  const BASE_SAMPLE_SIZE = 10000;
-  const controlConversions = Math.round(controlValue * BASE_SAMPLE_SIZE);
-  const experimentConversions = Math.round(experimentValue * BASE_SAMPLE_SIZE);
+  let stats;
   
-  const stats = calculateStatisticalSignificance(
-    { conversions: controlConversions, impressions: BASE_SAMPLE_SIZE },
-    { conversions: experimentConversions, impressions: BASE_SAMPLE_SIZE }
-  );
+  if (results.statistical_data) {
+    // Use actual statistical data if available
+    stats = calculateStatisticalSignificance(
+      {
+        conversions: parseInt(results.statistical_data.control.conversions),
+        impressions: parseInt(results.statistical_data.control.impressions)
+      },
+      {
+        conversions: parseInt(results.statistical_data.experiment.conversions),
+        impressions: parseInt(results.statistical_data.experiment.impressions)
+      }
+    );
+  } else {
+    // Fallback to basic sample size if no statistical data
+    const BASE_SAMPLE_SIZE = 10000;
+    const controlConversions = Math.round(controlValue * BASE_SAMPLE_SIZE);
+    const experimentConversions = Math.round(experimentValue * BASE_SAMPLE_SIZE);
+    
+    stats = calculateStatisticalSignificance(
+      { conversions: controlConversions, impressions: BASE_SAMPLE_SIZE },
+      { conversions: experimentConversions, impressions: BASE_SAMPLE_SIZE }
+    );
+  }
 
   console.log("Calculated statistics:", stats);
 
   const resultsData = [
-    ["Control Group", `${results.control} ${kpi}`],
-    ["Experiment Group", `${results.experiment} ${kpi}`],
+    ["Control Group", `${(controlValue * 100).toFixed(2)}% ${kpi}`],
+    ["Experiment Group", `${(experimentValue * 100).toFixed(2)}% ${kpi}`],
     ["Improvement", `${Math.abs(percentageChange).toFixed(2)}%`],
     ["Direction", improvement ? "Positive" : "Negative"],
   ];
@@ -63,8 +95,8 @@ export const addStatisticalAnalysis = (
     [
       "Interpretation",
       stats.isSignificant
-        ? `The experiment group's ${kpi} (${experimentValue}) was ${Math.abs(percentageChange).toFixed(2)}% ${improvement ? 'higher' : 'lower'} than the control group's ${kpi} (${controlValue}). This difference is statistically significant (p < 0.05).`
-        : `The difference between the control (${controlValue}) and experiment (${experimentValue}) groups is not statistically significant.`,
+        ? `The experiment group's ${kpi} (${(experimentValue * 100).toFixed(2)}%) was ${Math.abs(percentageChange).toFixed(2)}% ${improvement ? 'higher' : 'lower'} than the control group's ${kpi} (${(controlValue * 100).toFixed(2)}%). This difference is statistically significant (p < 0.05).`
+        : `The difference between the control (${(controlValue * 100).toFixed(2)}%) and experiment (${(experimentValue * 100).toFixed(2)}%) groups is not statistically significant.`,
     ],
   ];
 
