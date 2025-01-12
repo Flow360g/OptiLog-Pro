@@ -10,22 +10,21 @@ export function useUserClients() {
   return useQuery({
     queryKey: ['userClients'],
     queryFn: async () => {
-      // First check if we have a valid session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        navigate('/login');
-        return [];
-      }
-
-      if (!session) {
-        console.log('No active session found');
-        navigate('/login');
-        return [];
-      }
-
       try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          navigate('/login');
+          return [];
+        }
+
+        if (!session) {
+          console.log('No active session found');
+          navigate('/login');
+          return [];
+        }
+
         const { data: userClients, error } = await supabase
           .from('user_clients')
           .select('client')
@@ -35,7 +34,7 @@ export function useUserClients() {
           console.error('Error fetching user clients:', error);
           toast({
             title: "Error",
-            description: "Failed to fetch user clients. Please try again.",
+            description: "Failed to fetch user clients",
             variant: "destructive",
           });
           return [];
@@ -46,14 +45,15 @@ export function useUserClients() {
         console.error('Unexpected error:', error);
         toast({
           title: "Error",
-          description: "An unexpected error occurred. Please try again.",
+          description: "An unexpected error occurred",
           variant: "destructive",
         });
         return [];
       }
     },
-    retry: 1,
+    retry: false,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     refetchOnWindowFocus: false,
+    refetchOnMount: true,
   });
 }
