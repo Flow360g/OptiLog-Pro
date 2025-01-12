@@ -60,6 +60,7 @@ const createGanttChart = async (tests: Test[], visualization: any) => {
 
   const options = {
     height: 400,
+    width: 800,
     gantt: {
       trackHeight: 30,
       labelStyle: {
@@ -72,7 +73,11 @@ const createGanttChart = async (tests: Test[], visualization: any) => {
         strokeWidth: 1
       },
       innerGridTrack: { fill: '#f5f5f5' },
-      innerGridDarkTrack: { fill: '#f0f0f0' }
+      innerGridDarkTrack: { fill: '#f0f0f0' },
+      labelMaxWidth: 200,
+      barLabelStyle: {
+        left: true // This will place labels on the left side of bars
+      }
     }
   };
 
@@ -107,7 +112,7 @@ const createGanttChart = async (tests: Test[], visualization: any) => {
         document.body.removeChild(container);
         resolve('');
       }
-    }, 1000); // Give chart time to render
+    }, 1000);
   });
 };
 
@@ -128,8 +133,15 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
       .eq('id', tests[0]?.user_id)
       .single();
 
-    const doc = new jsPDF();
+    // Create PDF in landscape orientation
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
     const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
     let currentY = 10;
 
     // Add logo if available
@@ -146,7 +158,7 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
           img.src = data.publicUrl;
         });
 
-        const imgWidth = 40;
+        const imgWidth = 30;
         const imgHeight = (img.height * imgWidth) / img.width;
         doc.addImage(
           img,
@@ -167,13 +179,13 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
     doc.text("Test Schedule - Gantt Chart", pageWidth / 2, currentY, { align: "center" });
     currentY += 20;
 
-    // Add chart
-    const chartWidth = 180;
-    const chartHeight = 90;
+    // Add chart with adjusted dimensions for landscape
+    const chartWidth = pageWidth - 20; // Leave some margins
+    const chartHeight = pageHeight - currentY - 10; // Leave some bottom margin
     doc.addImage(
       chartImage,
       'PNG',
-      (pageWidth - chartWidth) / 2,
+      10, // Left margin
       currentY,
       chartWidth,
       chartHeight
