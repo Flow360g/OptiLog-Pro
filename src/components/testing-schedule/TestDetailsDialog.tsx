@@ -107,6 +107,7 @@ Experiment group: ${test.results.experiment}`;
             <TestSignificanceResults
               controlRate={parseFloat(test.results.control)}
               experimentRate={parseFloat(test.results.experiment)}
+              testId={test.id}
             />
           )}
           

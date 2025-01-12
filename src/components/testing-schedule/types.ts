@@ -1,7 +1,19 @@
 export interface TestResult {
-  [key: string]: string;
+  [key: string]: string | StatisticalData;
   control: string;
   experiment: string;
+  statistical_data?: StatisticalData;
+}
+
+export interface StatisticalData {
+  control: {
+    conversions: string;
+    impressions: string;
+  };
+  experiment: {
+    conversions: string;
+    impressions: string;
+  };
 }
 
 export interface Test {

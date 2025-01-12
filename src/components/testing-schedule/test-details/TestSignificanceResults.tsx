@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { StatisticalData } from "../types";
 
 interface TestSignificanceResultsProps {
   controlRate: number;
@@ -33,7 +34,6 @@ export function TestSignificanceResults({
     impressions: "1000",
   });
 
-  // Load saved statistical data when component mounts
   useEffect(() => {
     const loadStatisticalData = async () => {
       const { data: test, error } = await supabase
@@ -48,9 +48,9 @@ export function TestSignificanceResults({
       }
 
       if (test?.results?.statistical_data) {
-        const { control, experiment } = test.results.statistical_data;
-        setControlData(control);
-        setExperimentData(experiment);
+        const statisticalData = test.results.statistical_data as StatisticalData;
+        setControlData(statisticalData.control);
+        setExperimentData(statisticalData.experiment);
       }
     };
 
@@ -63,9 +63,10 @@ export function TestSignificanceResults({
     value: string
   ) => {
     const numValue = parseInt(value) || 0;
-    const newData = variant === "control" 
-      ? { ...controlData, [field]: field === "conversions" ? value : numValue.toString() }
-      : { ...experimentData, [field]: field === "conversions" ? value : numValue.toString() };
+    const newData = {
+      ...(variant === "control" ? controlData : experimentData),
+      [field]: field === "conversions" ? value : numValue.toString()
+    };
 
     if (variant === "control") {
       setControlData(newData);
@@ -73,7 +74,6 @@ export function TestSignificanceResults({
       setExperimentData(newData);
     }
 
-    // Save the updated data to the database
     const { data: currentTest, error: fetchError } = await supabase
       .from('tests')
       .select('results')
@@ -109,11 +109,9 @@ export function TestSignificanceResults({
   };
 
   const results = calculateStatisticalSignificance({
-    ...controlData,
     conversions: parseInt(controlData.conversions) || 0,
     impressions: parseInt(controlData.impressions) || 1000
   }, {
-    ...experimentData,
     conversions: parseInt(experimentData.conversions) || 0,
     impressions: parseInt(experimentData.impressions) || 1000
   });
