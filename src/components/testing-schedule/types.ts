@@ -26,7 +26,7 @@ export interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  results: TestResult | null;
+  results: TestResult | null | Json;  // Updated to allow Json type
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
   test_types: {
     name: string;
@@ -54,3 +54,6 @@ export interface SignificanceResult {
   relativeLift: number;
   pValue: number;
 }
+
+// Add Json type to handle Supabase's jsonb type
+type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
