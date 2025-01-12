@@ -7,10 +7,11 @@ const CHART_START_Y = 60;
 const CHART_HEIGHT_PER_TEST = 30;
 const CHART_PADDING = 10;
 const DATE_COLUMN_WIDTH = 40;
-const CHART_AREA_WIDTH = 120;
+const CHART_AREA_WIDTH = 180; // Increased width for landscape
 
 export const generateGanttChartPDF = async (tests: Test[]) => {
-  const doc = new jsPDF();
+  // Initialize PDF in landscape orientation
+  const doc = new jsPDF({ orientation: 'landscape' });
   const pageWidth = doc.internal.pageSize.width;
   let currentY = 10;
 
@@ -84,6 +85,14 @@ export const generateGanttChartPDF = async (tests: Test[]) => {
   // Draw tests
   testsWithDates.forEach((test, index) => {
     const y = CHART_START_Y + (index * CHART_HEIGHT_PER_TEST);
+    
+    // Add alternating background colors
+    if (index % 2 === 0) {
+      doc.setFillColor(255, 255, 255); // White
+    } else {
+      doc.setFillColor(245, 245, 245); // Light grey
+    }
+    doc.rect(10, y - 5, pageWidth - 30, CHART_HEIGHT_PER_TEST, 'F');
     
     // Draw test name
     doc.setFontSize(10);
