@@ -13,6 +13,8 @@ export const addStatisticalAnalysis = (
   results: TestResults,
   kpi: string
 ) => {
+  console.log("Adding statistical analysis with:", { results, kpi, startY });
+  
   const controlValue = parseFloat(results.control);
   const experimentValue = parseFloat(results.experiment);
   const percentageChange = ((experimentValue - controlValue) / controlValue) * 100;
@@ -26,6 +28,8 @@ export const addStatisticalAnalysis = (
     { conversions: controlConversions, impressions: BASE_SAMPLE_SIZE },
     { conversions: experimentConversions, impressions: BASE_SAMPLE_SIZE }
   );
+
+  console.log("Calculated statistics:", stats);
 
   const resultsData = [
     ["Control Group", `${results.control} ${kpi}`],

@@ -8,6 +8,7 @@ import {
 } from "./pdf/tableGenerators";
 
 export const generatePDF = async (test: PDFTest) => {
+  console.log("Starting PDF generation with test data:", test);
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
 
@@ -22,6 +23,7 @@ export const generatePDF = async (test: PDFTest) => {
   // Add chart if results exist
   if (test.results) {
     try {
+      console.log("Generating chart with results:", test.results);
       const chartImage = await generateChartImage(test);
       if (chartImage) {
         currentY += 10;
@@ -45,11 +47,17 @@ export const generatePDF = async (test: PDFTest) => {
 
   // Add results if they exist
   if (test.results) {
+    console.log("Adding test results to PDF:", {
+      results: test.results,
+      kpi: test.kpi,
+      currentY
+    });
     currentY = addTestResults(doc, currentY, test.results, test.kpi);
   }
 
   // Add executive summary if available
   if (test.executive_summary) {
+    console.log("Adding executive summary to PDF");
     currentY = addExecutiveSummary(doc, test, currentY);
   }
 
