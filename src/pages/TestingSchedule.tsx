@@ -2,13 +2,13 @@ import { Navigation } from "@/components/Navigation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ChevronLeft, Download } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClientSelectionScreen } from "@/components/testing-schedule/ClientSelectionScreen";
 import { Button } from "@/components/ui/button";
 import { TestsTable } from "@/components/testing-schedule/TestsTable";
-import { generateGanttChartPDF } from "@/components/testing-schedule/utils/pdf/ganttChartGenerator";
 import { Test, isTestResult } from "@/components/testing-schedule/types";
+import { GanttChart } from "@/components/testing-schedule/GanttChart";
 
 export default function TestingSchedule() {
   const { toast } = useToast();
@@ -42,7 +42,6 @@ export default function TestingSchedule() {
         return [];
       }
 
-      // Transform the data to ensure it matches the Test type
       return data.map((test): Test => ({
         ...test,
         results: test.results ? (isTestResult(test.results) ? test.results : null) : null,
@@ -79,31 +78,12 @@ export default function TestingSchedule() {
     setSelectedClient(null);
   };
 
-  const handleDownloadGantt = async () => {
-    if (!tests) return;
-    
-    try {
-      await generateGanttChartPDF(tests);
-      toast({
-        title: "Success",
-        description: "Gantt chart PDF has been generated and downloaded.",
-      });
-    } catch (error) {
-      console.error('Error generating Gantt chart:', error);
-      toast({
-        title: "Error",
-        description: "There was a problem generating the Gantt chart PDF.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const groupTestsByStatus = (tests: any[]) => {
+  const groupTestsByStatus = (tests: Test[]) => {
     return {
       pipeline: tests.filter(test => test.status === 'draft'),
-      upcoming: tests.filter(test => test.status === 'in_progress'),
-      live: tests.filter(test => test.status === 'completed'),
-      completed: tests.filter(test => test.status === 'cancelled')
+      upcoming: tests.filter(test => test.status === 'scheduled'),
+      live: tests.filter(test => test.status === 'in_progress'),
+      completed: tests.filter(test => test.status === 'completed')
     };
   };
 
@@ -144,16 +124,11 @@ export default function TestingSchedule() {
                 </div>
               ) : (
                 <>
-                  <div className="flex justify-end mb-6">
-                    <Button
-                      onClick={handleDownloadGantt}
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download Gantt Chart
-                    </Button>
-                  </div>
+                  {tests && tests.length > 0 && (
+                    <div className="mb-8">
+                      <GanttChart tests={tests} />
+                    </div>
+                  )}
                   <div className="space-y-8">
                     {tests && sections.map(({ key, title }) => {
                       const sectionTests = groupTestsByStatus(tests)[key as keyof ReturnType<typeof groupTestsByStatus>];
