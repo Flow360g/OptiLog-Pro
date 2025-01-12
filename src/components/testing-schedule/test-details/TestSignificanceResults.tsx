@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { calculateStatisticalSignificance } from "../utils/statisticalCalculations";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   Tooltip,
   TooltipContent,
@@ -13,40 +15,107 @@ import {
 interface TestSignificanceResultsProps {
   controlRate: number;
   experimentRate: number;
+  testId: string;
 }
 
 export function TestSignificanceResults({
   controlRate,
   experimentRate,
+  testId,
 }: TestSignificanceResultsProps) {
+  const { toast } = useToast();
   const [controlData, setControlData] = useState({
     conversions: "",
-    impressions: 1000,
+    impressions: "1000",
   });
   const [experimentData, setExperimentData] = useState({
     conversions: "",
-    impressions: 1000,
+    impressions: "1000",
   });
 
-  const handleInputChange = (
+  // Load saved statistical data when component mounts
+  useEffect(() => {
+    const loadStatisticalData = async () => {
+      const { data: test, error } = await supabase
+        .from('tests')
+        .select('results')
+        .eq('id', testId)
+        .single();
+
+      if (error) {
+        console.error('Error loading statistical data:', error);
+        return;
+      }
+
+      if (test?.results?.statistical_data) {
+        const { control, experiment } = test.results.statistical_data;
+        setControlData(control);
+        setExperimentData(experiment);
+      }
+    };
+
+    loadStatisticalData();
+  }, [testId]);
+
+  const handleInputChange = async (
     variant: "control" | "experiment",
     field: "conversions" | "impressions",
     value: string
   ) => {
     const numValue = parseInt(value) || 0;
+    const newData = variant === "control" 
+      ? { ...controlData, [field]: field === "conversions" ? value : numValue.toString() }
+      : { ...experimentData, [field]: field === "conversions" ? value : numValue.toString() };
+
     if (variant === "control") {
-      setControlData(prev => ({ ...prev, [field]: field === "conversions" ? value : numValue }));
+      setControlData(newData);
     } else {
-      setExperimentData(prev => ({ ...prev, [field]: field === "conversions" ? value : numValue }));
+      setExperimentData(newData);
+    }
+
+    // Save the updated data to the database
+    const { data: currentTest, error: fetchError } = await supabase
+      .from('tests')
+      .select('results')
+      .eq('id', testId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching current test data:', fetchError);
+      return;
+    }
+
+    const updatedResults = {
+      ...currentTest?.results,
+      statistical_data: {
+        control: variant === "control" ? newData : controlData,
+        experiment: variant === "experiment" ? newData : experimentData
+      }
+    };
+
+    const { error: updateError } = await supabase
+      .from('tests')
+      .update({ results: updatedResults })
+      .eq('id', testId);
+
+    if (updateError) {
+      console.error('Error saving statistical data:', updateError);
+      toast({
+        title: "Error saving data",
+        description: "Failed to save statistical test data",
+        variant: "destructive",
+      });
     }
   };
 
   const results = calculateStatisticalSignificance({
     ...controlData,
-    conversions: parseInt(controlData.conversions) || 0
+    conversions: parseInt(controlData.conversions) || 0,
+    impressions: parseInt(controlData.impressions) || 1000
   }, {
     ...experimentData,
-    conversions: parseInt(experimentData.conversions) || 0
+    conversions: parseInt(experimentData.conversions) || 0,
+    impressions: parseInt(experimentData.impressions) || 1000
   });
 
   return (
@@ -102,7 +171,7 @@ export function TestSignificanceResults({
         </div>
       </div>
 
-      {(controlData.impressions > 0 && experimentData.impressions > 0) && (
+      {(parseInt(controlData.impressions) > 0 && parseInt(experimentData.impressions) > 0) && (
         <Card className={`p-6 ${results.isSignificant ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
           <h3 className="text-lg font-semibold mb-4">
             {results.isSignificant ? "Significant test result!" : "No significant difference"}
