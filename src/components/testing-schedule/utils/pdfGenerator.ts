@@ -12,7 +12,7 @@ export const generatePDF = async (test: PDFTest) => {
   console.log("Starting PDF generation with test data:", test);
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
-  let currentY = 20; // Initialize currentY
+  let currentY = 10; // Reduced from 20 to 10 to move logo higher
 
   // Get user's brand settings
   const { data: profile } = await supabase
@@ -36,7 +36,7 @@ export const generatePDF = async (test: PDFTest) => {
         img.src = data.publicUrl;
       });
 
-      const imgWidth = 40;
+      const imgWidth = 80; // Doubled from 40 to 80
       const imgHeight = (img.height * imgWidth) / img.width;
       doc.addImage(
         img,
