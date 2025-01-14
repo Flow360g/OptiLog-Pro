@@ -19,7 +19,9 @@ interface TestResults {
 
 const parsePercentage = (value: string | undefined | null): number => {
   if (!value) return 0;
-  return parseFloat(value.replace('%', '')) / 100;
+  const cleanValue = value.toString().replace('%', '').trim();
+  if (!cleanValue || isNaN(parseFloat(cleanValue))) return 0;
+  return parseFloat(cleanValue) / 100;
 };
 
 export const addStatisticalAnalysis = (
@@ -29,8 +31,8 @@ export const addStatisticalAnalysis = (
   kpi: string,
   secondaryColor?: string | null
 ) => {
-  const controlValue = parsePercentage(results.control);
-  const experimentValue = parsePercentage(results.experiment);
+  const controlValue = parsePercentage(results?.control);
+  const experimentValue = parsePercentage(results?.experiment);
   const percentageChange = controlValue === 0 ? 0 : ((experimentValue - controlValue) / controlValue) * 100;
   const improvement = percentageChange > 0;
 
@@ -38,7 +40,7 @@ export const addStatisticalAnalysis = (
   let controlImpressions: number;
   let experimentImpressions: number;
   
-  if (results.statistical_data) {
+  if (results?.statistical_data) {
     controlImpressions = parseInt(results.statistical_data.control.impressions) || 0;
     experimentImpressions = parseInt(results.statistical_data.experiment.impressions) || 0;
     
