@@ -17,7 +17,8 @@ interface TestResults {
   };
 }
 
-const parsePercentage = (value: string): number => {
+const parsePercentage = (value: string | undefined | null): number => {
+  if (!value) return 0;
   return parseFloat(value.replace('%', '')) / 100;
 };
 
@@ -30,7 +31,7 @@ export const addStatisticalAnalysis = (
 ) => {
   const controlValue = parsePercentage(results.control);
   const experimentValue = parsePercentage(results.experiment);
-  const percentageChange = ((experimentValue - controlValue) / controlValue) * 100;
+  const percentageChange = controlValue === 0 ? 0 : ((experimentValue - controlValue) / controlValue) * 100;
   const improvement = percentageChange > 0;
 
   let stats;
@@ -38,16 +39,16 @@ export const addStatisticalAnalysis = (
   let experimentImpressions: number;
   
   if (results.statistical_data) {
-    controlImpressions = parseInt(results.statistical_data.control.impressions);
-    experimentImpressions = parseInt(results.statistical_data.experiment.impressions);
+    controlImpressions = parseInt(results.statistical_data.control.impressions) || 0;
+    experimentImpressions = parseInt(results.statistical_data.experiment.impressions) || 0;
     
     stats = calculateStatisticalSignificance(
       {
-        conversions: parseInt(results.statistical_data.control.conversions),
+        conversions: parseInt(results.statistical_data.control.conversions) || 0,
         impressions: controlImpressions
       },
       {
-        conversions: parseInt(results.statistical_data.experiment.conversions),
+        conversions: parseInt(results.statistical_data.experiment.conversions) || 0,
         impressions: experimentImpressions
       }
     );
@@ -83,8 +84,8 @@ export const addStatisticalAnalysis = (
       textColor: [255, 255, 255] 
     },
     styles: { 
-      cellPadding: 3, // Reduced from 5
-      minCellHeight: 6 // Reduced from default
+      cellPadding: 3,
+      minCellHeight: 6
     },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -110,7 +111,7 @@ export const addStatisticalAnalysis = (
   ];
 
   autoTable(doc, {
-    startY: (doc as any).lastAutoTable.finalY + 5, // Reduced spacing between tables
+    startY: (doc as any).lastAutoTable.finalY + 5,
     head: [["Statistical Analysis", "Details"]],
     body: significanceData,
     theme: 'striped',
@@ -119,8 +120,8 @@ export const addStatisticalAnalysis = (
       textColor: [255, 255, 255] 
     },
     styles: { 
-      cellPadding: 3, // Reduced from 5
-      minCellHeight: 6 // Reduced from default
+      cellPadding: 3,
+      minCellHeight: 6
     },
     columnStyles: {
       0: { fontStyle: 'bold', cellWidth: 80 },
@@ -131,7 +132,6 @@ export const addStatisticalAnalysis = (
   return (doc as any).lastAutoTable.finalY;
 };
 
-// Helper function to convert hex to RGB
 function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? [
