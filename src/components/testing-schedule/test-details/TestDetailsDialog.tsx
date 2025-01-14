@@ -24,6 +24,10 @@ export function TestDetailsDialog({
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
+  const [currentResults, setCurrentResults] = useState(test.results || {
+    control: "0",
+    experiment: "0"
+  });
 
   const handleDownloadPDF = async () => {
     if (!test.results || !isTestResult(test.results)) return;
@@ -31,18 +35,18 @@ export function TestDetailsDialog({
   };
 
   const generateExecutiveSummary = () => {
-    if (!test.results || !isTestResult(test.results)) return;
+    if (!currentResults || !isTestResult(currentResults)) return;
     
-    const control = parseFloat(test.results.control);
-    const experiment = parseFloat(test.results.experiment);
+    const control = parseFloat(currentResults.control);
+    const experiment = parseFloat(currentResults.experiment);
     const percentageChange = ((experiment - control) / control) * 100;
     const improvement = percentageChange > 0;
     
     const summary = `Test Results Summary:
 The ${test.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${test.kpi}.
 The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
-Control group: ${test.results.control}
-Experiment group: ${test.results.experiment}`;
+Control group: ${currentResults.control}
+Experiment group: ${currentResults.experiment}`;
 
     setExecutiveSummary(summary);
     updateExecutiveSummary(summary);
@@ -68,6 +72,23 @@ Experiment group: ${test.results.experiment}`;
     }
   };
 
+  const handleResultsChange = async (newResults: { control: string; experiment: string }) => {
+    setCurrentResults(newResults);
+    
+    const { error } = await supabase
+      .from('tests')
+      .update({ results: newResults })
+      .eq('id', test.id);
+
+    if (error) {
+      toast({
+        title: "Error updating results",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const defaultResults = {
     control: "0",
     experiment: "0"
@@ -82,25 +103,25 @@ Experiment group: ${test.results.experiment}`;
           <TestInformation test={test} />
 
           <TestResultsChart 
-            results={isTestResult(test.results) ? test.results : defaultResults} 
+            results={isTestResult(currentResults) ? currentResults : defaultResults} 
             kpi={test.kpi} 
           />
           
           <TestResultsForm 
-            results={isTestResult(test.results) ? test.results : defaultResults}
+            results={isTestResult(currentResults) ? currentResults : defaultResults}
             kpi={test.kpi} 
-            onChange={() => {}}
+            onChange={handleResultsChange}
           />
 
-          {test.results && isTestResult(test.results) && (
+          {currentResults && isTestResult(currentResults) && (
             <TestSignificanceResults
-              controlRate={parseFloat(test.results.control)}
-              experimentRate={parseFloat(test.results.experiment)}
+              controlRate={parseFloat(currentResults.control)}
+              experimentRate={parseFloat(currentResults.experiment)}
               testId={test.id}
             />
           )}
           
-          {!test.results && (
+          {!currentResults && (
             <div className="text-center text-sm text-gray-500 mt-2">
               No results have been recorded yet
             </div>
@@ -111,7 +132,7 @@ Experiment group: ${test.results.experiment}`;
             onSummaryChange={setExecutiveSummary}
             onSummaryBlur={() => updateExecutiveSummary(executiveSummary)}
             onGenerateSummary={generateExecutiveSummary}
-            hasResults={!!test.results && isTestResult(test.results)}
+            hasResults={!!currentResults && isTestResult(currentResults)}
           />
         </div>
       </DialogContent>
