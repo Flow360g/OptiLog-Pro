@@ -17,7 +17,7 @@ interface TestResults {
   };
 }
 
-const parsePercentage = (value: string | undefined | null): number => {
+const parsePercentage = (value: string | number | undefined | null): number => {
   if (!value) return 0;
   // Handle cases where value might be a number already
   const stringValue = typeof value === 'number' ? value.toString() : value;
