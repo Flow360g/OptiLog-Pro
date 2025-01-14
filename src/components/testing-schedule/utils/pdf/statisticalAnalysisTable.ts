@@ -19,7 +19,9 @@ interface TestResults {
 
 const parsePercentage = (value: string | undefined | null): number => {
   if (!value) return 0;
-  const cleanValue = value.toString().replace('%', '').trim();
+  // Handle cases where value might be a number already
+  const stringValue = typeof value === 'number' ? value.toString() : value;
+  const cleanValue = stringValue.replace('%', '').trim();
   if (!cleanValue || isNaN(parseFloat(cleanValue))) return 0;
   return parseFloat(cleanValue) / 100;
 };
@@ -27,12 +29,18 @@ const parsePercentage = (value: string | undefined | null): number => {
 export const addStatisticalAnalysis = (
   doc: jsPDF,
   startY: number,
-  results: TestResults,
+  results: TestResults | null | undefined,
   kpi: string,
   secondaryColor?: string | null
 ) => {
-  const controlValue = parsePercentage(results?.control);
-  const experimentValue = parsePercentage(results?.experiment);
+  // Handle case where results are missing
+  if (!results) {
+    console.log("No results available for statistical analysis");
+    return startY;
+  }
+
+  const controlValue = parsePercentage(results.control);
+  const experimentValue = parsePercentage(results.experiment);
   const percentageChange = controlValue === 0 ? 0 : ((experimentValue - controlValue) / controlValue) * 100;
   const improvement = percentageChange > 0;
 
