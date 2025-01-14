@@ -23,6 +23,7 @@ export function TestResultsForm({ results, kpi, onChange }: TestResultsFormProps
         <Input
           id="control"
           type="text"
+          inputMode="decimal"
           value={results.control}
           onChange={(e) => handleChange("control", e.target.value)}
           placeholder="Enter control value"
@@ -34,6 +35,7 @@ export function TestResultsForm({ results, kpi, onChange }: TestResultsFormProps
         <Input
           id="experiment"
           type="text"
+          inputMode="decimal"
           value={results.experiment}
           onChange={(e) => handleChange("experiment", e.target.value)}
           placeholder="Enter experiment value"
