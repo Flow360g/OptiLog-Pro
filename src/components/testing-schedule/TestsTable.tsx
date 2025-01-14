@@ -41,6 +41,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
 
       if (error) throw error;
 
+      // Update local state immediately
       setTests(prevTests => 
         prevTests.map(test => 
           test.id === testId ? { ...test, status: newStatus } : test
@@ -64,9 +65,6 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Tests</h3>
-        </div>
         <div className="overflow-x-auto">
           <Table>
             <thead>

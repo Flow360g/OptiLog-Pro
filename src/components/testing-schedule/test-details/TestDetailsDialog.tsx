@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Test, isTestResult } from "../types";
+import { Test } from "../types";
 import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
@@ -24,29 +24,25 @@ export function TestDetailsDialog({
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
-  const [currentResults, setCurrentResults] = useState(test.results || {
-    control: "0",
-    experiment: "0"
-  });
 
   const handleDownloadPDF = async () => {
-    if (!test.results || !isTestResult(test.results)) return;
-    await generatePDF({ ...test, results: test.results });
+    if (!test.results) return;
+    await generatePDF(test);
   };
 
   const generateExecutiveSummary = () => {
-    if (!currentResults || !isTestResult(currentResults)) return;
+    if (!test.results) return;
     
-    const control = parseFloat(currentResults.control);
-    const experiment = parseFloat(currentResults.experiment);
+    const control = parseFloat(test.results.control);
+    const experiment = parseFloat(test.results.experiment);
     const percentageChange = ((experiment - control) / control) * 100;
     const improvement = percentageChange > 0;
     
     const summary = `Test Results Summary:
 The ${test.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${test.kpi}.
 The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
-Control group: ${currentResults.control}
-Experiment group: ${currentResults.experiment}`;
+Control group: ${test.results.control}
+Experiment group: ${test.results.experiment}`;
 
     setExecutiveSummary(summary);
     updateExecutiveSummary(summary);
@@ -72,23 +68,6 @@ Experiment group: ${currentResults.experiment}`;
     }
   };
 
-  const handleResultsChange = async (newResults: { control: string; experiment: string }) => {
-    setCurrentResults(newResults);
-    
-    const { error } = await supabase
-      .from('tests')
-      .update({ results: newResults })
-      .eq('id', test.id);
-
-    if (error) {
-      toast({
-        title: "Error updating results",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   const defaultResults = {
     control: "0",
     experiment: "0"
@@ -102,26 +81,23 @@ Experiment group: ${currentResults.experiment}`;
 
           <TestInformation test={test} />
 
-          <TestResultsChart 
-            results={isTestResult(currentResults) ? currentResults : defaultResults} 
-            kpi={test.kpi} 
-          />
+          <TestResultsChart results={test.results || defaultResults} kpi={test.kpi} />
           
           <TestResultsForm 
-            results={isTestResult(currentResults) ? currentResults : defaultResults}
+            results={test.results || defaultResults} 
             kpi={test.kpi} 
-            onChange={handleResultsChange}
+            onChange={() => {}}
           />
 
-          {currentResults && isTestResult(currentResults) && (
+          {test.results && (
             <TestSignificanceResults
-              controlRate={parseFloat(currentResults.control)}
-              experimentRate={parseFloat(currentResults.experiment)}
+              controlRate={parseFloat(test.results.control)}
+              experimentRate={parseFloat(test.results.experiment)}
               testId={test.id}
             />
           )}
           
-          {!currentResults && (
+          {!test.results && (
             <div className="text-center text-sm text-gray-500 mt-2">
               No results have been recorded yet
             </div>
@@ -132,7 +108,7 @@ Experiment group: ${currentResults.experiment}`;
             onSummaryChange={setExecutiveSummary}
             onSummaryBlur={() => updateExecutiveSummary(executiveSummary)}
             onGenerateSummary={generateExecutiveSummary}
-            hasResults={!!currentResults && isTestResult(currentResults)}
+            hasResults={!!test.results}
           />
         </div>
       </DialogContent>
