@@ -35,7 +35,7 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
         <TooltipTrigger>
           <HelpCircle className="h-4 w-4 text-gray-500" />
         </TooltipTrigger>
-        <TooltipContent className="w-[300px] p-4">
+        <TooltipContent className="w-[400px] p-4">
           <div className="space-y-4">
             <div className="border rounded-lg p-4 bg-gray-50">
               <div className="text-center mb-4 font-medium">Effort vs. Impact Matrix</div>
