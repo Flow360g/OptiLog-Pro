@@ -41,7 +41,10 @@ export function TestDetailsDialog({
       const { error } = await supabase
         .from('tests')
         .update({ 
-          results: newResults 
+          results: {
+            control: newResults.control,
+            experiment: newResults.experiment
+          }
         })
         .eq('id', test.id);
 
