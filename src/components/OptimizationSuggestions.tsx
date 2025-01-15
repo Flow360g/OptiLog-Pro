@@ -97,11 +97,11 @@ export function OptimizationSuggestions({
         </label>
         <Button
           type="button"
-          variant="outline"
+          variant="gradient"
           size="sm"
           onClick={onAutoSuggest}
           disabled={!isButtonEnabled}
-          className={isButtonEnabled ? "gradient-bg text-white border-0 hover:text-white" : ""}
+          className="bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           <Wand2 className="w-4 h-4 mr-2" />
           Auto-suggest
