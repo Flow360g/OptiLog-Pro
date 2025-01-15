@@ -35,11 +35,11 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
         <TooltipTrigger>
           <HelpCircle className="h-4 w-4 text-gray-500" />
         </TooltipTrigger>
-        <TooltipContent className="w-[500px] p-6">
+        <TooltipContent className="w-[300px] p-4">
           <div className="space-y-4">
             <div className="border rounded-lg p-4 bg-gray-50">
               <div className="text-center mb-4 font-medium">Effort vs. Impact Matrix</div>
-              <div className="relative h-64 border-b border-l mb-10">
+              <div className="relative h-64 border-b border-l mb-6">
                 {/* Y-axis label */}
                 <div className="absolute -left-10 top-1/2 -translate-y-1/2 transform -rotate-90 text-sm font-medium">
                   Impact
@@ -71,12 +71,11 @@ export function PriorityTooltip({ optimizations }: PriorityTooltipProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-normal break-words">
                 We prioritize work based on what produces the highest impact with the lowest amount of effort.
               </p>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Priority Score = Impact + (6 - Effort). The higher the Impact and the lower
-                the Effort, the higher the priority score will be.
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-normal break-words">
+                Priority Score = Impact + (6 - Effort). The higher the Impact and the lower the Effort, the higher the priority score will be.
               </p>
             </div>
           </div>
