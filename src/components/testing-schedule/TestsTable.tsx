@@ -68,7 +68,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
         <div className="overflow-x-auto">
           <Table>
             <thead>
-              <TableHeader />
+              <TableHeader tests={sortedTests} />
             </thead>
             <tbody>
               {sortedTests.map((test, index) => (
