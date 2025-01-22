@@ -25,6 +25,7 @@ export function Navigation() {
             setUserEmail(null);
             // Clear any stale auth data
             await supabase.auth.signOut();
+            localStorage.removeItem('supabase.auth.token');
             navigate("/login");
           }
           return;
@@ -47,6 +48,7 @@ export function Navigation() {
           setUserEmail(null);
           // Clear any stale auth data
           await supabase.auth.signOut();
+          localStorage.removeItem('supabase.auth.token');
           navigate("/login");
         }
       }
@@ -58,12 +60,24 @@ export function Navigation() {
       if (event === 'TOKEN_REFRESHED') {
         if (session) {
           setUserEmail(session.user.email);
+        } else {
+          // If token refresh failed, clear session and redirect
+          setUserEmail(null);
+          await supabase.auth.signOut();
+          localStorage.removeItem('supabase.auth.token');
+          navigate("/login");
+          toast({
+            title: "Session Expired",
+            description: "Please sign in again to continue.",
+            variant: "destructive",
+          });
         }
         return;
       }
 
       if (event === 'SIGNED_OUT' || !session) {
         setUserEmail(null);
+        localStorage.removeItem('supabase.auth.token');
         navigate("/login");
         return;
       }
