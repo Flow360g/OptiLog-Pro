@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { PostgrestError } from "@supabase/supabase-js";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -50,7 +51,7 @@ export function TestDetailsDialog({
   const handleTestUpdate = async () => {
     console.log('Updating test with:', editedTest); // Debug log
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('tests')
         .update({
           name: editedTest.name,
@@ -59,8 +60,7 @@ export function TestDetailsDialog({
           start_date: editedTest.start_date,
           end_date: editedTest.end_date
         })
-        .eq('id', test.id)
-        .select();
+        .eq('id', test.id);
 
       if (error) {
         console.error('Supabase error:', error); // Debug log
