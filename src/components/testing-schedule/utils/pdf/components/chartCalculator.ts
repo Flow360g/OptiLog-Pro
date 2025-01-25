@@ -1,3 +1,4 @@
+import { jsPDF } from "jspdf";
 import { Test } from "../../../types";
 import { GanttTask, ChartDimensions } from "../types/gantt";
 import { ChartConfig } from "../types/pdf";
