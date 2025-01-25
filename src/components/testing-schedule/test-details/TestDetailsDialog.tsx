@@ -1,6 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Test, TestResult } from "../types";
-import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
 import { TestSignificanceResults } from "./TestSignificanceResults";
