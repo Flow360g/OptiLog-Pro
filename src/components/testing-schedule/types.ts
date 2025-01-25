@@ -1,4 +1,4 @@
-import { Json } from '@supabase/supabase-js';
+import { Json } from '@supabase/supabase-js/dist/module/lib/types';
 
 export interface TestResult {
   [key: string]: string | StatisticalData;
