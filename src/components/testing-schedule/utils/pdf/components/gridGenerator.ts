@@ -14,10 +14,10 @@ export const drawGridAndLabels = (
   const monthPositions: MonthPosition[] = [];
   let currentDate = new Date(minDate);
 
-  // Add padding to chart
-  const horizontalPadding = 30; // Increased padding
+  // Add padding to chart and reduce width to fit on page
+  const horizontalPadding = 50; // Increased padding
   const adjustedChartStartX = dimensions.chartStartX + horizontalPadding;
-  const adjustedChartWidth = dimensions.chartWidth - (horizontalPadding * 2);
+  const adjustedChartWidth = dimensions.chartWidth - (horizontalPadding * 3); // Reduced width to fit on page
 
   // Calculate total days for width adjustment
   const totalDays = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -49,16 +49,16 @@ export const drawGridAndLabels = (
       // Draw background for month label using secondary color or default
       const bgColor = secondaryColor || "#f1f5f9";
       doc.setFillColor(bgColor);
-      doc.rect(x, startY - 40, monthWidth, 25, "F"); // Increased height and adjusted Y position
+      doc.rect(x, startY - 45, monthWidth, 30, "F"); // Increased height
       
       // Draw border around month label
       doc.setDrawColor(200, 200, 200);
       doc.setLineWidth(0.5);
-      doc.rect(x, startY - 40, monthWidth, 25); // Match the background rectangle
+      doc.rect(x, startY - 45, monthWidth, 30); // Match the background rectangle
       
       // Draw month text with padding
       doc.setTextColor(0, 0, 0);
-      doc.text(monthLabel, x + 5, startY - 25); // Adjusted Y position for text
+      doc.text(monthLabel, x + 5, startY - 25); // Adjusted Y position for better centering
       
       monthPositions.push({
         month: monthLabel,
@@ -93,12 +93,12 @@ export const drawGridAndLabels = (
     // Draw week number background
     const bgColor = secondaryColor || "#f1f5f9";
     doc.setFillColor(bgColor);
-    doc.rect(x, startY - 15, weekWidth, 15, "F"); // Increased height
+    doc.rect(x, startY - 15, weekWidth, 15, "F");
     
     // Draw border around week number
     doc.setDrawColor(200, 200, 200);
     doc.setLineWidth(0.5);
-    doc.rect(x, startY - 15, weekWidth, 15); // Match the background rectangle
+    doc.rect(x, startY - 15, weekWidth, 15);
     
     // Draw week number text with padding
     doc.setTextColor(0, 0, 0);

@@ -10,7 +10,7 @@ export const renderTasks = (
 ): number => {
   tasks.forEach((task, index) => {
     const y = startY + index * dimensions.rowHeight;
-    const barHeight = dimensions.rowHeight * 0.7; // Increased height but leaving some spacing
+    const barHeight = dimensions.rowHeight * 0.8; // Increased height to 80% of row height
     const barY = y + (dimensions.rowHeight - barHeight) / 2; // Center the bar vertically
 
     // Draw task name

@@ -45,7 +45,7 @@ const generateGanttChart = async (
   const minDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
   const maxDate = new Date(Math.max(...allDates.map((d) => d.getTime())));
 
-  // Chart dimensions - centered on page
+  // Chart dimensions - centered on page with increased row height
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
   const chartWidth = pageWidth - 190; // Reduced width for better centering
@@ -54,7 +54,7 @@ const generateGanttChart = async (
   const dimensions: ChartDimensions = {
     chartStartX,
     chartWidth,
-    rowHeight: 20,
+    rowHeight: 30, // Increased row height
     dayWidth: chartWidth / 
       Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
   };
