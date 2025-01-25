@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Test, TestResult } from "./types";
+import { Test, TestResult, TestPlatform } from "./types";
 import { TestInformation } from "./test-details/TestInformation";
 import { TestResultsForm } from "./test-details/TestResultsForm";
 import { TestResultsChart } from "./test-details/TestResultsChart";
@@ -93,7 +93,7 @@ export function TestDetailsDialog({
 
   const handleTestUpdate = async (updatedFields: Partial<Test>) => {
     // Ensure platform is one of the allowed values
-    if (updatedFields.platform && !['facebook', 'google', 'tiktok'].includes(updatedFields.platform as string)) {
+    if (updatedFields.platform && !['facebook', 'google', 'tiktok'].includes(updatedFields.platform)) {
       toast({
         title: "Invalid platform",
         description: "Platform must be either 'facebook', 'google', or 'tiktok'",
@@ -105,7 +105,10 @@ export function TestDetailsDialog({
     try {
       const { data, error } = await supabase
         .from('tests')
-        .update(updatedFields)
+        .update({
+          ...updatedFields,
+          platform: updatedFields.platform as TestPlatform
+        })
         .eq('id', test.id)
         .select(`
           *,

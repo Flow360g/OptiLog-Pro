@@ -1,5 +1,3 @@
-import { SupabaseClient } from '@supabase/supabase-js';
-
 export interface TestResult {
   [key: string]: string | StatisticalData;
   control: string;
@@ -18,10 +16,12 @@ export interface StatisticalData {
   };
 }
 
+export type TestPlatform = 'facebook' | 'google' | 'tiktok';
+
 export interface Test {
   id: string;
   name: string;
-  platform: string;
+  platform: TestPlatform;
   kpi: string;
   hypothesis: string;
   start_date: string | null;
