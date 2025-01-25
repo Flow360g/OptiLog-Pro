@@ -49,7 +49,7 @@ export function TestDetailsDialog({
     kpi: test.kpi,
     start_date: test.start_date || '',
     end_date: test.end_date || '',
-    platform: test.platform,
+    platform: test.platform as "facebook" | "google" | "tiktok",
     status: test.status,
     test_type_id: test.test_type_id
   });
@@ -88,6 +88,12 @@ export function TestDetailsDialog({
         variant: "destructive",
       });
     }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!test.results) return;
+    const parsedResults = parseResults(test.results);
+    await generatePDF({ ...test, results: parsedResults });
   };
 
   const handleResultsChange = async (newResults: TestResult) => {
