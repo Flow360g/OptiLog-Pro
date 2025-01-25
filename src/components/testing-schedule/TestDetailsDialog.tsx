@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Test, TestResult } from "./types";
-import { TestInformation } from "./test-details/TestInformation";
+import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./test-details/TestResultsForm";
 import { TestResultsChart } from "./test-details/TestResultsChart";
 import { TestSignificanceResults } from "./test-details/TestSignificanceResults";
@@ -17,6 +17,7 @@ interface TestDetailsDialogProps {
   test: Test;
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (updatedTest: Test) => void;
 }
 
 const parseResults = (results: Test['results']): TestResult => {
@@ -35,6 +36,7 @@ export function TestDetailsDialog({
   test,
   isOpen,
   onClose,
+  onSave
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
@@ -48,7 +50,7 @@ export function TestDetailsDialog({
 
   const handleResultsChange = async (newResults: TestResult) => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tests')
         .update({ 
           results: {
@@ -56,16 +58,29 @@ export function TestDetailsDialog({
             experiment: newResults.experiment
           }
         })
-        .eq('id', test.id);
+        .eq('id', test.id)
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
+        .single();
 
       if (error) throw error;
 
-      setResults(newResults);
-      
-      toast({
-        title: "Results updated",
-        description: "Test results have been saved successfully.",
-      });
+      if (data) {
+        setResults(newResults);
+        onSave?.(data as Test);
+        
+        toast({
+          title: "Results updated",
+          description: "Test results have been saved successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error updating results:', error);
       toast({
@@ -95,21 +110,37 @@ Experiment group: ${results.experiment}`;
   };
 
   const updateExecutiveSummary = async (summary: string) => {
-    const { error } = await supabase
-      .from('tests')
-      .update({ executive_summary: summary })
-      .eq('id', test.id);
+    try {
+      const { data, error } = await supabase
+        .from('tests')
+        .update({ executive_summary: summary })
+        .eq('id', test.id)
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
+        .single();
 
-    if (error) {
+      if (error) throw error;
+
+      if (data) {
+        onSave?.(data as Test);
+        toast({
+          title: "Executive summary updated",
+          description: "The executive summary has been saved successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating executive summary:', error);
       toast({
         title: "Error updating executive summary",
-        description: error.message,
+        description: "There was a problem updating the executive summary.",
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Executive summary updated",
-        description: "The executive summary has been saved successfully.",
       });
     }
   };
@@ -132,7 +163,7 @@ Experiment group: ${results.experiment}`;
             )}
           </div>
 
-          <TestInformation test={test} />
+          <TestInformation test={test} onSave={onSave} />
 
           <TestResultsChart results={results} kpi={test.kpi} />
           
