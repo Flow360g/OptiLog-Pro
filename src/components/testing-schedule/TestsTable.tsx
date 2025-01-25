@@ -62,6 +62,15 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
     }
   };
 
+  const handleTestUpdate = (updatedTest: Test) => {
+    setTests(prevTests =>
+      prevTests.map(test =>
+        test.id === updatedTest.id ? updatedTest : test
+      )
+    );
+    setSelectedTest(updatedTest);
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -90,6 +99,7 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
           test={selectedTest}
           isOpen={!!selectedTest}
           onClose={() => setSelectedTest(null)}
+          onSave={handleTestUpdate}
         />
       )}
     </>

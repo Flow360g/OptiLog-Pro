@@ -18,6 +18,7 @@ interface TestDetailsDialogProps {
   test: Test;
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (updatedTest: Test) => void;
 }
 
 const parseResults = (results: Test['results']): TestResult => {
@@ -36,6 +37,7 @@ export function TestDetailsDialog({
   test,
   isOpen,
   onClose,
+  onSave
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
@@ -61,11 +63,14 @@ export function TestDetailsDialog({
         .single();
 
       if (error) throw error;
-
-      toast({
-        title: "Test updated",
-        description: "Test details have been saved successfully.",
-      });
+      
+      if (data) {
+        onSave?.(data);
+        toast({
+          title: "Test updated",
+          description: "Test details have been saved successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error updating test:', error);
       toast({
@@ -98,12 +103,15 @@ export function TestDetailsDialog({
 
       if (error) throw error;
 
-      setResults(newResults);
-      
-      toast({
-        title: "Results updated",
-        description: "Test results have been saved successfully.",
-      });
+      if (data) {
+        setResults(newResults);
+        onSave?.(data);
+        
+        toast({
+          title: "Results updated",
+          description: "Test results have been saved successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error updating results:', error);
       toast({
