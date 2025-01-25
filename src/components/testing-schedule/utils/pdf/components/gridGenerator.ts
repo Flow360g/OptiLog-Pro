@@ -52,8 +52,8 @@ export const drawGridAndLabels = (
       doc.setFillColor(bgColor);
       doc.rect(x, startY - 45, monthWidth, 30, "F");
       
-      // Draw border around month label
-      doc.setDrawColor(200, 200, 200);
+      // Draw border around month label in black
+      doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.5);
       doc.rect(x, startY - 45, monthWidth, 30);
       
@@ -90,8 +90,8 @@ export const drawGridAndLabels = (
     doc.setFillColor(bgColor);
     doc.rect(x, startY - 15, weekWidth, 15, "F");
     
-    // Draw border around week number
-    doc.setDrawColor(200, 200, 200);
+    // Draw border around week number in black
+    doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.5);
     doc.rect(x, startY - 15, weekWidth, 15);
     
@@ -112,12 +112,18 @@ export const drawGridAndLabels = (
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
     const isMonthStart = currentDate.getDate() === 1;
-    doc.setDrawColor(isMonthStart ? 100 : 220);
+    doc.setDrawColor(isMonthStart ? 0 : 220); // Black for month starts, light gray for weeks
     doc.setLineWidth(isMonthStart ? 0.5 : 0.2);
     doc.line(x, startY, x, startY + tasksLength * dimensions.rowHeight);
     
     currentDate.setDate(currentDate.getDate() + 7);
   }
+
+  // Draw right border of the chart
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.5);
+  const rightBorderX = dimensions.chartStartX + exactChartWidth;
+  doc.line(rightBorderX, startY - 45, rightBorderX, startY + tasksLength * dimensions.rowHeight);
 
   // Draw horizontal grid lines
   doc.setDrawColor(220);
