@@ -1,4 +1,4 @@
-import { Json } from '@supabase/supabase-js/dist/module/lib/types';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface TestResult {
   [key: string]: string | StatisticalData;
@@ -28,7 +28,7 @@ export interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  results: TestResult | null | Json;
+  results: TestResult | null | any;
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled' | 'scheduled';
   test_types: {
     name: string;
