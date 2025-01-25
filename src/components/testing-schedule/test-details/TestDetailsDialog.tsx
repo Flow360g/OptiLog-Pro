@@ -48,6 +48,7 @@ export function TestDetailsDialog({
   });
 
   const handleTestUpdate = async () => {
+    console.log('Updating test with:', editedTest); // Debug log
     try {
       const { error } = await supabase
         .from('tests')
@@ -60,7 +61,10 @@ export function TestDetailsDialog({
         })
         .eq('id', test.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error); // Debug log
+        throw error;
+      }
 
       toast({
         title: "Test updated",
@@ -112,44 +116,6 @@ export function TestDetailsDialog({
     }
   };
 
-  const generateExecutiveSummary = () => {
-    if (!results) return;
-    
-    const control = parseFloat(results.control);
-    const experiment = parseFloat(results.experiment);
-    const percentageChange = ((experiment - control) / control) * 100;
-    const improvement = percentageChange > 0;
-    
-    const summary = `Test Results Summary:
-The ${editedTest.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${editedTest.kpi}.
-The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
-Control group: ${results.control}%
-Experiment group: ${results.experiment}%`;
-
-    setExecutiveSummary(summary);
-    updateExecutiveSummary(summary);
-  };
-
-  const updateExecutiveSummary = async (summary: string) => {
-    const { error } = await supabase
-      .from('tests')
-      .update({ executive_summary: summary })
-      .eq('id', test.id);
-
-    if (error) {
-      toast({
-        title: "Error updating executive summary",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Executive summary updated",
-        description: "The executive summary has been saved successfully.",
-      });
-    }
-  };
-
   return (
     <Dialog 
       open={isOpen} 
@@ -185,49 +151,47 @@ Experiment group: ${results.experiment}%`;
             )}
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="hypothesis">Hypothesis</Label>
-              <Textarea
-                id="hypothesis"
-                value={editedTest.hypothesis}
-                onChange={(e) => setEditedTest(prev => ({ ...prev, hypothesis: e.target.value }))}
-                onBlur={handleTestUpdate}
-                className="min-h-[100px]"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="hypothesis">Hypothesis</Label>
+            <Textarea
+              id="hypothesis"
+              value={editedTest.hypothesis}
+              onChange={(e) => setEditedTest(prev => ({ ...prev, hypothesis: e.target.value }))}
+              onBlur={handleTestUpdate}
+              className="min-h-[100px]"
+            />
+          </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="kpi">KPI</Label>
+            <Input
+              id="kpi"
+              value={editedTest.kpi}
+              onChange={(e) => setEditedTest(prev => ({ ...prev, kpi: e.target.value }))}
+              onBlur={handleTestUpdate}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="kpi">KPI</Label>
+              <Label htmlFor="start-date">Start Date</Label>
               <Input
-                id="kpi"
-                value={editedTest.kpi}
-                onChange={(e) => setEditedTest(prev => ({ ...prev, kpi: e.target.value }))}
+                id="start-date"
+                type="date"
+                value={editedTest.start_date}
+                onChange={(e) => setEditedTest(prev => ({ ...prev, start_date: e.target.value }))}
                 onBlur={handleTestUpdate}
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="start-date">Start Date</Label>
-                <Input
-                  id="start-date"
-                  type="date"
-                  value={editedTest.start_date}
-                  onChange={(e) => setEditedTest(prev => ({ ...prev, start_date: e.target.value }))}
-                  onBlur={handleTestUpdate}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="end-date">End Date</Label>
-                <Input
-                  id="end-date"
-                  type="date"
-                  value={editedTest.end_date}
-                  onChange={(e) => setEditedTest(prev => ({ ...prev, end_date: e.target.value }))}
-                  onBlur={handleTestUpdate}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="end-date">End Date</Label>
+              <Input
+                id="end-date"
+                type="date"
+                value={editedTest.end_date}
+                onChange={(e) => setEditedTest(prev => ({ ...prev, end_date: e.target.value }))}
+                onBlur={handleTestUpdate}
+              />
             </div>
           </div>
 
@@ -256,21 +220,18 @@ Experiment group: ${results.experiment}%`;
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <Label htmlFor="executive-summary">Executive Summary</Label>
-              {results && (
-                <Button
-                  onClick={generateExecutiveSummary}
-                  variant="outline"
-                  size="sm"
-                >
-                  Generate Summary
-                </Button>
-              )}
             </div>
             <Textarea
               id="executive-summary"
               value={executiveSummary}
               onChange={(e) => setExecutiveSummary(e.target.value)}
-              onBlur={() => updateExecutiveSummary(executiveSummary)}
+              onBlur={() => {
+                const { error } = supabase
+                  .from('tests')
+                  .update({ executive_summary: executiveSummary })
+                  .eq('id', test.id);
+                if (error) console.error('Error updating executive summary:', error);
+              }}
               placeholder="Enter or generate an executive summary for this test..."
               className="min-h-[100px]"
             />
