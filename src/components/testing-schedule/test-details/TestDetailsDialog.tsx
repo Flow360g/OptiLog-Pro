@@ -164,7 +164,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.name}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, name: e.target.value }))}
                 onBlur={handleTestUpdate}
-                className="w-full"
+                className="w-full bg-white"
               />
             </div>
             {results && (
@@ -187,7 +187,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.hypothesis}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, hypothesis: e.target.value }))}
                 onBlur={handleTestUpdate}
-                className="min-h-[100px]"
+                className="min-h-[100px] bg-white"
               />
             </div>
 
@@ -198,6 +198,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.kpi}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, kpi: e.target.value }))}
                 onBlur={handleTestUpdate}
+                className="bg-white"
               />
             </div>
 
@@ -210,6 +211,7 @@ Experiment group: ${results.experiment}`;
                   value={editedTest.start_date}
                   onChange={(e) => setEditedTest(prev => ({ ...prev, start_date: e.target.value }))}
                   onBlur={handleTestUpdate}
+                  className="bg-white"
                 />
               </div>
               <div className="space-y-2">
@@ -220,6 +222,7 @@ Experiment group: ${results.experiment}`;
                   value={editedTest.end_date}
                   onChange={(e) => setEditedTest(prev => ({ ...prev, end_date: e.target.value }))}
                   onBlur={handleTestUpdate}
+                  className="bg-white"
                 />
               </div>
             </div>
@@ -266,7 +269,7 @@ Experiment group: ${results.experiment}`;
               onChange={(e) => setExecutiveSummary(e.target.value)}
               onBlur={() => updateExecutiveSummary(executiveSummary)}
               placeholder="Enter or generate an executive summary for this test..."
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-white"
             />
           </div>
         </div>
