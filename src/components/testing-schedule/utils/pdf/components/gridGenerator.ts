@@ -19,6 +19,10 @@ export const drawGridAndLabels = (
   const adjustedChartStartX = dimensions.chartStartX + horizontalPadding;
   const adjustedChartWidth = dimensions.chartWidth - (horizontalPadding * 2);
 
+  // Calculate total days for width adjustment
+  const totalDays = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
+  const exactChartWidth = totalDays * dimensions.dayWidth;
+
   // First, let's draw the months - simple and clear
   doc.setFontSize(12);
   doc.setFont(undefined, 'bold');
@@ -31,12 +35,26 @@ export const drawGridAndLabels = (
     if (currentDate.getDate() === 1 || currentDate.getTime() === minDate.getTime()) {
       const monthLabel = format(currentDate, "MMMM yyyy");
       
+      // Calculate width for this month (number of days * dayWidth)
+      const daysInMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      ).getDate();
+      const monthWidth = Math.min(
+        daysInMonth * dimensions.dayWidth,
+        exactChartWidth - (x - adjustedChartStartX)
+      );
+      
       // Draw background for month label using secondary color or default
-      const bgColor = secondaryColor || "#f1f5f9"; // Default to a light slate color
+      const bgColor = secondaryColor || "#f1f5f9";
       doc.setFillColor(bgColor);
-      doc.rect(x, startY - 35, 
-        dimensions.dayWidth * 31, // Approximate month width
-        20, "F");
+      doc.rect(x, startY - 35, monthWidth, 20, "F");
+      
+      // Draw border around month label
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+      doc.rect(x, startY - 35, monthWidth, 20);
       
       // Draw month text
       doc.setTextColor(0, 0, 0);
@@ -61,17 +79,26 @@ export const drawGridAndLabels = (
   currentDate = new Date(minDate);
   let weekNumber = 1;
   
-  // Draw week numbers with background
+  // Draw week numbers with background and borders
   while (currentDate <= maxDate) {
     const x = adjustedChartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
+    // Calculate week width (7 days * dayWidth)
+    const weekWidth = Math.min(
+      7 * dimensions.dayWidth,
+      exactChartWidth - (x - adjustedChartStartX)
+    );
+    
     // Draw week number background
     const bgColor = secondaryColor || "#f1f5f9";
     doc.setFillColor(bgColor);
-    doc.rect(x, startY - 15, 
-      dimensions.dayWidth * 7, // Week width
-      12, "F");
+    doc.rect(x, startY - 15, weekWidth, 12, "F");
+    
+    // Draw border around week number
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.rect(x, startY - 15, weekWidth, 12);
     
     // Draw week number text
     doc.setTextColor(0, 0, 0);
@@ -100,7 +127,7 @@ export const drawGridAndLabels = (
   doc.setLineWidth(0.2);
   for (let i = 0; i <= tasksLength; i++) {
     const y = startY + i * dimensions.rowHeight;
-    doc.line(adjustedChartStartX, y, adjustedChartStartX + adjustedChartWidth, y);
+    doc.line(adjustedChartStartX, y, adjustedChartStartX + exactChartWidth, y);
   }
 
   return { monthPositions, newStartY: startY };
