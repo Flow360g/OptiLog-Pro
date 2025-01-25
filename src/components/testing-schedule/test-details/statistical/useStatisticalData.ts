@@ -29,11 +29,11 @@ export function useStatisticalData(testId: string) {
           return;
         }
 
-        if (test?.results && typeof test.results === 'object' && 'statistical_data' in test.results) {
-          const rawData = test.results.statistical_data;
-          if (isStatisticalData(rawData)) {
-            setControlData(rawData.control);
-            setExperimentData(rawData.experiment);
+        if (test?.results && typeof test.results === 'object') {
+          const statisticalData = test.results.statistical_data;
+          if (statisticalData && isStatisticalData(statisticalData)) {
+            setControlData(statisticalData.control);
+            setExperimentData(statisticalData.experiment);
           }
         }
       } catch (error) {

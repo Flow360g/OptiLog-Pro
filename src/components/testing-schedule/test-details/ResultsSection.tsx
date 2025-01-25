@@ -16,19 +16,21 @@ export function ResultsSection({ test, results, onResultsChange }: ResultsSectio
 
   const handleResultsChange = async (newResults: TestResult) => {
     try {
+      // Merge the new results with any existing statistical data
+      const updatedResults = {
+        control: newResults.control,
+        experiment: newResults.experiment,
+        statistical_data: results.statistical_data || {}
+      };
+
       const { error } = await supabase
         .from('tests')
-        .update({ 
-          results: {
-            control: newResults.control,
-            experiment: newResults.experiment
-          }
-        })
+        .update({ results: updatedResults })
         .eq('id', test.id);
 
       if (error) throw error;
 
-      onResultsChange(newResults);
+      onResultsChange(updatedResults);
       
       toast({
         title: "Results updated",
