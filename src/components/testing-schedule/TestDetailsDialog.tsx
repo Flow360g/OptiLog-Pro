@@ -41,11 +41,12 @@ export function TestDetailsDialog({
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
   const [results, setResults] = useState<TestResult>(parseResults(test.results));
+  const [localTest, setLocalTest] = useState<Test>(test);
 
   const handleDownloadPDF = async () => {
-    if (!test.results) return;
-    const parsedResults = parseResults(test.results);
-    await generatePDF({ ...test, results: parsedResults });
+    if (!localTest.results) return;
+    const parsedResults = parseResults(localTest.results);
+    await generatePDF({ ...localTest, results: parsedResults });
   };
 
   const handleResultsChange = async (newResults: TestResult) => {
@@ -74,6 +75,7 @@ export function TestDetailsDialog({
 
       if (data) {
         setResults(newResults);
+        setLocalTest(prev => ({ ...prev, results: newResults }));
         onSave?.(data as Test);
         
         toast({
@@ -124,7 +126,9 @@ export function TestDetailsDialog({
       if (error) throw error;
 
       if (data) {
-        onSave?.(data as Test);
+        const updatedTest = data as Test;
+        setLocalTest(updatedTest);
+        onSave?.(updatedTest);
         toast({
           title: "Test updated",
           description: "Test details have been saved successfully.",
@@ -149,7 +153,7 @@ export function TestDetailsDialog({
     const improvement = percentageChange > 0;
     
     const summary = `Test Results Summary:
-The ${test.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${test.kpi}.
+The ${localTest.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${localTest.kpi}.
 The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
 Control group: ${results.control}
 Experiment group: ${results.experiment}`;
@@ -178,7 +182,9 @@ Experiment group: ${results.experiment}`;
       if (error) throw error;
 
       if (data) {
-        onSave?.(data as Test);
+        const updatedTest = data as Test;
+        setLocalTest(updatedTest);
+        onSave?.(updatedTest);
         toast({
           title: "Executive summary updated",
           description: "The executive summary has been saved successfully.",
@@ -199,7 +205,7 @@ Experiment group: ${results.experiment}`;
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="space-y-6 py-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">{test.name}</h2>
+            <h2 className="text-2xl font-semibold">{localTest.name}</h2>
             {results && (
               <Button
                 onClick={handleDownloadPDF}
@@ -212,13 +218,13 @@ Experiment group: ${results.experiment}`;
             )}
           </div>
 
-          <TestInformation test={test} onSave={handleTestUpdate} />
+          <TestInformation test={localTest} onSave={handleTestUpdate} />
 
-          <TestResultsChart results={results} kpi={test.kpi} />
+          <TestResultsChart results={results} kpi={localTest.kpi} />
           
           <TestResultsForm 
             results={results}
-            kpi={test.kpi} 
+            kpi={localTest.kpi} 
             onChange={handleResultsChange}
           />
 
