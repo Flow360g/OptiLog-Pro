@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Test, TestResult } from "../types";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { DialogTitle } from "@/components/ui/dialog";
 
 interface TestDetailsDialogProps {
   test: Test;
