@@ -16,7 +16,10 @@ export const drawGridAndLabels = (
 
   // Calculate total days for width adjustment
   const totalDays = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-  const exactChartWidth = totalDays * dimensions.dayWidth;
+  const exactChartWidth = Math.min(
+    totalDays * dimensions.dayWidth,
+    dimensions.chartWidth
+  );
 
   // First, let's draw the months - simple and clear
   doc.setFontSize(12);
