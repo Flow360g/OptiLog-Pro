@@ -26,7 +26,7 @@ export interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  results: TestResult | null | string;  // Updated to handle string type from JSON
+  results: TestResult | null | Json;  // Updated to handle Json type from Supabase
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
   test_types: {
     name: string;
@@ -41,7 +41,7 @@ export interface Test {
   test_type_id: string;
 }
 
-export interface PDFTest extends Test {
+export interface PDFTest extends Omit<Test, 'results'> {
   results: TestResult;
 }
 

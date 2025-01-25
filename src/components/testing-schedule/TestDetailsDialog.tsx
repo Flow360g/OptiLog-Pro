@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Test } from "./types";
+import { Test, TestResult } from "./types";
 import { TestInformation } from "./test-details/TestInformation";
 import { TestResultsForm } from "./test-details/TestResultsForm";
 import { TestResultsChart } from "./test-details/TestResultsChart";
@@ -12,13 +12,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { TestResult } from "./types";
 
 interface TestDetailsDialogProps {
   test: Test;
   isOpen: boolean;
   onClose: () => void;
 }
+
+const parseResults = (results: Test['results']): TestResult => {
+  if (!results) return { control: "0", experiment: "0" };
+  if (typeof results === 'string') {
+    try {
+      return JSON.parse(results) as TestResult;
+    } catch {
+      return { control: "0", experiment: "0" };
+    }
+  }
+  return results as TestResult;
+};
 
 export function TestDetailsDialog({
   test,
@@ -27,13 +38,12 @@ export function TestDetailsDialog({
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
-  const [results, setResults] = useState<TestResult>(
-    test.results || { control: "0", experiment: "0" }
-  );
+  const [results, setResults] = useState<TestResult>(parseResults(test.results));
 
   const handleDownloadPDF = async () => {
     if (!test.results) return;
-    await generatePDF(test);
+    const parsedResults = parseResults(test.results);
+    await generatePDF({ ...test, results: parsedResults });
   };
 
   const handleResultsChange = async (newResults: TestResult) => {

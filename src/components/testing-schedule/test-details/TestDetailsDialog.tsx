@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Test } from "../types";
+import { Test, TestResult } from "../types";
 import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
@@ -17,6 +17,18 @@ interface TestDetailsDialogProps {
   onClose: () => void;
 }
 
+const parseResults = (results: Test['results']): TestResult => {
+  if (!results) return { control: "0", experiment: "0" };
+  if (typeof results === 'string') {
+    try {
+      return JSON.parse(results) as TestResult;
+    } catch {
+      return { control: "0", experiment: "0" };
+    }
+  }
+  return results as TestResult;
+};
+
 export function TestDetailsDialog({
   test,
   isOpen,
@@ -24,25 +36,26 @@ export function TestDetailsDialog({
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
+  const parsedResults = parseResults(test.results);
 
   const handleDownloadPDF = async () => {
     if (!test.results) return;
-    await generatePDF(test);
+    await generatePDF({ ...test, results: parseResults(test.results) });
   };
 
   const generateExecutiveSummary = () => {
-    if (!test.results) return;
+    if (!parsedResults) return;
     
-    const control = parseFloat(test.results.control);
-    const experiment = parseFloat(test.results.experiment);
+    const control = parseFloat(parsedResults.control);
+    const experiment = parseFloat(parsedResults.experiment);
     const percentageChange = ((experiment - control) / control) * 100;
     const improvement = percentageChange > 0;
     
     const summary = `Test Results Summary:
 The ${test.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${test.kpi}.
 The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
-Control group: ${test.results.control}
-Experiment group: ${test.results.experiment}`;
+Control group: ${parsedResults.control}
+Experiment group: ${parsedResults.experiment}`;
 
     setExecutiveSummary(summary);
     updateExecutiveSummary(summary);
@@ -81,23 +94,23 @@ Experiment group: ${test.results.experiment}`;
 
           <TestInformation test={test} />
 
-          <TestResultsChart results={test.results || defaultResults} kpi={test.kpi} />
+          <TestResultsChart results={parsedResults || defaultResults} kpi={test.kpi} />
           
           <TestResultsForm 
-            results={test.results || defaultResults} 
+            results={parsedResults || defaultResults} 
             kpi={test.kpi} 
             onChange={() => {}}
           />
 
-          {test.results && (
+          {parsedResults && (
             <TestSignificanceResults
-              controlRate={parseFloat(test.results.control)}
-              experimentRate={parseFloat(test.results.experiment)}
+              controlRate={parseFloat(parsedResults.control)}
+              experimentRate={parseFloat(parsedResults.experiment)}
               testId={test.id}
             />
           )}
           
-          {!test.results && (
+          {!parsedResults && (
             <div className="text-center text-sm text-gray-500 mt-2">
               No results have been recorded yet
             </div>
@@ -108,7 +121,7 @@ Experiment group: ${test.results.experiment}`;
             onSummaryChange={setExecutiveSummary}
             onSummaryBlur={() => updateExecutiveSummary(executiveSummary)}
             onGenerateSummary={generateExecutiveSummary}
-            hasResults={!!test.results}
+            hasResults={!!parsedResults}
           />
         </div>
       </DialogContent>
