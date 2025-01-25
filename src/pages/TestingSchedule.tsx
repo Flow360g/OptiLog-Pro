@@ -2,11 +2,12 @@ import { Navigation } from "@/components/Navigation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ChevronLeft } from "lucide-react";
+import { Loader2, ChevronLeft, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ClientSelectionScreen } from "@/components/testing-schedule/ClientSelectionScreen";
 import { Button } from "@/components/ui/button";
 import { TestsTable } from "@/components/testing-schedule/TestsTable";
+import { generateGanttPDF } from "@/components/testing-schedule/utils/pdf/ganttChartGenerator";
 
 export default function TestingSchedule() {
   const { toast } = useToast();
@@ -73,12 +74,31 @@ export default function TestingSchedule() {
     setSelectedClient(null);
   };
 
+  const handleDownloadGantt = async () => {
+    if (!tests || !selectedClient) return;
+    
+    try {
+      await generateGanttPDF(tests, selectedClient);
+      toast({
+        title: "Success",
+        description: "Gantt chart PDF has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate Gantt chart PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const groupTestsByStatus = (tests: any[]) => {
     return {
-      pipeline: tests.filter(test => test.status === 'draft'), // Planning
-      upcoming: tests.filter(test => test.status === 'in_progress'), // Working on it
-      live: tests.filter(test => test.status === 'completed'), // Live
-      completed: tests.filter(test => test.status === 'cancelled') // Completed
+      pipeline: tests.filter(test => test.status === 'draft'),
+      upcoming: tests.filter(test => test.status === 'in_progress'),
+      live: tests.filter(test => test.status === 'completed'),
+      completed: tests.filter(test => test.status === 'cancelled')
     };
   };
 
@@ -96,14 +116,24 @@ export default function TestingSchedule() {
         <div className="max-w-7xl mx-auto">
           {selectedClient ? (
             <>
-              <Button
-                variant="ghost"
-                onClick={handleBackClick}
-                className="flex items-center gap-2 mb-6"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back to Client Selection
-              </Button>
+              <div className="flex justify-between items-center mb-6">
+                <Button
+                  variant="ghost"
+                  onClick={handleBackClick}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back to Client Selection
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleDownloadGantt}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Gantt Chart
+                </Button>
+              </div>
               <div className="text-center mb-8">
                 <h1 className="text-4xl font-bold text-gray-900">
                   Testing Schedule
