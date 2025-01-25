@@ -123,8 +123,8 @@ export function TestDetailsDialog({
     const summary = `Test Results Summary:
 The ${editedTest.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${editedTest.kpi}.
 The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
-Control group: ${results.control}
-Experiment group: ${results.experiment}`;
+Control group: ${results.control}%
+Experiment group: ${results.experiment}%`;
 
     setExecutiveSummary(summary);
     updateExecutiveSummary(summary);
@@ -151,7 +151,14 @@ Experiment group: ${results.experiment}`;
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogTitle className="text-xl font-semibold mb-4">Test Details</DialogTitle>
         <div className="space-y-6 py-4">
