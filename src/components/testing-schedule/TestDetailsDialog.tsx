@@ -91,6 +91,52 @@ export function TestDetailsDialog({
     }
   };
 
+  const handleTestUpdate = async (updatedFields: Partial<Test>) => {
+    // Ensure platform is one of the allowed values
+    if (updatedFields.platform && !['facebook', 'google', 'tiktok'].includes(updatedFields.platform as string)) {
+      toast({
+        title: "Invalid platform",
+        description: "Platform must be either 'facebook', 'google', or 'tiktok'",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('tests')
+        .update(updatedFields)
+        .eq('id', test.id)
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        onSave?.(data as Test);
+        toast({
+          title: "Test updated",
+          description: "Test details have been saved successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating test:', error);
+      toast({
+        title: "Error updating test",
+        description: "There was a problem saving the test details.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const generateExecutiveSummary = () => {
     if (!results) return;
     
@@ -140,42 +186,6 @@ Experiment group: ${results.experiment}`;
       toast({
         title: "Error updating executive summary",
         description: "There was a problem updating the executive summary.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTestUpdate = async (updatedFields: Partial<Test>) => {
-    try {
-      const { data, error } = await supabase
-        .from('tests')
-        .update(updatedFields)
-        .eq('id', test.id)
-        .select(`
-          *,
-          test_types (
-            name,
-            test_categories (
-              name
-            )
-          )
-        `)
-        .single();
-
-      if (error) throw error;
-
-      if (data) {
-        onSave?.(data as Test);
-        toast({
-          title: "Test updated",
-          description: "Test details have been saved successfully.",
-        });
-      }
-    } catch (error) {
-      console.error('Error updating test:', error);
-      toast({
-        title: "Error updating test",
-        description: "There was a problem saving the test details.",
         variant: "destructive",
       });
     }
