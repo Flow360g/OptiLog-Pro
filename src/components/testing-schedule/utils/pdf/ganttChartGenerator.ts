@@ -48,13 +48,13 @@ const generateGanttChart = async (
   // Chart dimensions - centered on page with increased row height
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
-  const chartWidth = pageWidth - 190; // Reduced width for better centering
-  const chartStartX = (pageWidth - chartWidth) / 2 + 70; // Adjusted for labels
+  const chartWidth = pageWidth - 240; // Further reduced width to ensure it fits on page
+  const chartStartX = 70; // Fixed starting position for chart
 
   const dimensions: ChartDimensions = {
     chartStartX,
     chartWidth,
-    rowHeight: 30, // Increased row height
+    rowHeight: 40, // Further increased row height
     dayWidth: chartWidth / 
       Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
   };
