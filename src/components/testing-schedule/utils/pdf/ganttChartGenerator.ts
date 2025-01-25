@@ -10,7 +10,8 @@ const generateGanttChart = async (
   doc: jsPDF,
   tests: Test[],
   startY: number = 50,
-  userId: string
+  userId: string,
+  clientName: string
 ): Promise<number> => {
   // Filter out tests without dates
   const tasksWithDates = tests.filter(
@@ -94,8 +95,8 @@ export const generateGanttPDF = async (tests: Test[], clientName: string) => {
     throw new Error("No user found");
   }
 
-  // Generate Gantt chart with user ID
-  await generateGanttChart(doc, tests, 80, user.id);
+  // Generate Gantt chart with user ID and client name
+  await generateGanttChart(doc, tests, 80, user.id, clientName);
 
   // Save the PDF
   doc.save(`${clientName}_testing_schedule.pdf`);
