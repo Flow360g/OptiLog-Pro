@@ -125,11 +125,14 @@ export const drawGridAndLabels = (
   const rightBorderX = dimensions.chartStartX + exactChartWidth;
   doc.line(rightBorderX, startY - 45, rightBorderX, startY + tasksLength * dimensions.rowHeight);
 
+  // Draw left border of the chart
+  doc.line(dimensions.chartStartX, startY - 45, dimensions.chartStartX, startY + tasksLength * dimensions.rowHeight);
+
   // Draw horizontal grid lines
-  doc.setDrawColor(220);
-  doc.setLineWidth(0.2);
   for (let i = 0; i <= tasksLength; i++) {
     const y = startY + i * dimensions.rowHeight;
+    doc.setDrawColor(i === tasksLength ? 0 : 220); // Black for bottom border, light gray for other lines
+    doc.setLineWidth(i === tasksLength ? 0.5 : 0.2);
     doc.line(dimensions.chartStartX, y, dimensions.chartStartX + exactChartWidth, y);
   }
 
