@@ -41,6 +41,13 @@ export function TestDetailsDialog({
   const [results, setResults] = useState<TestResult>(parseResults(test.results));
   const [localTest, setLocalTest] = useState<Test>(test);
 
+  // Update local state when test prop changes
+  useEffect(() => {
+    setLocalTest(test);
+    setResults(parseResults(test.results));
+    setExecutiveSummary(test.executive_summary || '');
+  }, [test]);
+
   // Subscribe to real-time updates for this specific test
   useEffect(() => {
     console.log('Subscribing to real-time updates for test:', test.id);
