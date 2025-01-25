@@ -105,28 +105,31 @@ export const generatePDF = async (test: PDFTest) => {
       kpi: test.kpi,
       currentY
     });
+    
+    // Add test results section
     currentY = addTestResults(doc, currentY, test.results, test.kpi, profile?.secondary_color);
 
     // Add bell curve chart at the bottom of page 2
     try {
       const bellCurveImage = await generateBellCurveImage(test.results, profile?.primary_color, profile?.secondary_color);
       if (bellCurveImage) {
-        const imgWidth = 180;
-        const imgHeight = 90;
-        
-        // If we're close to the bottom of the page, move to next page
-        if (currentY + imgHeight > doc.internal.pageSize.height - 20) {
+        // Force new page if we're not already on it
+        if (currentY > doc.internal.pageSize.height - 100) {
           doc.addPage();
           currentY = 20;
-        } else {
-          currentY += 20; // Add some spacing
         }
+
+        // Adjust size to fit at bottom of page
+        const imgWidth = 160;
+        const imgHeight = 80;
+        const bottomMargin = 20;
+        const yPosition = doc.internal.pageSize.height - imgHeight - bottomMargin;
 
         doc.addImage(
           bellCurveImage,
           "PNG",
           (pageWidth - imgWidth) / 2,
-          currentY,
+          yPosition,
           imgWidth,
           imgHeight
         );
