@@ -37,7 +37,7 @@ export async function updateTestStatistics(
 
   const { error } = await supabase
     .from('tests')
-    .update({ results: updatedResults })
+    .update({ results: updatedResults as Json })
     .eq('id', testId);
 
   if (error) {

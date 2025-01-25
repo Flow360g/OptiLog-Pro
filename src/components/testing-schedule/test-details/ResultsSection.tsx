@@ -4,6 +4,7 @@ import { TestResultsForm } from "./TestResultsForm";
 import { TestSignificanceResults } from "./TestSignificanceResults";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 interface ResultsSectionProps {
   test: Test;
@@ -25,7 +26,7 @@ export function ResultsSection({ test, results, onResultsChange }: ResultsSectio
 
       const { error } = await supabase
         .from('tests')
-        .update({ results: updatedResults })
+        .update({ results: updatedResults as Json })
         .eq('id', test.id);
 
       if (error) throw error;
