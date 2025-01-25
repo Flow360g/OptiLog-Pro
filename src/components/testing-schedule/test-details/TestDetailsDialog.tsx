@@ -50,7 +50,7 @@ export function TestDetailsDialog({
   const handleTestUpdate = async () => {
     console.log('Updating test with:', editedTest); // Debug log
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tests')
         .update({
           name: editedTest.name,
@@ -59,7 +59,8 @@ export function TestDetailsDialog({
           start_date: editedTest.start_date,
           end_date: editedTest.end_date
         })
-        .eq('id', test.id);
+        .eq('id', test.id)
+        .select();
 
       if (error) {
         console.error('Supabase error:', error); // Debug log
