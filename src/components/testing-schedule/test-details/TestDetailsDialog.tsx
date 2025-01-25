@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { PostgrestError } from "@supabase/supabase-js";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -45,27 +45,21 @@ export function TestDetailsDialog({
     hypothesis: test.hypothesis,
     kpi: test.kpi,
     start_date: test.start_date || '',
-    end_date: test.end_date || ''
+    end_date: test.end_date || '',
+    platform: test.platform,
+    status: test.status,
+    test_type_id: test.test_type_id
   });
 
   const handleTestUpdate = async () => {
-    console.log('Updating test with:', editedTest); // Debug log
+    console.log('Updating test with:', editedTest);
     try {
       const { error } = await supabase
         .from('tests')
-        .update({
-          name: editedTest.name,
-          hypothesis: editedTest.hypothesis,
-          kpi: editedTest.kpi,
-          start_date: editedTest.start_date,
-          end_date: editedTest.end_date
-        })
+        .update(editedTest)
         .eq('id', test.id);
 
-      if (error) {
-        console.error('Supabase error:', error); // Debug log
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Test updated",
@@ -150,6 +144,37 @@ export function TestDetailsDialog({
                 Download PDF
               </Button>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="platform">Platform</Label>
+            <Input
+              id="platform"
+              value={editedTest.platform}
+              onChange={(e) => setEditedTest(prev => ({ ...prev, platform: e.target.value }))}
+              onBlur={handleTestUpdate}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select 
+              value={editedTest.status}
+              onValueChange={(value) => {
+                setEditedTest(prev => ({ ...prev, status: value }));
+                handleTestUpdate();
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">Planning</SelectItem>
+                <SelectItem value="in_progress">Working on it</SelectItem>
+                <SelectItem value="completed">Live</SelectItem>
+                <SelectItem value="cancelled">Completed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
