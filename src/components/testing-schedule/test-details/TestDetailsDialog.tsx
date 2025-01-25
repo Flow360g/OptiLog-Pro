@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Test, TestResult } from "../types";
+import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
 import { TestSignificanceResults } from "./TestSignificanceResults";
@@ -48,8 +49,8 @@ export function TestDetailsDialog({
     kpi: test.kpi,
     start_date: test.start_date || '',
     end_date: test.end_date || '',
-    platform: test.platform as "facebook" | "google" | "tiktok",
-    status: test.status as "draft" | "in_progress" | "completed" | "cancelled" | "scheduled",
+    platform: test.platform,
+    status: test.status,
     test_type_id: test.test_type_id
   });
 
@@ -59,13 +60,21 @@ export function TestDetailsDialog({
         .from('tests')
         .update(editedTest)
         .eq('id', test.id)
-        .select()
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
         .single();
 
       if (error) throw error;
       
       if (data) {
-        onSave?.(data);
+        onSave?.(data as Test);
         toast({
           title: "Test updated",
           description: "Test details have been saved successfully.",
@@ -81,12 +90,6 @@ export function TestDetailsDialog({
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (!test.results) return;
-    const parsedResults = parseResults(test.results);
-    await generatePDF({ ...test, results: parsedResults });
-  };
-
   const handleResultsChange = async (newResults: TestResult) => {
     try {
       const { data, error } = await supabase
@@ -98,14 +101,22 @@ export function TestDetailsDialog({
           }
         })
         .eq('id', test.id)
-        .select()
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
         .single();
 
       if (error) throw error;
 
       if (data) {
         setResults(newResults);
-        onSave?.(data);
+        onSave?.(data as Test);
         
         toast({
           title: "Results updated",
