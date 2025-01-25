@@ -21,7 +21,7 @@ const generateGanttChart = async (
   doc: jsPDF,
   tests: Test[],
   startY: number = 50,
-  profile: { logo_path: string | null } | null
+  userId: string
 ): Promise<number> => {
   // Filter out tests without dates
   const tasksWithDates = tests.filter(
@@ -56,6 +56,13 @@ const generateGanttChart = async (
     (maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   const dayWidth = chartWidth / totalDays;
+
+  // Get user's profile for logo
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('logo_path')
+    .eq('id', userId)
+    .single();
 
   // Add logo if available
   if (profile?.logo_path) {
@@ -177,18 +184,18 @@ export const generateGanttPDF = async (tests: Test[], clientName: string) => {
     unit: "pt",
   });
 
-  // Get user's profile for logo
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('logo_path')
-    .single();
+  // Get current user's ID for profile lookup
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("No user found");
+  }
 
   // Add title
   doc.setFontSize(20);
   doc.text(`${clientName.toUpperCase()} - Testing Schedule`, 20, 30);
 
-  // Generate Gantt chart with profile data
-  await generateGanttChart(doc, tests, 80, profile);
+  // Generate Gantt chart with user ID
+  await generateGanttChart(doc, tests, 80, user.id);
 
   // Save the PDF
   doc.save(`${clientName}_testing_schedule.pdf`);
