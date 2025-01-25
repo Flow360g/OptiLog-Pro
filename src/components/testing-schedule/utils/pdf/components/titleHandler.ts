@@ -1,18 +1,15 @@
 import { jsPDF } from "jspdf";
 
-export const addTitle = (
+export const addTitleToDocument = (
   doc: jsPDF,
-  clientName: string,
-  titleY: number,
-  pageWidth: number
-): void => {
+  title: string,
+  testName: string,
+  pageWidth: number,
+  currentY: number
+): number => {
   doc.setFontSize(20);
-  doc.setFont("helvetica", "bold");
-  doc.text(
-    `${clientName.toUpperCase()} - Testing Schedule`,
-    pageWidth / 2,
-    titleY,
-    { align: "center" }
-  );
-  doc.setFont("helvetica", "normal");
+  doc.text(title, pageWidth / 2, currentY, { align: "center" });
+  doc.setFontSize(16);
+  doc.text(testName, pageWidth / 2, currentY + 15, { align: "center" });
+  return currentY + 30;
 };
