@@ -46,8 +46,8 @@ export function TestDetailsDialog({
     kpi: test.kpi,
     start_date: test.start_date || '',
     end_date: test.end_date || '',
-    platform: test.platform,
-    status: test.status,
+    platform: test.platform as "facebook" | "google" | "tiktok",
+    status: test.status as "draft" | "in_progress" | "completed" | "cancelled" | "scheduled",
     test_type_id: test.test_type_id
   });
 
@@ -57,7 +57,8 @@ export function TestDetailsDialog({
       const { error } = await supabase
         .from('tests')
         .update(editedTest)
-        .eq('id', test.id);
+        .eq('id', test.id)
+        .select();
 
       if (error) throw error;
 
@@ -148,19 +149,29 @@ export function TestDetailsDialog({
 
           <div className="space-y-2">
             <Label htmlFor="platform">Platform</Label>
-            <Input
-              id="platform"
+            <Select 
               value={editedTest.platform}
-              onChange={(e) => setEditedTest(prev => ({ ...prev, platform: e.target.value }))}
-              onBlur={handleTestUpdate}
-            />
+              onValueChange={(value: "facebook" | "google" | "tiktok") => {
+                setEditedTest(prev => ({ ...prev, platform: value }));
+                handleTestUpdate();
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="facebook">Facebook</SelectItem>
+                <SelectItem value="google">Google</SelectItem>
+                <SelectItem value="tiktok">TikTok</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select 
               value={editedTest.status}
-              onValueChange={(value) => {
+              onValueChange={(value: "draft" | "in_progress" | "completed" | "cancelled" | "scheduled") => {
                 setEditedTest(prev => ({ ...prev, status: value }));
                 handleTestUpdate();
               }}
@@ -173,6 +184,7 @@ export function TestDetailsDialog({
                 <SelectItem value="in_progress">Working on it</SelectItem>
                 <SelectItem value="completed">Live</SelectItem>
                 <SelectItem value="cancelled">Completed</SelectItem>
+                <SelectItem value="scheduled">Scheduled</SelectItem>
               </SelectContent>
             </Select>
           </div>
