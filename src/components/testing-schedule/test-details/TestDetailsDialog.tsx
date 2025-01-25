@@ -154,7 +154,7 @@ Experiment group: ${results.experiment}`;
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogTitle className="text-xl font-semibold">Test Details</DialogTitle>
+        <DialogTitle className="text-xl font-semibold mb-4">Test Details</DialogTitle>
         <div className="space-y-6 py-4">
           <div className="flex justify-between items-center">
             <div className="space-y-2 flex-1 mr-4">
@@ -164,7 +164,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.name}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, name: e.target.value }))}
                 onBlur={handleTestUpdate}
-                className="w-full bg-white"
+                className="w-full"
               />
             </div>
             {results && (
@@ -187,7 +187,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.hypothesis}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, hypothesis: e.target.value }))}
                 onBlur={handleTestUpdate}
-                className="min-h-[100px] bg-white"
+                className="min-h-[100px]"
               />
             </div>
 
@@ -198,7 +198,6 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.kpi}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, kpi: e.target.value }))}
                 onBlur={handleTestUpdate}
-                className="bg-white"
               />
             </div>
 
@@ -211,7 +210,6 @@ Experiment group: ${results.experiment}`;
                   value={editedTest.start_date}
                   onChange={(e) => setEditedTest(prev => ({ ...prev, start_date: e.target.value }))}
                   onBlur={handleTestUpdate}
-                  className="bg-white"
                 />
               </div>
               <div className="space-y-2">
@@ -222,7 +220,6 @@ Experiment group: ${results.experiment}`;
                   value={editedTest.end_date}
                   onChange={(e) => setEditedTest(prev => ({ ...prev, end_date: e.target.value }))}
                   onBlur={handleTestUpdate}
-                  className="bg-white"
                 />
               </div>
             </div>
@@ -269,7 +266,7 @@ Experiment group: ${results.experiment}`;
               onChange={(e) => setExecutiveSummary(e.target.value)}
               onBlur={() => updateExecutiveSummary(executiveSummary)}
               placeholder="Enter or generate an executive summary for this test..."
-              className="min-h-[100px] bg-white"
+              className="min-h-[100px]"
             />
           </div>
         </div>
