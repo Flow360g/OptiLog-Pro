@@ -25,6 +25,13 @@ const generateGanttChart = async (
     return startY + 20;
   }
 
+  // Get user's brand settings
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('secondary_color')
+    .eq('id', userId)
+    .single();
+
   // Convert tests to GanttTask format
   const tasks: GanttTask[] = tasksWithDates.map((test) => ({
     name: test.name,
@@ -57,7 +64,7 @@ const generateGanttChart = async (
   
   // Add combined title below logo with padding
   doc.setFontSize(20);
-  const titleY = logoEndY + 30; // Add 30 units of padding after logo
+  const titleY = logoEndY + 30;
   doc.text(
     `${clientName.toUpperCase()} - Testing Schedule`,
     pageWidth / 2,
@@ -66,18 +73,19 @@ const generateGanttChart = async (
   );
 
   // Center chart vertically
-  const chartHeight = tasks.length * dimensions.rowHeight + 100; // Include space for labels
-  const availableSpace = pageHeight - (titleY + 50); // Space after title
+  const chartHeight = tasks.length * dimensions.rowHeight + 100;
+  const availableSpace = pageHeight - (titleY + 50);
   const chartStartY = titleY + 50 + (availableSpace - chartHeight) / 2;
 
-  // Draw grid and labels
+  // Draw grid and labels with secondary color
   const { newStartY } = drawGridAndLabels(
     doc,
     chartStartY,
     minDate,
     maxDate,
     dimensions,
-    tasks.length
+    tasks.length,
+    profile?.secondary_color
   );
 
   // Render tasks

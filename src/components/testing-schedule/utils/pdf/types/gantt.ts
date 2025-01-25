@@ -19,9 +19,10 @@ export interface MonthPosition {
   x: number;
 }
 
+// Using more subtle, pastel colors for different test statuses
 export const CHART_COLORS = {
-  draft: "#94a3b8", // gray
-  in_progress: "#3b82f6", // blue
-  completed: "#22c55e", // green
-  cancelled: "#ef4444", // red
+  draft: "#E5DEFF", // soft purple
+  in_progress: "#D3E4FD", // soft blue
+  completed: "#F2FCE2", // soft green
+  cancelled: "#FFDEE2", // soft pink
 } as const;

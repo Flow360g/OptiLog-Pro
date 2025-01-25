@@ -8,23 +8,39 @@ export const drawGridAndLabels = (
   minDate: Date,
   maxDate: Date,
   dimensions: ChartDimensions,
-  tasksLength: number
+  tasksLength: number,
+  secondaryColor?: string | null
 ): { monthPositions: MonthPosition[]; newStartY: number } => {
   const monthPositions: MonthPosition[] = [];
   let currentDate = new Date(minDate);
+
+  // Add padding to chart
+  const horizontalPadding = 20;
+  const adjustedChartStartX = dimensions.chartStartX + horizontalPadding;
+  const adjustedChartWidth = dimensions.chartWidth - (horizontalPadding * 2);
 
   // First, let's draw the months - simple and clear
   doc.setFontSize(12);
   doc.setFont(undefined, 'bold');
   
   while (currentDate <= maxDate) {
-    const x = dimensions.chartStartX + 
+    const x = adjustedChartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
     // Only add month label at the start of each month
     if (currentDate.getDate() === 1 || currentDate.getTime() === minDate.getTime()) {
       const monthLabel = format(currentDate, "MMMM yyyy");
-      doc.text(monthLabel, x, startY - 25, { align: "left" });
+      
+      // Draw background for month label using secondary color or default
+      const bgColor = secondaryColor || "#f1f5f9"; // Default to a light slate color
+      doc.setFillColor(bgColor);
+      doc.rect(x, startY - 35, 
+        dimensions.dayWidth * 31, // Approximate month width
+        20, "F");
+      
+      // Draw month text
+      doc.setTextColor(0, 0, 0);
+      doc.text(monthLabel, x + 5, startY - 25);
       
       monthPositions.push({
         month: monthLabel,
@@ -45,12 +61,21 @@ export const drawGridAndLabels = (
   currentDate = new Date(minDate);
   let weekNumber = 1;
   
-  // Draw week numbers
+  // Draw week numbers with background
   while (currentDate <= maxDate) {
-    const x = dimensions.chartStartX + 
+    const x = adjustedChartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
-    doc.text(`W${weekNumber}`, x, startY - 10, { align: "center" });
+    // Draw week number background
+    const bgColor = secondaryColor || "#f1f5f9";
+    doc.setFillColor(bgColor);
+    doc.rect(x, startY - 15, 
+      dimensions.dayWidth * 7, // Week width
+      12, "F");
+    
+    // Draw week number text
+    doc.setTextColor(0, 0, 0);
+    doc.text(`W${weekNumber}`, x + 5, startY - 10);
     
     weekNumber = weekNumber % 4 + 1;
     currentDate.setDate(currentDate.getDate() + 7);
@@ -59,7 +84,7 @@ export const drawGridAndLabels = (
   // Draw vertical grid lines
   currentDate = new Date(minDate);
   while (currentDate <= maxDate) {
-    const x = dimensions.chartStartX +
+    const x = adjustedChartStartX +
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
     const isMonthStart = currentDate.getDate() === 1;
@@ -75,7 +100,7 @@ export const drawGridAndLabels = (
   doc.setLineWidth(0.2);
   for (let i = 0; i <= tasksLength; i++) {
     const y = startY + i * dimensions.rowHeight;
-    doc.line(dimensions.chartStartX, y, dimensions.chartStartX + dimensions.chartWidth, y);
+    doc.line(adjustedChartStartX, y, adjustedChartStartX + adjustedChartWidth, y);
   }
 
   return { monthPositions, newStartY: startY };
