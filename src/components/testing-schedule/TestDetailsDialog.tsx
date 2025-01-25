@@ -45,6 +45,28 @@ export function TestDetailsDialog({
   useEffect(() => {
     console.log('Subscribing to real-time updates for test:', test.id);
     
+    const fetchCompleteTest = async (testId: string) => {
+      const { data, error } = await supabase
+        .from('tests')
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
+        .eq('id', testId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching complete test data:', error);
+        return null;
+      }
+      return data;
+    };
+    
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -55,12 +77,14 @@ export function TestDetailsDialog({
           table: 'tests',
           filter: `id=eq.${test.id}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('Received real-time update for test:', payload);
-          const updatedTest = payload.new as Test;
-          setLocalTest(updatedTest);
-          setResults(parseResults(updatedTest.results));
-          setExecutiveSummary(updatedTest.executive_summary || '');
+          const completeTest = await fetchCompleteTest(payload.new.id);
+          if (completeTest) {
+            setLocalTest(completeTest as Test);
+            setResults(parseResults(completeTest.results));
+            setExecutiveSummary(completeTest.executive_summary || '');
+          }
         }
       )
       .subscribe();
