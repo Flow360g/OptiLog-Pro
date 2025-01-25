@@ -17,10 +17,10 @@ export function ResultsSection({ test, results, onResultsChange }: ResultsSectio
   const handleResultsChange = async (newResults: TestResult) => {
     try {
       // Merge the new results with any existing statistical data
-      const updatedResults = {
+      const updatedResults: TestResult = {
         control: newResults.control,
         experiment: newResults.experiment,
-        statistical_data: results.statistical_data || {}
+        statistical_data: results.statistical_data
       };
 
       const { error } = await supabase

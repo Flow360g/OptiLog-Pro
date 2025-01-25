@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { StatisticalGroupData } from "../../../types";
+import { StatisticalGroupData, TestResult } from "../../../types";
 import { Json } from "@/integrations/supabase/types";
 
 const convertToJson = (data: StatisticalGroupData): Json => {
@@ -27,11 +27,11 @@ export async function updateTestStatistics(
   }
 
   // Merge the statistical data with existing results
-  const updatedResults = {
-    ...(currentTest?.results || {}),
+  const updatedResults: TestResult = {
+    ...(currentTest?.results as TestResult || { control: "0", experiment: "0" }),
     statistical_data: {
-      control: convertToJson(controlData),
-      experiment: convertToJson(experimentData)
+      control: convertToJson(controlData) as { conversions: string; impressions: string },
+      experiment: convertToJson(experimentData) as { conversions: string; impressions: string }
     }
   };
 

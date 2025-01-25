@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { StatisticalGroupData } from "../../types";
+import { StatisticalGroupData, TestResult } from "../../types";
 import { isStatisticalData } from "./utils/typeGuards";
 import { updateTestStatistics } from "./utils/dataOperations";
 
@@ -30,7 +30,8 @@ export function useStatisticalData(testId: string) {
         }
 
         if (test?.results && typeof test.results === 'object') {
-          const statisticalData = test.results.statistical_data;
+          const results = test.results as TestResult;
+          const statisticalData = results.statistical_data;
           if (statisticalData && isStatisticalData(statisticalData)) {
             setControlData(statisticalData.control);
             setExperimentData(statisticalData.experiment);

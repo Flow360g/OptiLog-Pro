@@ -1,5 +1,5 @@
 export interface TestResult {
-  [key: string]: string | StatisticalData;
+  [key: string]: string | StatisticalData | undefined;
   control: string;
   experiment: string;
   statistical_data?: StatisticalData;
