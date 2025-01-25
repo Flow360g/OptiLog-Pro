@@ -40,23 +40,50 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
           table: 'tests',
           filter: `client=eq.${client}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('Received real-time update:', payload);
 
+          // Fetch the complete test data including relations when we receive an update
+          const fetchCompleteTest = async (testId: string) => {
+            const { data, error } = await supabase
+              .from('tests')
+              .select(`
+                *,
+                test_types (
+                  name,
+                  test_categories (
+                    name
+                  )
+                )
+              `)
+              .eq('id', testId)
+              .single();
+
+            if (error) {
+              console.error('Error fetching complete test data:', error);
+              return null;
+            }
+            return data;
+          };
+
           if (payload.eventType === 'UPDATE') {
-            const updatedTest = payload.new as Test;
-            setTests(prevTests => 
-              prevTests.map(test => 
-                test.id === updatedTest.id ? updatedTest : test
-              )
-            );
-            // Also update the selected test if it's the one being viewed
-            if (selectedTest?.id === updatedTest.id) {
-              setSelectedTest(updatedTest);
+            const completeTest = await fetchCompleteTest(payload.new.id);
+            if (completeTest) {
+              setTests(prevTests => 
+                prevTests.map(test => 
+                  test.id === completeTest.id ? completeTest : test
+                )
+              );
+              // Also update the selected test if it's the one being viewed
+              if (selectedTest?.id === completeTest.id) {
+                setSelectedTest(completeTest);
+              }
             }
           } else if (payload.eventType === 'INSERT') {
-            const newTest = payload.new as Test;
-            setTests(prevTests => [...prevTests, newTest]);
+            const completeTest = await fetchCompleteTest(payload.new.id);
+            if (completeTest) {
+              setTests(prevTests => [...prevTests, completeTest]);
+            }
           } else if (payload.eventType === 'DELETE') {
             const deletedTest = payload.old as Test;
             setTests(prevTests => 
