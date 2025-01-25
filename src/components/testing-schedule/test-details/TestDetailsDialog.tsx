@@ -4,12 +4,16 @@ import { TestInformation } from "./TestInformation";
 import { TestResultsForm } from "./TestResultsForm";
 import { TestResultsChart } from "./TestResultsChart";
 import { TestSignificanceResults } from "./TestSignificanceResults";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import { generatePDF } from "../utils/pdfGenerator";
 import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { DialogHeader } from "./DialogHeader";
-import { ExecutiveSummarySection } from "./ExecutiveSummarySection";
+import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -36,26 +40,93 @@ export function TestDetailsDialog({
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
-  const parsedResults = parseResults(test.results);
+  const [results, setResults] = useState<TestResult>(parseResults(test.results));
+  const [editedTest, setEditedTest] = useState({
+    name: test.name,
+    hypothesis: test.hypothesis,
+    kpi: test.kpi,
+    start_date: test.start_date || '',
+    end_date: test.end_date || ''
+  });
 
   const handleDownloadPDF = async () => {
     if (!test.results) return;
-    await generatePDF({ ...test, results: parseResults(test.results) });
+    const parsedResults = parseResults(test.results);
+    await generatePDF({ ...test, results: parsedResults });
+  };
+
+  const handleResultsChange = async (newResults: TestResult) => {
+    try {
+      const { error } = await supabase
+        .from('tests')
+        .update({ 
+          results: {
+            control: newResults.control,
+            experiment: newResults.experiment
+          }
+        })
+        .eq('id', test.id);
+
+      if (error) throw error;
+
+      setResults(newResults);
+      
+      toast({
+        title: "Results updated",
+        description: "Test results have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating results:', error);
+      toast({
+        title: "Error updating results",
+        description: "There was a problem saving the test results.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTestUpdate = async () => {
+    try {
+      const { error } = await supabase
+        .from('tests')
+        .update({
+          name: editedTest.name,
+          hypothesis: editedTest.hypothesis,
+          kpi: editedTest.kpi,
+          start_date: editedTest.start_date,
+          end_date: editedTest.end_date
+        })
+        .eq('id', test.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Test updated",
+        description: "Test details have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating test:', error);
+      toast({
+        title: "Error updating test",
+        description: "There was a problem saving the test details.",
+        variant: "destructive",
+      });
+    }
   };
 
   const generateExecutiveSummary = () => {
-    if (!parsedResults) return;
+    if (!results) return;
     
-    const control = parseFloat(parsedResults.control);
-    const experiment = parseFloat(parsedResults.experiment);
+    const control = parseFloat(results.control);
+    const experiment = parseFloat(results.experiment);
     const percentageChange = ((experiment - control) / control) * 100;
     const improvement = percentageChange > 0;
     
     const summary = `Test Results Summary:
-The ${test.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${test.kpi}.
+The ${editedTest.name} test ${improvement ? 'showed positive results' : 'did not show improvement'} for ${editedTest.kpi}.
 The experiment group ${improvement ? 'outperformed' : 'underperformed compared to'} the control group by ${Math.abs(percentageChange).toFixed(2)}%.
-Control group: ${parsedResults.control}
-Experiment group: ${parsedResults.experiment}`;
+Control group: ${results.control}
+Experiment group: ${results.experiment}`;
 
     setExecutiveSummary(summary);
     updateExecutiveSummary(summary);
@@ -81,48 +152,121 @@ Experiment group: ${parsedResults.experiment}`;
     }
   };
 
-  const defaultResults = {
-    control: "0",
-    experiment: "0"
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="space-y-6 py-4">
-          <DialogHeader test={test} onDownloadPDF={handleDownloadPDF} />
+          <div className="flex justify-between items-center">
+            <div className="space-y-2 flex-1 mr-4">
+              <Label htmlFor="test-name">Test Name</Label>
+              <Input
+                id="test-name"
+                value={editedTest.name}
+                onChange={(e) => setEditedTest(prev => ({ ...prev, name: e.target.value }))}
+                onBlur={handleTestUpdate}
+              />
+            </div>
+            {results && (
+              <Button
+                onClick={handleDownloadPDF}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download PDF
+              </Button>
+            )}
+          </div>
 
-          <TestInformation test={test} />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="hypothesis">Hypothesis</Label>
+              <Textarea
+                id="hypothesis"
+                value={editedTest.hypothesis}
+                onChange={(e) => setEditedTest(prev => ({ ...prev, hypothesis: e.target.value }))}
+                onBlur={handleTestUpdate}
+              />
+            </div>
 
-          <TestResultsChart results={parsedResults || defaultResults} kpi={test.kpi} />
+            <div className="space-y-2">
+              <Label htmlFor="kpi">KPI</Label>
+              <Input
+                id="kpi"
+                value={editedTest.kpi}
+                onChange={(e) => setEditedTest(prev => ({ ...prev, kpi: e.target.value }))}
+                onBlur={handleTestUpdate}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="start-date">Start Date</Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={editedTest.start_date}
+                  onChange={(e) => setEditedTest(prev => ({ ...prev, start_date: e.target.value }))}
+                  onBlur={handleTestUpdate}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="end-date">End Date</Label>
+                <Input
+                  id="end-date"
+                  type="date"
+                  value={editedTest.end_date}
+                  onChange={(e) => setEditedTest(prev => ({ ...prev, end_date: e.target.value }))}
+                  onBlur={handleTestUpdate}
+                />
+              </div>
+            </div>
+          </div>
+
+          <TestResultsChart results={results} kpi={editedTest.kpi} />
           
           <TestResultsForm 
-            results={parsedResults || defaultResults} 
-            kpi={test.kpi} 
-            onChange={() => {}}
+            results={results}
+            kpi={editedTest.kpi} 
+            onChange={handleResultsChange}
           />
 
-          {parsedResults && (
+          {results && (
             <TestSignificanceResults
-              controlRate={parseFloat(parsedResults.control)}
-              experimentRate={parseFloat(parsedResults.experiment)}
+              controlRate={parseFloat(results.control)}
+              experimentRate={parseFloat(results.experiment)}
               testId={test.id}
             />
           )}
           
-          {!parsedResults && (
+          {!results && (
             <div className="text-center text-sm text-gray-500 mt-2">
               No results have been recorded yet
             </div>
           )}
 
-          <ExecutiveSummarySection
-            executiveSummary={executiveSummary}
-            onSummaryChange={setExecutiveSummary}
-            onSummaryBlur={() => updateExecutiveSummary(executiveSummary)}
-            onGenerateSummary={generateExecutiveSummary}
-            hasResults={!!parsedResults}
-          />
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="executive-summary">Executive Summary</Label>
+              {results && (
+                <Button
+                  onClick={generateExecutiveSummary}
+                  variant="outline"
+                  size="sm"
+                >
+                  Generate Summary
+                </Button>
+              )}
+            </div>
+            <Textarea
+              id="executive-summary"
+              value={executiveSummary}
+              onChange={(e) => setExecutiveSummary(e.target.value)}
+              onBlur={() => updateExecutiveSummary(executiveSummary)}
+              placeholder="Enter or generate an executive summary for this test..."
+              className="min-h-[100px]"
+            />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
