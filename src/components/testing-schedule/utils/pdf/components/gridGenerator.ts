@@ -36,7 +36,11 @@ export const drawGridAndLabels = (
     const monthWidth = nextMonth 
       ? nextMonth.x - month.x 
       : dimensions.chartWidth - (month.x - dimensions.chartStartX);
+    
+    // Draw month name with more emphasis
+    doc.setFont(undefined, 'bold');
     doc.text(month.month, month.x + monthWidth / 2, startY - 40, { align: "center" });
+    doc.setFont(undefined, 'normal');
   });
 
   // Reset current date for week numbers

@@ -54,11 +54,11 @@ const generateGanttChart = async (
   // Add logo and get new Y position
   const logoEndY = await addLogoToDocument(doc, userId);
   
-  // Add title below logo with padding
+  // Add combined title below logo with padding
   doc.setFontSize(20);
   const titleY = logoEndY + 30; // Add 30 units of padding after logo
   doc.text(
-    `Testing Schedule`,
+    `${clientName.toUpperCase()} - Testing Schedule`,
     pageWidth / 2,
     titleY,
     { align: "center" }
@@ -93,15 +93,6 @@ export const generateGanttPDF = async (tests: Test[], clientName: string) => {
   if (!user) {
     throw new Error("No user found");
   }
-
-  // Add centered title below logo
-  doc.setFontSize(16);
-  doc.text(
-    clientName.toUpperCase(),
-    doc.internal.pageSize.width / 2,
-    30,
-    { align: "center" }
-  );
 
   // Generate Gantt chart with user ID
   await generateGanttChart(doc, tests, 80, user.id);
