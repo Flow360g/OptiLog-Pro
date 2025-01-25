@@ -37,7 +37,6 @@ export const drawGridAndLabels = (
 
   // Draw months
   doc.setFontSize(12);
-  doc.setFont(undefined, 'bold');
   
   let currentX = dimensions.chartStartX;
   months.forEach(month => {
@@ -52,7 +51,8 @@ export const drawGridAndLabels = (
     doc.setLineWidth(0.5);
     doc.rect(currentX, startY - 45, monthWidth, 30);
     
-    // Draw month text - ensure bold font is set for each month
+    // Set consistent month label formatting
+    doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.setTextColor(0, 0, 0);
     doc.text(format(month.start, "MMMM yyyy"), currentX + 10, startY - 25);
@@ -74,7 +74,7 @@ export const drawGridAndLabels = (
       doc.setLineWidth(0.5);
       doc.rect(weekX, startY - 15, weekWidth, 15);
       
-      // Draw week number with reduced font size (75% of original 10px = 7.5px)
+      // Draw week number with reduced font size
       doc.setFont(undefined, 'normal');
       doc.setFontSize(7.5);
       doc.setTextColor(0, 0, 0);
