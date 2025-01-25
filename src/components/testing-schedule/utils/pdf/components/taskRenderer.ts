@@ -10,11 +10,13 @@ export const renderTasks = (
 ): number => {
   tasks.forEach((task, index) => {
     const y = startY + index * dimensions.rowHeight;
+    const barHeight = dimensions.rowHeight * 0.7; // Increased height but leaving some spacing
+    const barY = y + (dimensions.rowHeight - barHeight) / 2; // Center the bar vertically
 
     // Draw task name
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(task.name.substring(0, 30) + (task.name.length > 30 ? "..." : ""), 20, y + 5);
+    doc.text(task.name.substring(0, 30) + (task.name.length > 30 ? "..." : ""), 20, y + dimensions.rowHeight / 2);
 
     // Draw task bar
     const taskStartX =
@@ -25,7 +27,7 @@ export const renderTasks = (
       dimensions.dayWidth;
 
     doc.setFillColor(CHART_COLORS[task.status as keyof typeof CHART_COLORS]);
-    doc.rect(taskStartX, y, taskWidth, dimensions.rowHeight - 5, "F");
+    doc.rect(taskStartX, barY, taskWidth, barHeight, "F");
   });
 
   return startY + tasks.length * dimensions.rowHeight + 20;
