@@ -69,6 +69,7 @@ const generateGanttChart = async (
   
   // Add combined title below logo with padding
   doc.setFontSize(20);
+  doc.setFont("helvetica", "bold"); // Set font to bold for the title
   const titleY = logoEndY + 30;
   doc.text(
     `${clientName.toUpperCase()} - Testing Schedule`,
@@ -76,6 +77,7 @@ const generateGanttChart = async (
     titleY,
     { align: "center" }
   );
+  doc.setFont("helvetica", "normal"); // Reset font back to normal for the rest of the document
 
   // Center chart vertically
   const chartHeight = tasks.length * dimensions.rowHeight + 100;
