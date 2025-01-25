@@ -26,7 +26,7 @@ export interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  results: TestResult | null;
+  results: TestResult | null | string;  // Updated to handle string type from JSON
   status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
   test_types: {
     name: string;
