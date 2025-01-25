@@ -1,3 +1,5 @@
+import { Json } from '@supabase/supabase-js';
+
 export interface TestResult {
   [key: string]: string | StatisticalData;
   control: string;
@@ -26,8 +28,8 @@ export interface Test {
   end_date: string | null;
   effort_level: number | null;
   impact_level: number | null;
-  results: TestResult | null | Json;  // Updated to handle Json type from Supabase
-  status: 'draft' | 'in_progress' | 'completed' | 'cancelled';
+  results: TestResult | null | Json;
+  status: 'draft' | 'in_progress' | 'completed' | 'cancelled' | 'scheduled';
   test_types: {
     name: string;
     test_categories: {
