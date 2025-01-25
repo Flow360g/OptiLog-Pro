@@ -13,8 +13,9 @@ export const renderTasks = (
     const barHeight = dimensions.rowHeight * 0.8;
     const barY = y + (dimensions.rowHeight - barHeight) / 2;
 
-    // Draw task name aligned to the right of the text area
+    // Draw task name aligned to the right of the text area - removed bold font
     doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
     doc.setTextColor(0, 0, 0);
     doc.text(
       task.name.substring(0, 30) + (task.name.length > 30 ? "..." : ""),

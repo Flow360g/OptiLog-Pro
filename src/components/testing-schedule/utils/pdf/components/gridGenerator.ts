@@ -74,7 +74,8 @@ export const drawGridAndLabels = (
       doc.setLineWidth(0.5);
       doc.rect(weekX, startY - 15, weekWidth, 15);
       
-      // Draw week number
+      // Draw week number - removed bold font
+      doc.setFont(undefined, 'normal');
       doc.setTextColor(0, 0, 0);
       doc.text(`W${week}`, weekX + 5, startY - 5);
       
