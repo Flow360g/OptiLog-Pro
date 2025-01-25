@@ -14,12 +14,15 @@ export const drawGridAndLabels = (
   const monthPositions: MonthPosition[] = [];
   let currentDate = new Date(minDate);
 
-  // Calculate total days for width adjustment
+  // Calculate total days and weeks for width adjustment
   const totalDays = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-  const exactChartWidth = Math.min(
-    totalDays * dimensions.dayWidth,
-    dimensions.chartWidth
-  );
+  const totalWeeks = Math.ceil(totalDays / 7);
+  
+  // Calculate week width to ensure it fits within the chart
+  const weekWidth = dimensions.chartWidth / totalWeeks;
+  dimensions.dayWidth = weekWidth / 7; // Update dayWidth to maintain proportions
+  
+  const exactChartWidth = totalWeeks * weekWidth;
 
   // First, let's draw the months - simple and clear
   doc.setFontSize(12);
@@ -33,7 +36,7 @@ export const drawGridAndLabels = (
     if (currentDate.getDate() === 1 || currentDate.getTime() === minDate.getTime()) {
       const monthLabel = format(currentDate, "MMMM yyyy");
       
-      // Calculate width for this month (number of days * dayWidth)
+      // Calculate width for this month
       const daysInMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
@@ -44,7 +47,7 @@ export const drawGridAndLabels = (
         exactChartWidth - (x - dimensions.chartStartX)
       );
       
-      // Draw background for month label using secondary color or default
+      // Draw background for month label
       const bgColor = secondaryColor || "#f1f5f9";
       doc.setFillColor(bgColor);
       doc.rect(x, startY - 45, monthWidth, 30, "F");
@@ -77,16 +80,10 @@ export const drawGridAndLabels = (
   currentDate = new Date(minDate);
   let weekNumber = 1;
   
-  // Draw week numbers with background and borders
+  // Draw week numbers with consistent width
   while (currentDate <= maxDate) {
     const x = dimensions.chartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
-    
-    // Calculate week width (7 days * dayWidth)
-    const weekWidth = Math.min(
-      7 * dimensions.dayWidth,
-      exactChartWidth - (x - dimensions.chartStartX)
-    );
     
     // Draw week number background
     const bgColor = secondaryColor || "#f1f5f9";
@@ -100,13 +97,15 @@ export const drawGridAndLabels = (
     
     // Draw week number text with padding
     doc.setTextColor(0, 0, 0);
-    doc.text(`W${weekNumber}`, x + 10, startY - 5);
+    doc.text(`W${weekNumber}`, x + 5, startY - 5);
     
     weekNumber = weekNumber % 4 + 1;
+    
+    // Move to next week
     currentDate.setDate(currentDate.getDate() + 7);
   }
 
-  // Draw vertical grid lines
+  // Draw vertical grid lines for weeks
   currentDate = new Date(minDate);
   while (currentDate <= maxDate) {
     const x = dimensions.chartStartX +
