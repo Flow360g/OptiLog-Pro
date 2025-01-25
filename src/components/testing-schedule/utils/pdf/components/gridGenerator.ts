@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { endOfMonth, startOfMonth, differenceInDays } from "date-fns";
+import { endOfMonth, startOfMonth, differenceInDays, format } from "date-fns";
 import { ChartDimensions, MonthPosition } from "../types/gantt";
 import { renderMonth } from "./monthRenderer";
 import { renderWeek } from "./weekRenderer";
