@@ -35,9 +35,8 @@ const generateGanttChart = async (
   const { newY } = await addLogoToDocument(doc, null, supabase, doc.internal.pageSize.width, startY);
   
   // Add title
-  const titleY = newY + 30;
   const pageWidth = doc.internal.pageSize.width;
-  const newTitleY = addTitle(doc, clientName, titleY, pageWidth, "Testing Schedule");
+  const newTitleY = addTitle(doc, clientName, newY + 30, pageWidth, "Testing Schedule");
 
   // Calculate chart dimensions
   const { dimensions, chartStartY } = calculateChartDimensions(doc, tasks, newTitleY);
