@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import { Test } from "../../types";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GanttTask {
   name: string;
@@ -19,7 +20,8 @@ const CHART_COLORS = {
 const generateGanttChart = async (
   doc: jsPDF,
   tests: Test[],
-  startY: number = 50
+  startY: number = 50,
+  profile: { logo_path: string | null } | null
 ): Promise<number> => {
   // Filter out tests without dates
   const tasksWithDates = tests.filter(
@@ -48,28 +50,80 @@ const generateGanttChart = async (
 
   // Chart dimensions
   const chartStartX = 150; // Space for task names
-  const chartWidth = doc.internal.pageSize.width - chartStartX - 20;
+  const chartWidth = doc.internal.pageSize.width - chartStartX - 40; // Added more padding
   const rowHeight = 20;
   const totalDays = Math.ceil(
     (maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24)
   );
   const dayWidth = chartWidth / totalDays;
 
+  // Add logo if available
+  if (profile?.logo_path) {
+    try {
+      const { data } = supabase.storage
+        .from('logos')
+        .getPublicUrl(profile.logo_path);
+      
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = data.publicUrl;
+      });
+
+      const imgWidth = 80;
+      const imgHeight = (img.height * imgWidth) / img.width;
+      doc.addImage(
+        img,
+        'PNG',
+        (doc.internal.pageSize.width - imgWidth) / 2,
+        10,
+        imgWidth,
+        imgHeight
+      );
+      startY += imgHeight + 20;
+    } catch (error) {
+      console.error('Error adding logo to PDF:', error);
+    }
+  }
+
   // Draw header
   doc.setFontSize(10);
   doc.setTextColor(100, 100, 100);
 
-  // Draw month labels
+  // Draw month and week labels
   let currentDate = new Date(minDate);
+  let weekNumber = 1;
+  const monthPositions: { month: string; x: number }[] = [];
+
   while (currentDate <= maxDate) {
-    const x =
-      chartStartX +
-      (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dayWidth;
-    doc.text(format(currentDate, "MMM yyyy"), x, startY);
-    currentDate.setMonth(currentDate.getMonth() + 1);
+    const x = chartStartX + (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dayWidth;
+    
+    // Store month position for drawing later
+    if (currentDate.getDate() === 1 || currentDate === minDate) {
+      monthPositions.push({
+        month: format(currentDate, "MMMM"),
+        x
+      });
+    }
+
+    // Draw week numbers
+    doc.setFontSize(8);
+    doc.text(`W${weekNumber}`, x, startY - 5, { align: "center" });
+    
+    weekNumber = weekNumber % 4 + 1;
+    currentDate.setDate(currentDate.getDate() + 7);
   }
 
-  startY += 20;
+  // Draw month labels above week numbers
+  doc.setFontSize(10);
+  monthPositions.forEach((month, index) => {
+    const nextMonth = monthPositions[index + 1];
+    const monthWidth = nextMonth ? nextMonth.x - month.x : chartWidth - (month.x - chartStartX);
+    doc.text(month.month, month.x + monthWidth / 2, startY - 15, { align: "center" });
+  });
+
+  startY += 10;
 
   // Draw tasks
   tasks.forEach((task, index) => {
@@ -92,16 +146,27 @@ const generateGanttChart = async (
     doc.rect(taskStartX, y, taskWidth, rowHeight - 5, "F");
   });
 
-  // Draw vertical grid lines for months
+  // Draw vertical grid lines for weeks and months
   doc.setDrawColor(200, 200, 200);
   currentDate = new Date(minDate);
   while (currentDate <= maxDate) {
     const x =
       chartStartX +
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dayWidth;
-    doc.line(x, startY - 15, x, startY + tasks.length * rowHeight);
-    currentDate.setMonth(currentDate.getMonth() + 1);
+    
+    // Darker lines for months, lighter for weeks
+    doc.setDrawColor(currentDate.getDate() === 1 ? 150 : 220, currentDate.getDate() === 1 ? 150 : 220, currentDate.getDate() === 1 ? 150 : 220);
+    doc.line(x, startY - 5, x, startY + tasks.length * rowHeight);
+    
+    currentDate.setDate(currentDate.getDate() + 7);
   }
+
+  // Draw horizontal grid lines
+  doc.setDrawColor(220, 220, 220);
+  tasks.forEach((_, index) => {
+    const y = startY + index * rowHeight;
+    doc.line(chartStartX, y, chartStartX + chartWidth, y);
+  });
 
   return startY + tasks.length * rowHeight + 20;
 };
@@ -112,12 +177,18 @@ export const generateGanttPDF = async (tests: Test[], clientName: string) => {
     unit: "pt",
   });
 
+  // Get user's profile for logo
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('logo_path')
+    .single();
+
   // Add title
   doc.setFontSize(20);
   doc.text(`${clientName.toUpperCase()} - Testing Schedule`, 20, 30);
 
-  // Generate Gantt chart
-  await generateGanttChart(doc, tests, 50);
+  // Generate Gantt chart with profile data
+  await generateGanttChart(doc, tests, 80, profile);
 
   // Save the PDF
   doc.save(`${clientName}_testing_schedule.pdf`);
