@@ -1,6 +1,9 @@
 import { jsPDF } from "jspdf";
-import { format, endOfMonth, startOfMonth, differenceInDays } from "date-fns";
+import { endOfMonth, startOfMonth, differenceInDays } from "date-fns";
 import { ChartDimensions, MonthPosition } from "../types/gantt";
+import { renderMonth } from "./monthRenderer";
+import { renderWeek } from "./weekRenderer";
+import { drawGridBorders } from "./gridBorders";
 
 export const drawGridAndLabels = (
   doc: jsPDF,
@@ -12,8 +15,7 @@ export const drawGridAndLabels = (
   secondaryColor?: string | null
 ): { monthPositions: MonthPosition[]; newStartY: number } => {
   const monthPositions: MonthPosition[] = [];
-  let currentDate = new Date(minDate);
-
+  
   // Calculate month boundaries
   const months: { start: Date; end: Date; weeks: number }[] = [];
   let tempDate = new Date(minDate);
@@ -33,79 +35,40 @@ export const drawGridAndLabels = (
   // Calculate total weeks for width adjustment
   const totalWeeks = months.reduce((acc, month) => acc + month.weeks, 0);
   const weekWidth = dimensions.chartWidth / totalWeeks;
-  dimensions.dayWidth = weekWidth / 7; // Update dayWidth to maintain proportions
+  dimensions.dayWidth = weekWidth / 7;
 
-  // Draw months
-  doc.setFontSize(12);
-  
   let currentX = dimensions.chartStartX;
   months.forEach(month => {
     const monthWidth = month.weeks * weekWidth;
     
-    // Draw month background and border
-    const bgColor = secondaryColor || "#f1f5f9";
-    doc.setFillColor(bgColor);
-    doc.rect(currentX, startY - 45, monthWidth, 30, "F");
-    
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.rect(currentX, startY - 45, monthWidth, 30);
-    
-    // Set consistent month label formatting
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.setTextColor(0, 0, 0);
-    doc.text(format(month.start, "MMMM yyyy"), currentX + 10, startY - 25);
+    // Render month section
+    renderMonth(doc, month, currentX, startY, monthWidth, secondaryColor);
     
     monthPositions.push({
       month: format(month.start, "MMMM yyyy"),
       x: currentX
     });
 
-    // Draw weeks for this month
+    // Render weeks for this month
     let weekX = currentX;
     for (let week = 1; week <= month.weeks; week++) {
-      // Draw week background
-      doc.setFillColor(bgColor);
-      doc.rect(weekX, startY - 15, weekWidth, 15, "F");
-      
-      // Draw week border
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
-      doc.rect(weekX, startY - 15, weekWidth, 15);
-      
-      // Draw week number with reduced font size
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(7.5);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`W${week}`, weekX + 5, startY - 5);
-      
-      // Draw vertical grid line
-      doc.setDrawColor(220);
-      doc.setLineWidth(0.2);
-      doc.line(weekX, startY, weekX, startY + tasksLength * dimensions.rowHeight);
-      
+      renderWeek(
+        doc,
+        weekX,
+        startY,
+        weekWidth,
+        week,
+        tasksLength,
+        secondaryColor || "#f1f5f9"
+      );
       weekX += weekWidth;
     }
     
     currentX += monthWidth;
   });
 
-  // Draw right border of the chart
-  doc.setDrawColor(0);
-  doc.setLineWidth(0.5);
-  doc.line(currentX, startY - 45, currentX, startY + tasksLength * dimensions.rowHeight);
-
-  // Draw left border of the chart
-  doc.line(dimensions.chartStartX, startY - 45, dimensions.chartStartX, startY + tasksLength * dimensions.rowHeight);
-
-  // Draw horizontal grid lines
-  for (let i = 0; i <= tasksLength; i++) {
-    const y = startY + i * dimensions.rowHeight;
-    doc.setDrawColor(i === tasksLength ? 0 : 220);
-    doc.setLineWidth(i === tasksLength ? 0.5 : 0.2);
-    doc.line(dimensions.chartStartX, y, currentX, y);
-  }
+  // Draw grid borders
+  drawGridBorders(doc, dimensions, startY, currentX, tasksLength);
 
   return { monthPositions, newStartY: startY };
 };
