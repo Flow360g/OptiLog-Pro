@@ -21,6 +21,39 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
     setTests(initialTests);
   }, [initialTests]);
 
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tests'
+        },
+        (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            const updatedTest = payload.new as Test;
+            setTests(prevTests => 
+              prevTests.map(test => 
+                test.id === updatedTest.id ? updatedTest : test
+              )
+            );
+            // Also update the selected test if it's the one being viewed
+            if (selectedTest?.id === updatedTest.id) {
+              setSelectedTest(updatedTest);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedTest]);
+
   const calculatePriority = (impact: number, effort: number) => {
     return impact + (6 - effort);
   };
@@ -40,13 +73,6 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
         .eq('id', testId);
 
       if (error) throw error;
-
-      // Update local state immediately
-      setTests(prevTests => 
-        prevTests.map(test => 
-          test.id === testId ? { ...test, status: newStatus } : test
-        )
-      );
 
       toast({
         title: "Status updated",
