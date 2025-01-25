@@ -1,19 +1,25 @@
-import { SupabaseClient } from "@supabase/supabase-js";
 import { jsPDF } from "jspdf";
+import { supabase } from "@/integrations/supabase/client";
 
 export const addLogoToDocument = async (
   doc: jsPDF,
-  logoPath: string | null,
-  supabase: SupabaseClient,
-  pageWidth: number,
-  currentY: number
-): Promise<{ newY: number; error?: string }> => {
-  if (!logoPath) return { newY: currentY };
+  userId: string,
+  startY: number = 10
+): Promise<number> => {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('logo_path')
+    .eq('id', userId)
+    .single();
+
+  if (!profile?.logo_path) {
+    return startY;
+  }
 
   try {
     const { data } = supabase.storage
       .from('logos')
-      .getPublicUrl(logoPath);
+      .getPublicUrl(profile.logo_path);
     
     const img = new Image();
     await new Promise((resolve, reject) => {
@@ -22,20 +28,19 @@ export const addLogoToDocument = async (
       img.src = data.publicUrl;
     });
 
-    const imgWidth = 80;
+    const imgWidth = 200; // 250% bigger than original 80px
     const imgHeight = (img.height * imgWidth) / img.width;
     doc.addImage(
       img,
       'PNG',
-      (pageWidth - imgWidth) / 2,
-      currentY,
+      (doc.internal.pageSize.width - imgWidth) / 2,
+      startY,
       imgWidth,
       imgHeight
     );
-
-    return { newY: imgHeight + 40 };
+    return imgHeight + 40; // Return new Y position with spacing
   } catch (error) {
     console.error('Error adding logo to PDF:', error);
-    return { newY: 45, error: 'Failed to add logo' };
+    return startY;
   }
 };

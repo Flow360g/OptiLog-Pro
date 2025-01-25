@@ -32,14 +32,14 @@ const generateGanttChart = async (
   }
 
   // Add logo and get new Y position
-  const { newY } = await addLogoToDocument(doc, null, supabase, doc.internal.pageSize.width, startY);
+  const logoEndY = await addLogoToDocument(doc, userId);
   
   // Add title
-  const pageWidth = doc.internal.pageSize.width;
-  const newTitleY = addTitle(doc, clientName, newY + 30, pageWidth, "Testing Schedule");
+  const titleY = logoEndY + 30;
+  addTitle(doc, clientName, titleY, doc.internal.pageSize.width);
 
   // Calculate chart dimensions
-  const { dimensions, chartStartY } = calculateChartDimensions(doc, tasks, newTitleY);
+  const { dimensions, chartStartY } = calculateChartDimensions(doc, tasks, titleY);
   
   // Update dayWidth based on date range
   dimensions.dayWidth = dimensions.chartWidth / 
