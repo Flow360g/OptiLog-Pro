@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { DialogTitle } from "@/components/ui/dialog";
 
 interface TestDetailsDialogProps {
   test: Test;
@@ -153,6 +154,7 @@ Experiment group: ${results.experiment}`;
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogTitle className="text-xl font-semibold">Test Details</DialogTitle>
         <div className="space-y-6 py-4">
           <div className="flex justify-between items-center">
             <div className="space-y-2 flex-1 mr-4">
@@ -162,6 +164,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.name}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, name: e.target.value }))}
                 onBlur={handleTestUpdate}
+                className="w-full"
               />
             </div>
             {results && (
@@ -184,6 +187,7 @@ Experiment group: ${results.experiment}`;
                 value={editedTest.hypothesis}
                 onChange={(e) => setEditedTest(prev => ({ ...prev, hypothesis: e.target.value }))}
                 onBlur={handleTestUpdate}
+                className="min-h-[100px]"
               />
             </div>
 
