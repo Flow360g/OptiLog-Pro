@@ -52,13 +52,13 @@ export const drawGridAndLabels = (
     doc.setLineWidth(0.5);
     doc.rect(currentX, startY - 45, monthWidth, 30);
     
-    // Draw month text
-    const monthLabel = format(month.start, "MMMM yyyy");
+    // Draw month text - ensure bold font is set for each month
+    doc.setFont(undefined, 'bold');
     doc.setTextColor(0, 0, 0);
-    doc.text(monthLabel, currentX + 10, startY - 25);
+    doc.text(format(month.start, "MMMM yyyy"), currentX + 10, startY - 25);
     
     monthPositions.push({
-      month: monthLabel,
+      month: format(month.start, "MMMM yyyy"),
       x: currentX
     });
 
@@ -74,8 +74,9 @@ export const drawGridAndLabels = (
       doc.setLineWidth(0.5);
       doc.rect(weekX, startY - 15, weekWidth, 15);
       
-      // Draw week number - removed bold font
+      // Draw week number with reduced font size (75% of original 10px = 7.5px)
       doc.setFont(undefined, 'normal');
+      doc.setFontSize(7.5);
       doc.setTextColor(0, 0, 0);
       doc.text(`W${week}`, weekX + 5, startY - 5);
       
