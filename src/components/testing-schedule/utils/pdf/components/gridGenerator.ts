@@ -12,52 +12,45 @@ export const drawGridAndLabels = (
 ): { monthPositions: MonthPosition[]; newStartY: number } => {
   const monthPositions: MonthPosition[] = [];
   let currentDate = new Date(minDate);
-  let weekNumber = 1;
 
-  // First pass: collect month positions
+  // First, let's draw the months - simple and clear
+  doc.setFontSize(12);
+  doc.setFont(undefined, 'bold');
+  
   while (currentDate <= maxDate) {
     const x = dimensions.chartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
-    if (currentDate.getDate() === 1 || currentDate === minDate) {
+    // Only add month label at the start of each month
+    if (currentDate.getDate() === 1 || currentDate.getTime() === minDate.getTime()) {
+      const monthLabel = format(currentDate, "MMMM yyyy");
+      doc.text(monthLabel, x, startY - 25, { align: "left" });
+      
       monthPositions.push({
-        month: format(currentDate, "MMMM yyyy"),
+        month: monthLabel,
         x
       });
     }
     
-    currentDate.setDate(currentDate.getDate() + 7);
+    // Move to next day
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(currentDate.getDate() + 1);
+    currentDate = nextDate;
   }
-
-  // Draw month labels with more emphasis and proper spacing
-  doc.setFontSize(12);
-  doc.setFont(undefined, 'bold');
-  monthPositions.forEach((month, index) => {
-    const nextMonth = monthPositions[index + 1];
-    const monthWidth = nextMonth 
-      ? nextMonth.x - month.x 
-      : dimensions.chartWidth - (month.x - dimensions.chartStartX);
-    
-    // Draw month name centered above its section
-    doc.text(
-      month.month,
-      month.x + monthWidth / 2,
-      startY - 40,
-      { align: "center" }
-    );
-  });
-  doc.setFont(undefined, 'normal');
-
-  // Reset current date for week numbers
-  currentDate = new Date(minDate);
   
-  // Draw week numbers with proper spacing below months
+  doc.setFont(undefined, 'normal');
   doc.setFontSize(10);
+
+  // Reset for week numbers
+  currentDate = new Date(minDate);
+  let weekNumber = 1;
+  
+  // Draw week numbers
   while (currentDate <= maxDate) {
     const x = dimensions.chartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
-    doc.text(`W${weekNumber}`, x, startY - 20, { align: "center" });
+    doc.text(`W${weekNumber}`, x, startY - 10, { align: "center" });
     
     weekNumber = weekNumber % 4 + 1;
     currentDate.setDate(currentDate.getDate() + 7);
@@ -69,7 +62,6 @@ export const drawGridAndLabels = (
     const x = dimensions.chartStartX +
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
-    // Make month dividers darker than week dividers
     const isMonthStart = currentDate.getDate() === 1;
     doc.setDrawColor(isMonthStart ? 100 : 220);
     doc.setLineWidth(isMonthStart ? 0.5 : 0.2);
