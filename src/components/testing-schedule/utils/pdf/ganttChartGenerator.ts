@@ -64,7 +64,7 @@ const generateGanttChart = async (
     .eq('id', userId)
     .single();
 
-  // Add logo if available
+  // Add logo if available with increased size (250% bigger)
   if (profile?.logo_path) {
     try {
       const { data } = supabase.storage
@@ -78,7 +78,7 @@ const generateGanttChart = async (
         img.src = data.publicUrl;
       });
 
-      const imgWidth = 80;
+      const imgWidth = 200; // Increased from 80 to 200 (250% bigger)
       const imgHeight = (img.height * imgWidth) / img.width;
       doc.addImage(
         img,
@@ -88,7 +88,7 @@ const generateGanttChart = async (
         imgWidth,
         imgHeight
       );
-      startY += imgHeight + 20;
+      startY = imgHeight + 40; // Increased spacing after logo
     } catch (error) {
       console.error('Error adding logo to PDF:', error);
     }
@@ -122,12 +122,12 @@ const generateGanttChart = async (
     currentDate.setDate(currentDate.getDate() + 7);
   }
 
-  // Draw month labels above week numbers
+  // Draw month labels above week numbers with increased spacing
   doc.setFontSize(10);
   monthPositions.forEach((month, index) => {
     const nextMonth = monthPositions[index + 1];
     const monthWidth = nextMonth ? nextMonth.x - month.x : chartWidth - (month.x - chartStartX);
-    doc.text(month.month, month.x + monthWidth / 2, startY - 15, { align: "center" });
+    doc.text(month.month, month.x + monthWidth / 2, startY - 25, { align: "center" });
   });
 
   startY += 10;
@@ -190,9 +190,9 @@ export const generateGanttPDF = async (tests: Test[], clientName: string) => {
     throw new Error("No user found");
   }
 
-  // Add title
+  // Add centered title below logo
   doc.setFontSize(20);
-  doc.text(`${clientName.toUpperCase()} - Testing Schedule`, 20, 30);
+  doc.text(`${clientName.toUpperCase()} - Testing Schedule`, doc.internal.pageSize.width / 2, 30, { align: "center" });
 
   // Generate Gantt chart with user ID
   await generateGanttChart(doc, tests, 80, user.id);
