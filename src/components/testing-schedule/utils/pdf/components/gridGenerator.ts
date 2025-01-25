@@ -14,34 +14,45 @@ export const drawGridAndLabels = (
   let currentDate = new Date(minDate);
   let weekNumber = 1;
 
-  // Draw week numbers and collect month positions
+  // First pass: collect month positions
   while (currentDate <= maxDate) {
     const x = dimensions.chartStartX + 
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
     if (currentDate.getDate() === 1 || currentDate === minDate) {
       monthPositions.push({
-        month: format(currentDate, "MMMM"),
+        month: format(currentDate, "MMMM yyyy"),
         x
       });
     }
-
-    doc.setFontSize(8);
-    doc.text(`W${weekNumber}`, x, startY - 5, { align: "center" });
     
-    weekNumber = weekNumber % 4 + 1;
     currentDate.setDate(currentDate.getDate() + 7);
   }
 
-  // Draw month labels
-  doc.setFontSize(10);
+  // Draw month labels first (40px above week numbers)
+  doc.setFontSize(12);
   monthPositions.forEach((month, index) => {
     const nextMonth = monthPositions[index + 1];
     const monthWidth = nextMonth 
       ? nextMonth.x - month.x 
       : dimensions.chartWidth - (month.x - dimensions.chartStartX);
-    doc.text(month.month, month.x + monthWidth / 2, startY - 25, { align: "center" });
+    doc.text(month.month, month.x + monthWidth / 2, startY - 40, { align: "center" });
   });
+
+  // Reset current date for week numbers
+  currentDate = new Date(minDate);
+  
+  // Draw week numbers
+  doc.setFontSize(10);
+  while (currentDate <= maxDate) {
+    const x = dimensions.chartStartX + 
+      (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
+    
+    doc.text(`W${weekNumber}`, x, startY - 20, { align: "center" });
+    
+    weekNumber = weekNumber % 4 + 1;
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
 
   // Draw grid lines
   currentDate = new Date(minDate);
@@ -50,17 +61,17 @@ export const drawGridAndLabels = (
       (currentDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24) * dimensions.dayWidth;
     
     doc.setDrawColor(currentDate.getDate() === 1 ? 150 : 220);
-    doc.line(x, startY - 5, x, startY + tasksLength * dimensions.rowHeight);
+    doc.line(x, startY, x, startY + tasksLength * dimensions.rowHeight);
     
     currentDate.setDate(currentDate.getDate() + 7);
   }
 
   // Draw horizontal grid lines
   doc.setDrawColor(220, 220, 220);
-  for (let i = 0; i < tasksLength; i++) {
+  for (let i = 0; i <= tasksLength; i++) {
     const y = startY + i * dimensions.rowHeight;
     doc.line(dimensions.chartStartX, y, dimensions.chartStartX + dimensions.chartWidth, y);
   }
 
-  return { monthPositions, newStartY: startY + 10 };
+  return { monthPositions, newStartY: startY };
 };

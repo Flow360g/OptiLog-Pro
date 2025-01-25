@@ -37,22 +37,42 @@ const generateGanttChart = async (
   const minDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
   const maxDate = new Date(Math.max(...allDates.map((d) => d.getTime())));
 
-  // Chart dimensions
+  // Chart dimensions - centered on page
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
+  const chartWidth = pageWidth - 190; // Reduced width for better centering
+  const chartStartX = (pageWidth - chartWidth) / 2 + 70; // Adjusted for labels
+
   const dimensions: ChartDimensions = {
-    chartStartX: 150,
-    chartWidth: doc.internal.pageSize.width - 150 - 40,
+    chartStartX,
+    chartWidth,
     rowHeight: 20,
-    dayWidth: (doc.internal.pageSize.width - 150 - 40) / 
+    dayWidth: chartWidth / 
       Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
   };
 
   // Add logo and get new Y position
-  startY = await addLogoToDocument(doc, userId);
+  const logoEndY = await addLogoToDocument(doc, userId);
+  
+  // Add title below logo with padding
+  doc.setFontSize(20);
+  const titleY = logoEndY + 30; // Add 30 units of padding after logo
+  doc.text(
+    `Testing Schedule`,
+    pageWidth / 2,
+    titleY,
+    { align: "center" }
+  );
+
+  // Center chart vertically
+  const chartHeight = tasks.length * dimensions.rowHeight + 100; // Include space for labels
+  const availableSpace = pageHeight - (titleY + 50); // Space after title
+  const chartStartY = titleY + 50 + (availableSpace - chartHeight) / 2;
 
   // Draw grid and labels
   const { newStartY } = drawGridAndLabels(
     doc,
-    startY,
+    chartStartY,
     minDate,
     maxDate,
     dimensions,
@@ -75,9 +95,9 @@ export const generateGanttPDF = async (tests: Test[], clientName: string) => {
   }
 
   // Add centered title below logo
-  doc.setFontSize(20);
+  doc.setFontSize(16);
   doc.text(
-    `${clientName.toUpperCase()} - Testing Schedule`,
+    clientName.toUpperCase(),
     doc.internal.pageSize.width / 2,
     30,
     { align: "center" }
