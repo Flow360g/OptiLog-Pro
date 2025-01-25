@@ -145,6 +145,42 @@ Experiment group: ${results.experiment}`;
     }
   };
 
+  const handleTestUpdate = async (updatedFields: Partial<Test>) => {
+    try {
+      const { data, error } = await supabase
+        .from('tests')
+        .update(updatedFields)
+        .eq('id', test.id)
+        .select(`
+          *,
+          test_types (
+            name,
+            test_categories (
+              name
+            )
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        onSave?.(data as Test);
+        toast({
+          title: "Test updated",
+          description: "Test details have been saved successfully.",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating test:', error);
+      toast({
+        title: "Error updating test",
+        description: "There was a problem saving the test details.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -163,7 +199,7 @@ Experiment group: ${results.experiment}`;
             )}
           </div>
 
-          <TestInformation test={test} onSave={onSave} />
+          <TestInformation test={test} onSave={handleTestUpdate} />
 
           <TestResultsChart results={results} kpi={test.kpi} />
           
