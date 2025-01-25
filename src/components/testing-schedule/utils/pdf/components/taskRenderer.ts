@@ -10,13 +10,18 @@ export const renderTasks = (
 ): number => {
   tasks.forEach((task, index) => {
     const y = startY + index * dimensions.rowHeight;
-    const barHeight = dimensions.rowHeight * 0.8; // Increased height to 80% of row height
+    const barHeight = dimensions.rowHeight * 0.8; // Keep height at 80% of row height
     const barY = y + (dimensions.rowHeight - barHeight) / 2; // Center the bar vertically
 
-    // Draw task name
+    // Draw task name aligned to the right of the text area
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(task.name.substring(0, 30) + (task.name.length > 30 ? "..." : ""), 20, y + dimensions.rowHeight / 2);
+    doc.text(
+      task.name.substring(0, 30) + (task.name.length > 30 ? "..." : ""),
+      dimensions.chartStartX - 10,
+      y + dimensions.rowHeight / 2,
+      { align: 'right' }
+    );
 
     // Draw task bar
     const taskStartX =

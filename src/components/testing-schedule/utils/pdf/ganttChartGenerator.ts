@@ -45,16 +45,21 @@ const generateGanttChart = async (
   const minDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
   const maxDate = new Date(Math.max(...allDates.map((d) => d.getTime())));
 
-  // Chart dimensions - centered on page with increased row height
+  // Calculate the longest task name to determine left padding
+  const maxTaskNameLength = Math.max(...tasks.map(task => task.name.length));
+  const taskNameWidth = maxTaskNameLength * 5; // Approximate width per character
+  const leftPadding = taskNameWidth + 30; // Add some extra padding
+
+  // Chart dimensions - centered on page
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
-  const chartWidth = pageWidth - 240; // Further reduced width to ensure it fits on page
-  const chartStartX = 70; // Fixed starting position for chart
+  const chartWidth = pageWidth - leftPadding - 50; // Account for left text and right padding
+  const chartStartX = leftPadding; // Start chart after task names
 
   const dimensions: ChartDimensions = {
     chartStartX,
     chartWidth,
-    rowHeight: 40, // Further increased row height
+    rowHeight: 40, // Keep increased row height
     dayWidth: chartWidth / 
       Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
   };
