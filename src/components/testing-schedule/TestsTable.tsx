@@ -23,6 +23,13 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
 
   // Subscribe to real-time updates
   useEffect(() => {
+    if (!tests.length) return; // Only subscribe if we have tests
+
+    // Get the client from the first test since all tests in a view are for the same client
+    const client = tests[0].client;
+
+    console.log('Subscribing to real-time updates for client:', client);
+
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -30,9 +37,12 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
         {
           event: '*',
           schema: 'public',
-          table: 'tests'
+          table: 'tests',
+          filter: `client=eq.${client}`
         },
         (payload) => {
+          console.log('Received real-time update:', payload);
+
           if (payload.eventType === 'UPDATE') {
             const updatedTest = payload.new as Test;
             setTests(prevTests => 
@@ -44,15 +54,27 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
             if (selectedTest?.id === updatedTest.id) {
               setSelectedTest(updatedTest);
             }
+          } else if (payload.eventType === 'INSERT') {
+            const newTest = payload.new as Test;
+            setTests(prevTests => [...prevTests, newTest]);
+          } else if (payload.eventType === 'DELETE') {
+            const deletedTest = payload.old as Test;
+            setTests(prevTests => 
+              prevTests.filter(test => test.id !== deletedTest.id)
+            );
+            if (selectedTest?.id === deletedTest.id) {
+              setSelectedTest(null);
+            }
           }
         }
       )
       .subscribe();
 
     return () => {
+      console.log('Unsubscribing from real-time updates');
       supabase.removeChannel(channel);
     };
-  }, [selectedTest]);
+  }, [tests, selectedTest]);
 
   const calculatePriority = (impact: number, effort: number) => {
     return impact + (6 - effort);
@@ -88,15 +110,6 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
     }
   };
 
-  const handleTestUpdate = (updatedTest: Test) => {
-    setTests(prevTests =>
-      prevTests.map(test =>
-        test.id === updatedTest.id ? updatedTest : test
-      )
-    );
-    setSelectedTest(updatedTest);
-  };
-
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
@@ -125,7 +138,6 @@ export function TestsTable({ tests: initialTests }: TestsTableProps) {
           test={selectedTest}
           isOpen={!!selectedTest}
           onClose={() => setSelectedTest(null)}
-          onSave={handleTestUpdate}
         />
       )}
     </>

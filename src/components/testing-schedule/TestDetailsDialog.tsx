@@ -7,7 +7,7 @@ import { TestSignificanceResults } from "./test-details/TestSignificanceResults"
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { generatePDF } from "./utils/pdfGenerator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +17,6 @@ interface TestDetailsDialogProps {
   test: Test;
   isOpen: boolean;
   onClose: () => void;
-  onSave?: (updatedTest: Test) => void;
 }
 
 const parseResults = (results: Test['results']): TestResult => {
@@ -36,12 +35,41 @@ export function TestDetailsDialog({
   test,
   isOpen,
   onClose,
-  onSave
 }: TestDetailsDialogProps) {
   const { toast } = useToast();
   const [executiveSummary, setExecutiveSummary] = useState(test.executive_summary || '');
   const [results, setResults] = useState<TestResult>(parseResults(test.results));
   const [localTest, setLocalTest] = useState<Test>(test);
+
+  // Subscribe to real-time updates for this specific test
+  useEffect(() => {
+    console.log('Subscribing to real-time updates for test:', test.id);
+    
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'tests',
+          filter: `id=eq.${test.id}`
+        },
+        (payload) => {
+          console.log('Received real-time update for test:', payload);
+          const updatedTest = payload.new as Test;
+          setLocalTest(updatedTest);
+          setResults(parseResults(updatedTest.results));
+          setExecutiveSummary(updatedTest.executive_summary || '');
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Unsubscribing from real-time updates for test:', test.id);
+      supabase.removeChannel(channel);
+    };
+  }, [test.id]);
 
   const handleDownloadPDF = async () => {
     if (!localTest.results) return;
@@ -51,7 +79,7 @@ export function TestDetailsDialog({
 
   const handleResultsChange = async (newResults: TestResult) => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('tests')
         .update({ 
           results: {
@@ -59,30 +87,14 @@ export function TestDetailsDialog({
             experiment: newResults.experiment
           }
         })
-        .eq('id', test.id)
-        .select(`
-          *,
-          test_types (
-            name,
-            test_categories (
-              name
-            )
-          )
-        `)
-        .single();
+        .eq('id', test.id);
 
       if (error) throw error;
 
-      if (data) {
-        setResults(newResults);
-        setLocalTest(prev => ({ ...prev, results: newResults }));
-        onSave?.(data as Test);
-        
-        toast({
-          title: "Results updated",
-          description: "Test results have been saved successfully.",
-        });
-      }
+      toast({
+        title: "Results updated",
+        description: "Test results have been saved successfully.",
+      });
     } catch (error) {
       console.error('Error updating results:', error);
       toast({
@@ -94,7 +106,6 @@ export function TestDetailsDialog({
   };
 
   const handleTestUpdate = async (updatedFields: Partial<Test>) => {
-    // Ensure platform is one of the allowed values
     if (updatedFields.platform && !['facebook', 'google', 'tiktok'].includes(updatedFields.platform)) {
       toast({
         title: "Invalid platform",
@@ -105,35 +116,20 @@ export function TestDetailsDialog({
     }
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('tests')
         .update({
           ...updatedFields,
           platform: updatedFields.platform as TestPlatform
         })
-        .eq('id', test.id)
-        .select(`
-          *,
-          test_types (
-            name,
-            test_categories (
-              name
-            )
-          )
-        `)
-        .single();
+        .eq('id', test.id);
 
       if (error) throw error;
 
-      if (data) {
-        const updatedTest = data as Test;
-        setLocalTest(updatedTest);
-        onSave?.(updatedTest);
-        toast({
-          title: "Test updated",
-          description: "Test details have been saved successfully.",
-        });
-      }
+      toast({
+        title: "Test updated",
+        description: "Test details have been saved successfully.",
+      });
     } catch (error) {
       console.error('Error updating test:', error);
       toast({
@@ -164,32 +160,17 @@ Experiment group: ${results.experiment}`;
 
   const updateExecutiveSummary = async (summary: string) => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('tests')
         .update({ executive_summary: summary })
-        .eq('id', test.id)
-        .select(`
-          *,
-          test_types (
-            name,
-            test_categories (
-              name
-            )
-          )
-        `)
-        .single();
+        .eq('id', test.id);
 
       if (error) throw error;
 
-      if (data) {
-        const updatedTest = data as Test;
-        setLocalTest(updatedTest);
-        onSave?.(updatedTest);
-        toast({
-          title: "Executive summary updated",
-          description: "The executive summary has been saved successfully.",
-        });
-      }
+      toast({
+        title: "Executive summary updated",
+        description: "The executive summary has been saved successfully.",
+      });
     } catch (error) {
       console.error('Error updating executive summary:', error);
       toast({
