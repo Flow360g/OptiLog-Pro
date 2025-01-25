@@ -84,7 +84,7 @@ export function TestDetailsDialog({
 
   const handleResultsChange = async (newResults: TestResult) => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tests')
         .update({ 
           results: {
@@ -92,7 +92,9 @@ export function TestDetailsDialog({
             experiment: newResults.experiment
           }
         })
-        .eq('id', test.id);
+        .eq('id', test.id)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -263,12 +265,22 @@ export function TestDetailsDialog({
               id="executive-summary"
               value={executiveSummary}
               onChange={(e) => setExecutiveSummary(e.target.value)}
-              onBlur={() => {
-                const { error } = supabase
+              onBlur={async () => {
+                const { data, error } = await supabase
                   .from('tests')
                   .update({ executive_summary: executiveSummary })
-                  .eq('id', test.id);
-                if (error) console.error('Error updating executive summary:', error);
+                  .eq('id', test.id)
+                  .select()
+                  .single();
+                
+                if (error) {
+                  console.error('Error updating executive summary:', error);
+                  toast({
+                    title: "Error updating executive summary",
+                    description: error.message,
+                    variant: "destructive",
+                  });
+                }
               }}
               placeholder="Enter or generate an executive summary for this test..."
               className="min-h-[100px]"
