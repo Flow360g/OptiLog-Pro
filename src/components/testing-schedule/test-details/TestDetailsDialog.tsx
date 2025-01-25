@@ -52,13 +52,13 @@ export function TestDetailsDialog({
   });
 
   const handleTestUpdate = async () => {
-    console.log('Updating test with:', editedTest);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tests')
         .update(editedTest)
         .eq('id', test.id)
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
 
