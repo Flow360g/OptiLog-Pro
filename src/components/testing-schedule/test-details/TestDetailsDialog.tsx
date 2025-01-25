@@ -47,6 +47,35 @@ export function TestDetailsDialog({
     end_date: test.end_date || ''
   });
 
+  const handleTestUpdate = async () => {
+    try {
+      const { error } = await supabase
+        .from('tests')
+        .update({
+          name: editedTest.name,
+          hypothesis: editedTest.hypothesis,
+          kpi: editedTest.kpi,
+          start_date: editedTest.start_date,
+          end_date: editedTest.end_date
+        })
+        .eq('id', test.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Test updated",
+        description: "Test details have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating test:', error);
+      toast({
+        title: "Error updating test",
+        description: "There was a problem saving the test details.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDownloadPDF = async () => {
     if (!test.results) return;
     const parsedResults = parseResults(test.results);
@@ -78,35 +107,6 @@ export function TestDetailsDialog({
       toast({
         title: "Error updating results",
         description: "There was a problem saving the test results.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTestUpdate = async () => {
-    try {
-      const { error } = await supabase
-        .from('tests')
-        .update({
-          name: editedTest.name,
-          hypothesis: editedTest.hypothesis,
-          kpi: editedTest.kpi,
-          start_date: editedTest.start_date,
-          end_date: editedTest.end_date
-        })
-        .eq('id', test.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Test updated",
-        description: "Test details have been saved successfully.",
-      });
-    } catch (error) {
-      console.error('Error updating test:', error);
-      toast({
-        title: "Error updating test",
-        description: "There was a problem saving the test details.",
         variant: "destructive",
       });
     }
