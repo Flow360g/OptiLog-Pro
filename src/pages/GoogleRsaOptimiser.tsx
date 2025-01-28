@@ -21,7 +21,6 @@ const GoogleRsaOptimiser = () => {
   const [keywordsFile, setKeywordsFile] = useState<File | null>(null);
   const [adsFile, setAdsFile] = useState<File | null>(null);
   const [additionalInstructions, setAdditionalInstructions] = useState("");
-  const [optimizationPrompt, setOptimizationPrompt] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -75,8 +74,7 @@ const GoogleRsaOptimiser = () => {
           keywords_file_path: keywordsPath,
           ads_file_path: adsPath,
           status: 'processing',
-          additional_instructions: additionalInstructions || null,
-          optimization_prompt: optimizationPrompt || null
+          additional_instructions: additionalInstructions || null
         })
         .select()
         .single();
@@ -191,45 +189,21 @@ const GoogleRsaOptimiser = () => {
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Label htmlFor="prompt">Optimization Prompt</Label>
+                <Label htmlFor="instructions">Additional Instructions (Optional)</Label>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <HelpCircle className="h-4 w-4 text-gray-500" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Provide specific instructions for how you want your ad copy to be optimized</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <Textarea
-                id="prompt"
-                placeholder="E.g., Focus on emotional triggers, use more action words, emphasize benefits over features..."
-                value={optimizationPrompt}
-                onChange={(e) => setOptimizationPrompt(e.target.value)}
-                className="min-h-[100px]"
-                disabled={isUploading || isProcessing}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="instructions">Additional Instructions</Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-gray-500" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Provide additional context to help guide the style of your new ad copy</p>
+                      <p>Add any specific instructions or context that might help improve the results</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <Textarea
                 id="instructions"
-                placeholder="Enter any specific instructions or context for generating your ad variants..."
+                placeholder="Enter any specific instructions or context that might help improve the results..."
                 value={additionalInstructions}
                 onChange={(e) => setAdditionalInstructions(e.target.value)}
                 className="min-h-[100px]"
