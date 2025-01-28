@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
 
     // Create CSV content from AI response
     const csvContent = aiResponse.choices[0].message.content;
-    const fileName = `optimization_${optimizationId}.csv`;
+    const fileName = `${optimizationId}.csv`;
 
     console.log('Uploading file:', fileName);
 
