@@ -44,8 +44,6 @@ Review the current ad copy along with the keywords for this ad group.
 - Highlight relevant emotional and rational benefits to entice clicks.
 - Include clear calls-to-action (CTA) as appropriate.
 
-Now, analyze these files and generate the 15 headlines and 4 descriptions:
-
 Keywords file content:
 {keywordsText}
 
@@ -62,6 +60,7 @@ serve(async (req) => {
 
   try {
     const { optimizationId } = await req.json()
+    console.log('Processing optimization ID:', optimizationId)
 
     // Initialize Supabase client
     const supabaseAdmin = createClient(
@@ -124,12 +123,19 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      console.error('Deepseek API error:', await response.text())
-      throw new Error('Error calling Deepseek API')
+      const errorText = await response.text()
+      console.error('Deepseek API error response:', errorText)
+      throw new Error(`Deepseek API error: ${response.status} ${response.statusText}`)
     }
 
     const aiResponse = await response.json()
-    const results = JSON.parse(aiResponse.choices[0].message.content)
+    console.log('Deepseek API response:', aiResponse)
+
+    if (!aiResponse.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from Deepseek API')
+    }
+
+    const results = aiResponse.choices[0].message.content
 
     // Update the optimization record with results
     const { error: updateError } = await supabaseAdmin
