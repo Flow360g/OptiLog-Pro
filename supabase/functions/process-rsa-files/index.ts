@@ -59,6 +59,16 @@ serve(async (req) => {
   }
 
   try {
+    // Validate Deepseek API key
+    const apiKey = Deno.env.get('DEEPSEEK_API_KEY')
+    if (!apiKey) {
+      console.error('Deepseek API key is not configured')
+      return new Response(
+        JSON.stringify({ error: 'Deepseek API key is not configured' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
     const { optimizationId } = await req.json()
     console.log('Processing optimization ID:', optimizationId)
 
@@ -110,7 +120,7 @@ serve(async (req) => {
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('DEEPSEEK_API_KEY')}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -125,7 +135,10 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text()
       console.error('Deepseek API error response:', errorText)
-      throw new Error(`Deepseek API error: ${response.status} ${response.statusText}`)
+      return new Response(
+        JSON.stringify({ error: `Deepseek API error: ${response.status} ${response.statusText}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
+      )
     }
 
     const aiResponse = await response.json()
