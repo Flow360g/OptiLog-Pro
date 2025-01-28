@@ -159,6 +159,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rsa_optimizations: {
+        Row: {
+          ads_file_path: string | null
+          created_at: string | null
+          id: string
+          keywords_file_path: string | null
+          output_file_path: string | null
+          results: Json | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ads_file_path?: string | null
+          created_at?: string | null
+          id?: string
+          keywords_file_path?: string | null
+          output_file_path?: string | null
+          results?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ads_file_path?: string | null
+          created_at?: string | null
+          id?: string
+          keywords_file_path?: string | null
+          output_file_path?: string | null
+          results?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       test_categories: {
         Row: {
           created_at: string
