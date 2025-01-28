@@ -86,7 +86,8 @@ serve(async (req) => {
       .replace('{adsText}', adsText)
       .replace('{additionalInstructions}', optimization.additional_instructions || '')
 
-    console.log('Sending request to Deepseek API')
+    console.log('Preparing to call Deepseek API')
+    console.log('API Key length:', apiKey.length, 'First 4 chars:', apiKey.substring(0, 4))
 
     // Call Deepseek API with proper error handling and logging
     try {
@@ -111,7 +112,11 @@ serve(async (req) => {
         console.error('Deepseek API error response:', {
           status: response.status,
           statusText: response.statusText,
-          errorText
+          errorText,
+          requestHeaders: {
+            'Authorization': 'Bearer [REDACTED]',
+            'Content-Type': 'application/json',
+          }
         })
         throw new Error(`Deepseek API error: ${response.status} ${response.statusText}\n${errorText}`)
       }
