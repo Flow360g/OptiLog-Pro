@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
     console.log('Uploading file:', fileName);
 
     // Upload the file to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('rsa-files')
       .upload(fileName, new Blob([csvContent], { type: 'text/csv' }), {
         contentType: 'text/csv',
