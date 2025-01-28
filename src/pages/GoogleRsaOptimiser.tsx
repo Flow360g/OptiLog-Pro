@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -21,6 +21,7 @@ const GoogleRsaOptimiser = () => {
   const [adsFile, setAdsFile] = useState<File | null>(null);
   const [additionalInstructions, setAdditionalInstructions] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   const session = useSession();
   const navigate = useNavigate();
@@ -63,36 +64,49 @@ const GoogleRsaOptimiser = () => {
       if (adsError) throw adsError;
 
       // Create optimization record
-      const { error: dbError } = await supabase
+      const { data: optimization, error: dbError } = await supabase
         .from('rsa_optimizations')
         .insert({
           user_id: session.user.id,
           keywords_file_path: keywordsPath,
           ads_file_path: adsPath,
-          status: 'pending',
+          status: 'processing',
           additional_instructions: additionalInstructions || null
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) throw dbError;
 
+      // Start processing the files
+      setIsProcessing(true);
+      const { error: processError } = await supabase.functions
+        .invoke('process-rsa-files', {
+          body: { optimizationId: optimization.id }
+        });
+
+      if (processError) throw processError;
+
       toast({
-        title: "Files uploaded successfully",
-        description: "Your files are being processed. We'll notify you when the results are ready.",
+        title: "Optimization completed",
+        description: "Your files have been processed successfully.",
       });
 
       // Reset form
       setKeywordsFile(null);
       setAdsFile(null);
       setAdditionalInstructions("");
+      
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Upload/processing error:', error);
       toast({
-        title: "Upload failed",
-        description: "There was an error uploading your files. Please try again.",
+        title: "Error",
+        description: "There was an error processing your files. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsUploading(false);
+      setIsProcessing(false);
     }
   };
 
@@ -114,6 +128,7 @@ const GoogleRsaOptimiser = () => {
                 accept=".csv"
                 onChange={(e) => setKeywordsFile(e.target.files?.[0] || null)}
                 className="cursor-pointer"
+                disabled={isUploading || isProcessing}
               />
               <p className="text-sm text-gray-500">
                 Upload a CSV file containing your keywords
@@ -128,6 +143,7 @@ const GoogleRsaOptimiser = () => {
                 accept=".csv"
                 onChange={(e) => setAdsFile(e.target.files?.[0] || null)}
                 className="cursor-pointer"
+                disabled={isUploading || isProcessing}
               />
               <p className="text-sm text-gray-500">
                 Upload a CSV file containing your current ads
@@ -154,15 +170,28 @@ const GoogleRsaOptimiser = () => {
                 value={additionalInstructions}
                 onChange={(e) => setAdditionalInstructions(e.target.value)}
                 className="min-h-[100px]"
+                disabled={isUploading || isProcessing}
               />
             </div>
 
             <Button 
               type="submit" 
               className="w-full"
-              disabled={isUploading || !keywordsFile || !adsFile}
+              disabled={isUploading || isProcessing || !keywordsFile || !adsFile}
             >
-              {isUploading ? "Uploading..." : "Upload Files"}
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Upload & Process Files"
+              )}
             </Button>
           </form>
         </div>
