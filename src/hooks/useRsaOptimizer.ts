@@ -62,9 +62,20 @@ export function useRsaOptimizer() {
 
       // Start processing the files
       setIsProcessing(true);
+      
+      // Get the current session token
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession?.access_token) {
+        throw new Error('No access token available');
+      }
+
       const { error: processError } = await supabase.functions
         .invoke('process-rsa-files', {
-          body: { optimizationId: optimization.id }
+          body: { optimizationId: optimization.id },
+          headers: {
+            Authorization: `Bearer ${currentSession.access_token}`
+          }
         });
 
       if (processError) throw processError;
@@ -76,7 +87,7 @@ export function useRsaOptimizer() {
       console.error('Upload/processing error:', error);
       toast({
         title: "Error",
-        description: "There was an error processing your files. Please try again.",
+        description: error.message || "There was an error processing your files. Please try again.",
         variant: "destructive",
       });
     } finally {
