@@ -6,51 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const STANDARDIZED_PROMPT = `You are a skilled PPC copywriter specializing in Google Search Ads. 
-Your task is to create **15 headlines** (each up to 30 characters) 
-and **4 descriptions** (each up to 90 characters). 
-
-Review the current ad copy along with the keywords for this ad group. 
-
-**Objective**:
-1. Incorporate persuasive elements from Google's "messy middle" model when relevant, 
-   such as:
-   - **Social proof** (e.g., testimonials, number of customers)
-   - **Scarcity** or **urgency** (e.g., limited-time offers)
-   - **Authority** or **expertise** (e.g., certifications, experience)
-   - **Framing and anchoring** (e.g., "Save 50%" or "Our best-selling plan")
-
-2. Comply strictly with these Google RSA (Responsive Search Ad) constraints:
-   - **Headlines**: up to 30 characters each
-   - **Descriptions**: up to 90 characters each
-
-3. Use varied language to target different buyer mindsets across the exploration and evaluation stages of the messy middle.
-
-4. Make sure ad copy is relevant to the keywords supplied and use keywords in the headlines where appropriate to maximise relevance. 
-
-4. Provide the output in the following format:
-   - **Headlines (1–15)**: 
-     1. Headline text (≤30 characters)
-     2. Headline text (≤30 characters)
-     ...
-     15. Headline text (≤30 characters)
-   - **Descriptions (1–4)**:
-     1. Description text (≤90 characters)
-     ...
-     4. Description text (≤90 characters)
-
-**Constraints**:
-- Adhere to correct spelling and grammar.
-- Highlight relevant emotional and rational benefits to entice clicks.
-- Include clear calls-to-action (CTA) as appropriate.
-
-Keywords file content:
-{keywordsText}
-
-Current ads file content:
-{adsText}
-
-{additionalInstructions}`
+const STANDARDIZED_PROMPT = `// ... keep existing code`
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -59,6 +15,16 @@ serve(async (req) => {
   }
 
   try {
+    // Get authorization header from request
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      console.error('No authorization header provided')
+      return new Response(
+        JSON.stringify({ error: 'No authorization header provided' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
     // Validate Deepseek API key
     const apiKey = Deno.env.get('DEEPSEEK_API_KEY')
     if (!apiKey) {
@@ -72,7 +38,7 @@ serve(async (req) => {
     const { optimizationId } = await req.json()
     console.log('Processing optimization ID:', optimizationId)
 
-    // Initialize Supabase client
+    // Initialize Supabase client with service role key
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -87,7 +53,10 @@ serve(async (req) => {
 
     if (fetchError || !optimization) {
       console.error('Error fetching optimization:', fetchError)
-      throw new Error('Optimization not found')
+      return new Response(
+        JSON.stringify({ error: 'Optimization not found' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
     }
 
     // Download the files from storage
@@ -101,7 +70,10 @@ serve(async (req) => {
 
     if (keywordsError || adsError) {
       console.error('Error downloading files:', { keywordsError, adsError })
-      throw new Error('Error downloading files')
+      return new Response(
+        JSON.stringify({ error: 'Error downloading files' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
     }
 
     // Parse CSV files
@@ -114,61 +86,82 @@ serve(async (req) => {
       .replace('{adsText}', adsText)
       .replace('{additionalInstructions}', optimization.additional_instructions || '')
 
-    console.log('Sending request to Deepseek API with prompt:', prompt)
+    console.log('Sending request to Deepseek API')
 
-    // Call Deepseek API
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-      }),
-    })
+    // Call Deepseek API with proper error handling
+    try {
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+        }),
+      })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Deepseek API error response:', errorText)
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Deepseek API error response:', errorText)
+        return new Response(
+          JSON.stringify({ 
+            error: `Deepseek API error: ${response.status} ${response.statusText}`,
+            details: errorText
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: response.status 
+          }
+        )
+      }
+
+      const aiResponse = await response.json()
+      console.log('Deepseek API response received')
+
+      if (!aiResponse.choices?.[0]?.message?.content) {
+        throw new Error('Invalid response format from Deepseek API')
+      }
+
+      const results = aiResponse.choices[0].message.content
+
+      // Update the optimization record with results
+      const { error: updateError } = await supabaseAdmin
+        .from('rsa_optimizations')
+        .update({
+          results,
+          status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', optimizationId)
+
+      if (updateError) {
+        console.error('Error updating optimization:', updateError)
+        throw new Error('Error updating optimization')
+      }
+
       return new Response(
-        JSON.stringify({ error: `Deepseek API error: ${response.status} ${response.statusText}` }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
+        JSON.stringify({ message: 'Processing completed successfully', results }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+
+    } catch (deepseekError) {
+      console.error('Deepseek API error:', deepseekError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Error processing with Deepseek API',
+          details: deepseekError.message 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 500 
+        }
       )
     }
-
-    const aiResponse = await response.json()
-    console.log('Deepseek API response:', aiResponse)
-
-    if (!aiResponse.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from Deepseek API')
-    }
-
-    const results = aiResponse.choices[0].message.content
-
-    // Update the optimization record with results
-    const { error: updateError } = await supabaseAdmin
-      .from('rsa_optimizations')
-      .update({
-        results,
-        status: 'completed',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', optimizationId)
-
-    if (updateError) {
-      console.error('Error updating optimization:', updateError)
-      throw new Error('Error updating optimization')
-    }
-
-    return new Response(
-      JSON.stringify({ message: 'Processing completed successfully', results }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
 
   } catch (error) {
     console.error('Error in process-rsa-files function:', error)
