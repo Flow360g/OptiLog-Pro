@@ -47,7 +47,6 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     console.log(`Processing optimization ID: ${optimizationId}`)
-    console.log(`API Key length: ${apiKey.length}, first few chars: ${apiKey.substring(0, 4)}...`)
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -72,9 +71,6 @@ Deno.serve(async (req) => {
       })
     });
 
-    console.log('OpenRouter API Response Status:', response.status);
-    console.log('OpenRouter API Response Headers:', Object.fromEntries(response.headers.entries()));
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error('OpenRouter API error:', errorText);
@@ -87,11 +83,12 @@ Deno.serve(async (req) => {
     // Create CSV content from AI response
     const csvContent = `Optimization Results\n${aiResponse.choices[0].message.content}`;
     const fileName = `optimization_${optimizationId}.csv`;
+    const filePath = `${fileName}`; // Remove 'outputs/' from the path
 
     // Upload the file to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('rsa-files')
-      .upload(`outputs/${fileName}`, new Blob([csvContent], { type: 'text/csv' }), {
+      .upload(filePath, new Blob([csvContent], { type: 'text/csv' }), {
         contentType: 'text/csv',
         upsert: true
       });
@@ -106,7 +103,7 @@ Deno.serve(async (req) => {
       .from('rsa_optimizations')
       .update({
         status: 'completed',
-        output_file_path: `outputs/${fileName}`,
+        output_file_path: filePath,
         results: aiResponse.choices[0].message
       })
       .eq('id', optimizationId);
@@ -118,7 +115,7 @@ Deno.serve(async (req) => {
 
     return createResponse({
       message: 'Optimization completed successfully',
-      output_file_path: `outputs/${fileName}`
+      output_file_path: filePath
     });
 
   } catch (error) {
