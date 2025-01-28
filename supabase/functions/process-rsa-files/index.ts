@@ -88,8 +88,9 @@ serve(async (req) => {
 
     console.log('Sending request to Deepseek API')
 
-    // Call Deepseek API with proper error handling
+    // Call Deepseek API with proper error handling and logging
     try {
+      console.log('Making request to Deepseek API...')
       const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -107,14 +108,19 @@ serve(async (req) => {
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('Deepseek API error response:', errorText)
+        console.error('Deepseek API error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        })
         throw new Error(`Deepseek API error: ${response.status} ${response.statusText}\n${errorText}`)
       }
 
       const aiResponse = await response.json()
-      console.log('Deepseek API response received')
+      console.log('Deepseek API response received successfully')
 
       if (!aiResponse.choices?.[0]?.message?.content) {
+        console.error('Invalid response format from Deepseek API:', aiResponse)
         throw new Error('Invalid response format from Deepseek API')
       }
 
@@ -135,6 +141,7 @@ serve(async (req) => {
         throw new Error('Error updating optimization')
       }
 
+      console.log('Successfully processed optimization:', optimizationId)
       return new Response(
         JSON.stringify({ message: 'Processing completed successfully', results }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
