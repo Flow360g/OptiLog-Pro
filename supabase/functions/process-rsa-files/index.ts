@@ -26,7 +26,7 @@ serve(async (req) => {
     }
 
     // Validate OpenRouter API key
-    const apiKey = Deno.env.get('DEEPSEEK_API_KEY')
+    const apiKey = Deno.env.get('OPENROUTER_API_KEY')
     if (!apiKey) {
       console.error('OpenRouter API key is not configured')
       return new Response(
