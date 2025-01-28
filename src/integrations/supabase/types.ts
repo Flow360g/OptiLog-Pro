@@ -161,6 +161,7 @@ export type Database = {
       }
       rsa_optimizations: {
         Row: {
+          additional_instructions: string | null
           ads_file_path: string | null
           created_at: string | null
           id: string
@@ -172,6 +173,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          additional_instructions?: string | null
           ads_file_path?: string | null
           created_at?: string | null
           id?: string
@@ -183,6 +185,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          additional_instructions?: string | null
           ads_file_path?: string | null
           created_at?: string | null
           id?: string
