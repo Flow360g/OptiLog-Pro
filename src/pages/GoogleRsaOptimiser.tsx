@@ -7,10 +7,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { HelpCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const GoogleRsaOptimiser = () => {
   const [keywordsFile, setKeywordsFile] = useState<File | null>(null);
   const [adsFile, setAdsFile] = useState<File | null>(null);
+  const [additionalInstructions, setAdditionalInstructions] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const session = useSession();
@@ -60,7 +69,8 @@ const GoogleRsaOptimiser = () => {
           user_id: session.user.id,
           keywords_file_path: keywordsPath,
           ads_file_path: adsPath,
-          status: 'pending'
+          status: 'pending',
+          additional_instructions: additionalInstructions || null
         });
 
       if (dbError) throw dbError;
@@ -73,6 +83,7 @@ const GoogleRsaOptimiser = () => {
       // Reset form
       setKeywordsFile(null);
       setAdsFile(null);
+      setAdditionalInstructions("");
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -121,6 +132,29 @@ const GoogleRsaOptimiser = () => {
               <p className="text-sm text-gray-500">
                 Upload a CSV file containing your current ads
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="instructions">Additional Instructions</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Provide additional context to help guide the style of your new ad copy</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Textarea
+                id="instructions"
+                placeholder="Enter any specific instructions or context for generating your ad variants..."
+                value={additionalInstructions}
+                onChange={(e) => setAdditionalInstructions(e.target.value)}
+                className="min-h-[100px]"
+              />
             </div>
 
             <Button 
