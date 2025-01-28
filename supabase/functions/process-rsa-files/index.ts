@@ -48,6 +48,19 @@ Deno.serve(async (req) => {
 
     console.log(`Processing optimization ID: ${optimizationId}`)
 
+    // Get the optimization record to access the files
+    const { data: optimization, error: fetchError } = await supabase
+      .from('rsa_optimizations')
+      .select('*')
+      .eq('id', optimizationId)
+      .single();
+
+    if (fetchError || !optimization) {
+      console.error('Failed to fetch optimization:', fetchError)
+      return createResponse({ error: 'Failed to fetch optimization details' }, 500)
+    }
+
+    console.log('Making request to OpenRouter API...')
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -78,7 +91,12 @@ Deno.serve(async (req) => {
     }
 
     const aiResponse = await response.json();
-    console.log('AI Response:', aiResponse);
+    console.log('AI Response received:', aiResponse);
+
+    if (!aiResponse?.choices?.[0]?.message?.content) {
+      console.error('Invalid AI response format:', aiResponse);
+      return createResponse({ error: 'Invalid optimization result format' }, 500);
+    }
 
     // Create CSV content from AI response
     const csvContent = `Optimization Results\n${aiResponse.choices[0].message.content}`;
