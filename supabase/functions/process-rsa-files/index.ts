@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     console.log(`Processing optimization ID: ${optimizationId}`)
     console.log(`API Key length: ${apiKey.length}, first few chars: ${apiKey.substring(0, 4)}...`)
 
-    // Process the optimization using OpenRouter API (with Deepseek model)
+    // Process the optimization using OpenRouter API (with correct Deepseek model)
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
         'X-Title': 'Lovable RSA Optimizer' // optional for OpenRouter
       },
       body: JSON.stringify({
-        model: 'deepseek-ai/deepseek-coder-33b-instruct',
+        model: 'deepseek/deepseek-r1-distill-llama-70b',
         messages: [
           {
             role: 'system',
