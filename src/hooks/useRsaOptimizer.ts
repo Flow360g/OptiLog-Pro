@@ -90,32 +90,35 @@ export function useRsaOptimizer() {
     if (!currentOptimizationId) return;
 
     try {
-      const { data: optimization, error } = await supabase
+      const { data: optimization, error: fetchError } = await supabase
         .from('rsa_optimizations')
         .select('output_file_path')
         .eq('id', currentOptimizationId)
         .single();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       if (!optimization?.output_file_path) {
         throw new Error('Output file not found');
       }
 
+      console.log('Attempting to download file:', optimization.output_file_path);
+
       const { data, error: downloadError } = await supabase.storage
         .from('rsa-files')
-        .download(optimization.output_file_path);
+        .createSignedUrl(optimization.output_file_path, 60);
 
       if (downloadError) throw downloadError;
+      if (!data?.signedUrl) {
+        throw new Error('Failed to generate download URL');
+      }
 
       // Create a download link and trigger it
-      const url = window.URL.createObjectURL(data);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = data.signedUrl;
       link.download = 'optimized-rsa-results.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
 
     } catch (error) {
       console.error('Download error:', error);
