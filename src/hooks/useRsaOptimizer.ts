@@ -63,19 +63,9 @@ export function useRsaOptimizer() {
       // Start processing the files
       setIsProcessing(true);
       
-      // Get the current session token
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (!currentSession?.access_token) {
-        throw new Error('No access token available');
-      }
-
       const { error: processError } = await supabase.functions
         .invoke('process-rsa-files', {
-          body: { optimizationId: optimization.id },
-          headers: {
-            Authorization: `Bearer ${currentSession.access_token}`
-          }
+          body: { optimizationId: optimization.id }
         });
 
       if (processError) throw processError;
