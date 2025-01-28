@@ -15,13 +15,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SuccessDialog } from "@/components/rsa/SuccessDialog";
 
 const GoogleRsaOptimiser = () => {
   const [keywordsFile, setKeywordsFile] = useState<File | null>(null);
   const [adsFile, setAdsFile] = useState<File | null>(null);
   const [additionalInstructions, setAdditionalInstructions] = useState("");
+  const [optimizationPrompt, setOptimizationPrompt] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [currentOptimizationId, setCurrentOptimizationId] = useState<string | null>(null);
   const { toast } = useToast();
   const session = useSession();
   const navigate = useNavigate();
@@ -71,7 +75,8 @@ const GoogleRsaOptimiser = () => {
           keywords_file_path: keywordsPath,
           ads_file_path: adsPath,
           status: 'processing',
-          additional_instructions: additionalInstructions || null
+          additional_instructions: additionalInstructions || null,
+          optimization_prompt: optimizationPrompt || null
         })
         .select()
         .single();
@@ -87,15 +92,8 @@ const GoogleRsaOptimiser = () => {
 
       if (processError) throw processError;
 
-      toast({
-        title: "Optimization completed",
-        description: "Your files have been processed successfully.",
-      });
-
-      // Reset form
-      setKeywordsFile(null);
-      setAdsFile(null);
-      setAdditionalInstructions("");
+      setCurrentOptimizationId(optimization.id);
+      setShowSuccessDialog(true);
       
     } catch (error) {
       console.error('Upload/processing error:', error);
@@ -107,6 +105,47 @@ const GoogleRsaOptimiser = () => {
     } finally {
       setIsUploading(false);
       setIsProcessing(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!currentOptimizationId) return;
+
+    try {
+      const { data: optimization, error } = await supabase
+        .from('rsa_optimizations')
+        .select('output_file_path')
+        .eq('id', currentOptimizationId)
+        .single();
+
+      if (error) throw error;
+      if (!optimization?.output_file_path) {
+        throw new Error('Output file not found');
+      }
+
+      const { data, error: downloadError } = await supabase.storage
+        .from('rsa-files')
+        .download(optimization.output_file_path);
+
+      if (downloadError) throw downloadError;
+
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'optimized-rsa-results.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error downloading your results. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -148,6 +187,30 @@ const GoogleRsaOptimiser = () => {
               <p className="text-sm text-gray-500">
                 Upload a CSV file containing your current ads
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="prompt">Optimization Prompt</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Provide specific instructions for how you want your ad copy to be optimized</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Textarea
+                id="prompt"
+                placeholder="E.g., Focus on emotional triggers, use more action words, emphasize benefits over features..."
+                value={optimizationPrompt}
+                onChange={(e) => setOptimizationPrompt(e.target.value)}
+                className="min-h-[100px]"
+                disabled={isUploading || isProcessing}
+              />
             </div>
 
             <div className="space-y-2">
@@ -196,6 +259,12 @@ const GoogleRsaOptimiser = () => {
           </form>
         </div>
       </main>
+
+      <SuccessDialog
+        open={showSuccessDialog}
+        onClose={() => setShowSuccessDialog(false)}
+        onDownload={handleDownload}
+      />
     </div>
   );
 };
