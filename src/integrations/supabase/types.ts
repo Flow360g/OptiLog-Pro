@@ -166,6 +166,7 @@ export type Database = {
           created_at: string | null
           id: string
           keywords_file_path: string | null
+          optimization_prompt: string | null
           output_file_path: string | null
           results: Json | null
           status: string | null
@@ -178,6 +179,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           keywords_file_path?: string | null
+          optimization_prompt?: string | null
           output_file_path?: string | null
           results?: Json | null
           status?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           keywords_file_path?: string | null
+          optimization_prompt?: string | null
           output_file_path?: string | null
           results?: Json | null
           status?: string | null
