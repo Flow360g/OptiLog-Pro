@@ -83,12 +83,13 @@ Deno.serve(async (req) => {
     // Create CSV content from AI response
     const csvContent = `Optimization Results\n${aiResponse.choices[0].message.content}`;
     const fileName = `optimization_${optimizationId}.csv`;
-    const filePath = `${fileName}`; // Remove 'outputs/' from the path
+
+    console.log('Uploading file:', fileName);
 
     // Upload the file to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('rsa-files')
-      .upload(filePath, new Blob([csvContent], { type: 'text/csv' }), {
+      .upload(fileName, new Blob([csvContent], { type: 'text/csv' }), {
         contentType: 'text/csv',
         upsert: true
       });
@@ -98,12 +99,14 @@ Deno.serve(async (req) => {
       return createResponse({ error: 'Failed to save optimization results' }, 500);
     }
 
+    console.log('File uploaded successfully:', fileName);
+
     // Update the optimization record with the output file path
     const { error: updateError } = await supabase
       .from('rsa_optimizations')
       .update({
         status: 'completed',
-        output_file_path: filePath,
+        output_file_path: fileName,
         results: aiResponse.choices[0].message
       })
       .eq('id', optimizationId);
@@ -115,7 +118,7 @@ Deno.serve(async (req) => {
 
     return createResponse({
       message: 'Optimization completed successfully',
-      output_file_path: filePath
+      output_file_path: fileName
     });
 
   } catch (error) {

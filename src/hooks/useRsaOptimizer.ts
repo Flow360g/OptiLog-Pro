@@ -103,22 +103,41 @@ export function useRsaOptimizer() {
 
       console.log('Attempting to download file:', optimization.output_file_path);
 
+      // First try to download directly
       const { data, error: downloadError } = await supabase.storage
         .from('rsa-files')
-        .createSignedUrl(optimization.output_file_path, 60);
+        .download(optimization.output_file_path);
 
-      if (downloadError) throw downloadError;
-      if (!data?.signedUrl) {
-        throw new Error('Failed to generate download URL');
+      if (downloadError) {
+        console.error('Direct download failed, trying signed URL:', downloadError);
+        // If direct download fails, try with signed URL
+        const { data: signedData, error: signedError } = await supabase.storage
+          .from('rsa-files')
+          .createSignedUrl(optimization.output_file_path, 60);
+
+        if (signedError) throw signedError;
+        if (!signedData?.signedUrl) {
+          throw new Error('Failed to generate download URL');
+        }
+
+        // Create a download link and trigger it
+        const link = document.createElement('a');
+        link.href = signedData.signedUrl;
+        link.download = 'optimized-rsa-results.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // If direct download succeeds, use blob URL
+        const url = window.URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'optimized-rsa-results.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
       }
-
-      // Create a download link and trigger it
-      const link = document.createElement('a');
-      link.href = data.signedUrl;
-      link.download = 'optimized-rsa-results.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
 
     } catch (error) {
       console.error('Download error:', error);
