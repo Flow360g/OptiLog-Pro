@@ -93,6 +93,7 @@ export function useRsaOptimizer() {
     }
 
     try {
+      // First, get the optimization record to get the output file path
       const { data: optimization, error: fetchError } = await supabase
         .from('rsa_optimizations')
         .select('output_file_path')
@@ -100,6 +101,7 @@ export function useRsaOptimizer() {
         .single();
 
       if (fetchError) throw fetchError;
+      
       if (!optimization?.output_file_path) {
         throw new Error('Output file not found');
       }
@@ -110,7 +112,7 @@ export function useRsaOptimizer() {
       // Get a signed URL for the file
       const { data: signedData, error: signedError } = await supabase.storage
         .from('rsa-files')
-        .createSignedUrl(filePath, 60);
+        .createSignedUrl(filePath, 60); // URL valid for 60 seconds
 
       if (signedError) throw signedError;
       if (!signedData?.signedUrl) {
@@ -120,7 +122,7 @@ export function useRsaOptimizer() {
       // Create a download link and trigger it
       const link = document.createElement('a');
       link.href = signedData.signedUrl;
-      link.download = 'optimized-rsa-results.csv';
+      link.download = 'optimized-rsa-results.csv'; // Set a default filename
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
