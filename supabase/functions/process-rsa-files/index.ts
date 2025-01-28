@@ -1,13 +1,10 @@
-// Follow Deno strict typing
 /// <reference lib="deno.unstable" />
 
-// Define CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Helper function to create consistent responses with CORS
 const createResponse = (body: any, status: number = 200) => {
   return new Response(
     JSON.stringify(body),
@@ -18,9 +15,7 @@ const createResponse = (body: any, status: number = 200) => {
   );
 };
 
-// Handle CORS preflight requests
 Deno.serve(async (req) => {
-  // Always handle OPTIONS requests first
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -33,7 +28,6 @@ Deno.serve(async (req) => {
       return createResponse({ error: 'Missing optimization ID' }, 400)
     }
 
-    // Validate OpenRouter API key
     const apiKey = Deno.env.get('OPENROUTER_API_KEY')
     if (!apiKey) {
       console.error('OpenRouter API key is not configured')
@@ -46,17 +40,16 @@ Deno.serve(async (req) => {
     console.log(`Processing optimization ID: ${optimizationId}`)
     console.log(`API Key length: ${apiKey.length}, first few chars: ${apiKey.substring(0, 4)}...`)
 
-    // Process the optimization using OpenRouter API
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://lovable.ai', // required for OpenRouter
-        'X-Title': 'Lovable RSA Optimizer' // optional for OpenRouter
+        'HTTP-Referer': 'https://lovable.ai',
+        'X-Title': 'Lovable RSA Optimizer',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek-coder/33b-instruct',
+        model: "deepseek/deepseek-r1-distill-llama-70b",
         messages: [
           {
             role: 'system',
@@ -70,7 +63,6 @@ Deno.serve(async (req) => {
       })
     });
 
-    // Log the response status and headers for debugging
     console.log('OpenRouter API Response Status:', response.status);
     console.log('OpenRouter API Response Headers:', Object.fromEntries(response.headers.entries()));
 
