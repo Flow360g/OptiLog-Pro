@@ -60,6 +60,30 @@ Deno.serve(async (req) => {
       return createResponse({ error: 'Failed to fetch optimization details' }, 500)
     }
 
+    // Download keywords file
+    const { data: keywordsData, error: keywordsError } = await supabase.storage
+      .from('rsa-files')
+      .download(optimization.keywords_file_path);
+
+    if (keywordsError) {
+      console.error('Failed to download keywords file:', keywordsError);
+      return createResponse({ error: 'Failed to access keywords file' }, 500);
+    }
+
+    // Download ads file
+    const { data: adsData, error: adsError } = await supabase.storage
+      .from('rsa-files')
+      .download(optimization.ads_file_path);
+
+    if (adsError) {
+      console.error('Failed to download ads file:', adsError);
+      return createResponse({ error: 'Failed to access ads file' }, 500);
+    }
+
+    // Convert files to text
+    const keywordsText = await keywordsData.text();
+    const adsText = await adsData.text();
+
     console.log('Making request to OpenRouter API...')
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -74,11 +98,24 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert at optimizing Google RSA ads. You will receive keywords and ads data, and you should provide optimization suggestions.'
+            content: 'You are an expert at optimizing Google RSA ads. You will analyze keywords and ads data, and provide optimization suggestions in a CSV format.'
           },
           {
             role: 'user',
-            content: 'Please optimize these RSA ads.'
+            content: `Please analyze and optimize these RSA ads.
+            
+            Keywords data:
+            ${keywordsText}
+            
+            Ads data:
+            ${adsText}
+            
+            Additional instructions:
+            ${optimization.additional_instructions || 'No additional instructions provided.'}
+            
+            Please provide your recommendations in a CSV format with the following columns:
+            Original Ad,Suggested Changes,Rationale,Expected Impact
+            `
           }
         ]
       })
@@ -99,7 +136,7 @@ Deno.serve(async (req) => {
     }
 
     // Create CSV content from AI response
-    const csvContent = `Optimization Results\n${aiResponse.choices[0].message.content}`;
+    const csvContent = aiResponse.choices[0].message.content;
     const fileName = `optimization_${optimizationId}.csv`;
 
     console.log('Uploading file:', fileName);
