@@ -108,16 +108,7 @@ serve(async (req) => {
       if (!response.ok) {
         const errorText = await response.text()
         console.error('Deepseek API error response:', errorText)
-        return new Response(
-          JSON.stringify({ 
-            error: `Deepseek API error: ${response.status} ${response.statusText}`,
-            details: errorText
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-            status: response.status 
-          }
-        )
+        throw new Error(`Deepseek API error: ${response.status} ${response.statusText}\n${errorText}`)
       }
 
       const aiResponse = await response.json()
