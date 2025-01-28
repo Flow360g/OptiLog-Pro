@@ -84,6 +84,9 @@ Deno.serve(async (req) => {
     const keywordsText = await keywordsData.text();
     const adsText = await adsData.text();
 
+    console.log('Keywords data:', keywordsText.substring(0, 200) + '...');
+    console.log('Ads data:', adsText.substring(0, 200) + '...');
+
     console.log('Making request to OpenRouter API...')
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -104,10 +107,10 @@ Deno.serve(async (req) => {
             role: 'user',
             content: `Please analyze and optimize these RSA ads.
             
-            Keywords data:
+            Keywords data (CSV format):
             ${keywordsText}
             
-            Ads data:
+            Current ads data (CSV format):
             ${adsText}
             
             Additional instructions:
@@ -115,7 +118,8 @@ Deno.serve(async (req) => {
             
             Please provide your recommendations in a CSV format with the following columns:
             Original Ad,Suggested Changes,Rationale,Expected Impact
-            `
+            
+            Make sure to analyze the relationship between the keywords and ads, and suggest specific improvements to make the ads more relevant and effective.`
           }
         ]
       })
