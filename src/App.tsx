@@ -12,6 +12,7 @@ import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from "react";
+import GoogleRsaOptimiser from "./pages/GoogleRsaOptimiser";
 
 // Title updater component
 function TitleUpdater() {
@@ -25,7 +26,8 @@ function TitleUpdater() {
       '/settings': 'User Settings',
       '/insights': 'Insights',
       '/testing-schedule': 'Testing Schedule',
-      '/testing-schedule/new': 'Create Test'
+      '/testing-schedule/new': 'Create Test',
+      '/tools/rsa-optimiser': 'Google RSA Optimiser'
     };
 
     const pageTitle = pageTitles[location.pathname] || '';
@@ -81,6 +83,11 @@ const router = createBrowserRouter([
   {
     path: "/testing-schedule/new",
     element: withTitleUpdate(CreateTest)(),
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/tools/rsa-optimiser",
+    element: withTitleUpdate(GoogleRsaOptimiser)(),
     errorElement: <ErrorBoundary />,
   },
 ]);
