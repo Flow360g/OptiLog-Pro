@@ -25,12 +25,12 @@ serve(async (req) => {
       )
     }
 
-    // Validate Deepseek API key
+    // Validate OpenRouter API key
     const apiKey = Deno.env.get('DEEPSEEK_API_KEY')
     if (!apiKey) {
-      console.error('Deepseek API key is not configured')
+      console.error('OpenRouter API key is not configured')
       return new Response(
-        JSON.stringify({ error: 'Deepseek API key is not configured' }),
+        JSON.stringify({ error: 'OpenRouter API key is not configured' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
@@ -80,26 +80,28 @@ serve(async (req) => {
     const keywordsText = await keywordsFile.text()
     const adsText = await adsFile.text()
 
-    // Prepare prompt for Deepseek
+    // Prepare prompt for OpenRouter using Deepseek model
     const prompt = STANDARDIZED_PROMPT
       .replace('{keywordsText}', keywordsText)
       .replace('{adsText}', adsText)
       .replace('{additionalInstructions}', optimization.additional_instructions || '')
 
-    console.log('Preparing to call Deepseek API')
+    console.log('Preparing to call OpenRouter API')
     console.log('API Key length:', apiKey.length, 'First 4 chars:', apiKey.substring(0, 4))
 
-    // Call Deepseek API with proper error handling and logging
+    // Call OpenRouter API with proper error handling and logging
     try {
-      console.log('Making request to Deepseek API...')
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      console.log('Making request to OpenRouter API...')
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://lovable.dev',
+          'X-Title': 'Lovable RSA Optimizer'
         },
         body: JSON.stringify({
-          model: 'deepseek-chat',
+          model: 'deepseek-ai/deepseek-chat-33b',
           messages: [
             { role: 'user', content: prompt }
           ],
@@ -109,24 +111,26 @@ serve(async (req) => {
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('Deepseek API error response:', {
+        console.error('OpenRouter API error response:', {
           status: response.status,
           statusText: response.statusText,
           errorText,
           requestHeaders: {
             'Authorization': 'Bearer [REDACTED]',
             'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://lovable.dev',
+            'X-Title': 'Lovable RSA Optimizer'
           }
         })
-        throw new Error(`Deepseek API error: ${response.status} ${response.statusText}\n${errorText}`)
+        throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}\n${errorText}`)
       }
 
       const aiResponse = await response.json()
-      console.log('Deepseek API response received successfully')
+      console.log('OpenRouter API response received successfully')
 
       if (!aiResponse.choices?.[0]?.message?.content) {
-        console.error('Invalid response format from Deepseek API:', aiResponse)
-        throw new Error('Invalid response format from Deepseek API')
+        console.error('Invalid response format from OpenRouter API:', aiResponse)
+        throw new Error('Invalid response format from OpenRouter API')
       }
 
       const results = aiResponse.choices[0].message.content
@@ -152,12 +156,12 @@ serve(async (req) => {
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
 
-    } catch (deepseekError) {
-      console.error('Deepseek API error:', deepseekError)
+    } catch (openRouterError) {
+      console.error('OpenRouter API error:', openRouterError)
       return new Response(
         JSON.stringify({ 
-          error: 'Error processing with Deepseek API',
-          details: deepseekError.message 
+          error: 'Error processing with OpenRouter API',
+          details: openRouterError.message 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
