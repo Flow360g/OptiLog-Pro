@@ -9,7 +9,7 @@ import UserSettings from "./pages/UserSettings";
 import GoogleRsaOptimiser from "./pages/GoogleRsaOptimiser";
 import Pricing from "./pages/Pricing";
 import { Toaster } from "@/components/ui/toaster";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 function App() {
   return (
