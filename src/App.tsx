@@ -24,7 +24,7 @@ function AppRoutes({ isAuthenticated, isLoading }: { isAuthenticated: boolean, i
     // Public routes - accessible without authentication
     {
       path: "/",
-      element: isAuthenticated ? <Navigate to="/dashboard" replace /> : <Index />,
+      element: <Index />,
       errorElement: <ErrorBoundary />,
     },
     {
@@ -128,19 +128,28 @@ function App() {
   useEffect(() => {
     let mounted = true;
 
-    // Clear any stale session data on mount
-    const clearStaleSession = async () => {
+    const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        if (error || !session) {
-          console.log("Clearing session due to error or no session");
-          await supabase.auth.signOut();
-          localStorage.removeItem('supabase.auth.token');
+        
+        if (error) {
+          console.error("Session error:", error);
           if (mounted) {
             setIsAuthenticated(false);
             setIsLoading(false);
           }
-        } else if (mounted) {
+          return;
+        }
+
+        if (!session) {
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        if (mounted) {
           setIsAuthenticated(true);
           setIsLoading(false);
         }
@@ -153,29 +162,27 @@ function App() {
       }
     };
 
-    clearStaleSession();
+    // Initial session check
+    checkSession();
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
-      
+
       console.log("Auth state changed:", event, !!session);
       
       if (event === 'SIGNED_OUT') {
-        // Handle sign out
         setIsAuthenticated(false);
-        localStorage.removeItem('supabase.auth.token');
-        console.log("User signed out");
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setIsLoading(false);
+        return;
+      }
+
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session) {
           setIsAuthenticated(true);
-          console.log("User signed in");
         } else {
-          // If we get a sign in event but no session, something's wrong
-          console.log("Sign in event but no session");
-          await supabase.auth.signOut();
           setIsAuthenticated(false);
-          localStorage.removeItem('supabase.auth.token');
+          await supabase.auth.signOut();
         }
       }
       
