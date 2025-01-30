@@ -1,9 +1,9 @@
-import { useRouteError } from "react-router-dom";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 
 export default function ErrorBoundary() {
-  const error = useRouteError() as Error;
+  const error = useRouteError();
   const navigate = useNavigate();
 
   return (
@@ -11,7 +11,11 @@ export default function ErrorBoundary() {
       <div className="max-w-md w-full p-6 text-center">
         <h1 className="text-2xl font-bold mb-4">Oops! Something went wrong</h1>
         <p className="text-muted-foreground mb-6">
-          {error?.message || "An unexpected error occurred"}
+          {isRouteErrorResponse(error)
+            ? error.statusText
+            : error instanceof Error
+            ? error.message
+            : "An unexpected error occurred"}
         </p>
         <div className="space-x-4">
           <Button onClick={() => navigate(-1)}>Go Back</Button>

@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useRoutes,
+} from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -11,24 +16,64 @@ import Pricing from "./pages/Pricing";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
+function AppRoutes() {
+  const routes = useRoutes([
+    {
+      path: "/",
+      element: <Index />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/login",
+      element: <Login />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/dashboard",
+      element: <Dashboard />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/insights",
+      element: <Insights />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/testing-schedule",
+      element: <TestingSchedule />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/testing-schedule/new",
+      element: <CreateTest />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/settings",
+      element: <UserSettings />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/tools/rsa-optimiser",
+      element: <GoogleRsaOptimiser />,
+      errorElement: <ErrorBoundary />,
+    },
+    {
+      path: "/pricing",
+      element: <Pricing />,
+      errorElement: <ErrorBoundary />,
+    },
+  ]);
+
+  return routes;
+}
+
 function App() {
   return (
-    <ErrorBoundary>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/insights" element={<Insights />} />
-          <Route path="/testing-schedule" element={<TestingSchedule />} />
-          <Route path="/testing-schedule/new" element={<CreateTest />} />
-          <Route path="/settings" element={<UserSettings />} />
-          <Route path="/tools/rsa-optimiser" element={<GoogleRsaOptimiser />} />
-          <Route path="/pricing" element={<Pricing />} />
-        </Routes>
-        <Toaster />
-      </Router>
-    </ErrorBoundary>
+    <Router>
+      <AppRoutes />
+      <Toaster />
+    </Router>
   );
 }
 
