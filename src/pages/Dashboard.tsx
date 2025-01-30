@@ -33,28 +33,16 @@ const Dashboard = () => {
     handleColumnToggle
   } = useDashboardState();
 
+  // Session check effect
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        console.error("Session error:", error);
-        navigate("/login");
-        return;
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate("/login");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    console.log("Session check effect running");
+    console.log("Current session:", session);
+    
+    if (!isSessionLoading && !session) {
+      console.log("No session found, redirecting to login");
+      navigate("/login");
+    }
+  }, [session, isSessionLoading, navigate]);
 
   const { fetchOptimizations } = useDashboardData(
     userClients,
@@ -113,14 +101,24 @@ const Dashboard = () => {
     }
   };
 
+  // Show loading state while checking session or loading clients
   if (isSessionLoading || isClientsLoading) {
+    console.log("Loading state shown");
     return <LoadingState />;
   }
 
+  // If no session, redirect to login (this is a backup check)
   if (!session) {
+    console.log("No session found in render, redirecting to login");
     navigate("/login");
     return null;
   }
+
+  console.log("Dashboard rendering with data:", {
+    userClients,
+    optimizationsByClient,
+    session: !!session
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
