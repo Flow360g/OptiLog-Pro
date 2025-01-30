@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 97%;
+    --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
 
-    --primary: 198 64% 49%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 262 83% 58%;
+    --secondary: 198 64% 49%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 97%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 198 64% 49%;
+    --accent: 262 83% 58%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
@@ -30,7 +30,7 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 198 64% 49%;
+    --ring: 262 83% 58%;
 
     --radius: 0.75rem;
   }
@@ -41,22 +41,33 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#f8f8f8] text-foreground relative;
+    @apply bg-gradient-to-br from-white via-purple-50/30 to-white text-foreground relative min-h-screen;
   }
 }
 
 @layer components {
-  .category-pill {
-    @apply px-4 py-2 rounded-full border-2 border-primary cursor-pointer transition-all
-           text-gray-700 bg-gray-100 hover:border-0 hover:bg-gradient-to-r hover:from-primary hover:to-secondary hover:text-white;
+  .glass-nav {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 rounded-full;
   }
   
-  .category-pill.selected {
-    @apply bg-gradient-to-r from-primary to-secondary border-0 text-white;
+  .glass-card {
+    @apply bg-white/90 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg;
   }
 
-  /* Style for email sign-in button */
-  [data-supabase-auth-token="email"] {
-    @apply bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity !important;
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+  }
+
+  .nav-link {
+    @apply px-4 py-2 rounded-full text-gray-600 hover:text-primary transition-colors;
+  }
+
+  .nav-link.active {
+    @apply bg-primary text-white;
+  }
+
+  .hero-button {
+    @apply px-6 py-3 rounded-full bg-primary text-white hover:bg-primary/90 transition-all
+           shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5;
   }
 }
