@@ -6,20 +6,28 @@ import { useRsaOptimizer } from "@/hooks/useRsaOptimizer";
 
 const GoogleRsaOptimiser = () => {
   const {
-    isLoading,
-    isError,
-    success,
-    resetSuccess,
+    keywordsFile,
+    adsFile,
+    additionalInstructions,
+    isUploading,
+    isProcessing,
+    showSuccessDialog,
+    setKeywordsFile,
+    setAdsFile,
+    setAdditionalInstructions,
+    setShowSuccessDialog,
+    handleSubmit,
+    handleDownload,
   } = useRsaOptimizer();
 
   useEffect(() => {
-    if (success) {
+    if (showSuccessDialog) {
       const timer = setTimeout(() => {
-        resetSuccess();
+        setShowSuccessDialog(false);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [success, resetSuccess]);
+  }, [showSuccessDialog, setShowSuccessDialog]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
@@ -32,20 +40,29 @@ const GoogleRsaOptimiser = () => {
           <p className="text-lg text-gray-600 mb-8 text-center">
             Upload your RSA files to optimize your campaigns.
           </p>
-          {isLoading && (
+          {isUploading && (
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
           )}
-          {isError && (
-            <div className="text-red-600 text-center">
-              There was an error processing your request. Please try again.
-            </div>
+          {showSuccessDialog && (
+            <SuccessDialog 
+              open={showSuccessDialog}
+              onClose={() => setShowSuccessDialog(false)}
+              onDownload={handleDownload}
+            />
           )}
-          {success && (
-            <SuccessDialog />
-          )}
-          <FileUploadForm />
+          <FileUploadForm 
+            isUploading={isUploading}
+            isProcessing={isProcessing}
+            onSubmit={handleSubmit}
+            onKeywordsFileChange={(file) => setKeywordsFile(file)}
+            onAdsFileChange={(file) => setAdsFile(file)}
+            onInstructionsChange={(instructions) => setAdditionalInstructions(instructions)}
+            keywordsFile={keywordsFile}
+            adsFile={adsFile}
+            additionalInstructions={additionalInstructions}
+          />
         </div>
       </div>
     </div>
