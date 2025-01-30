@@ -126,71 +126,26 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Session error:", error);
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        if (!session) {
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        if (mounted) {
-          setIsAuthenticated(true);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Session check error:", error);
-        if (mounted) {
-          setIsAuthenticated(false);
-          setIsLoading(false);
-        }
-      }
-    };
-
-    // Initial session check
-    checkSession();
-
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, !!session);
       
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-          await supabase.auth.signOut();
-        }
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setIsAuthenticated(!!session);
       }
       
       setIsLoading(false);
     });
 
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    });
+
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
