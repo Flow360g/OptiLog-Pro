@@ -34,7 +34,11 @@ export const LandingPage = () => {
               <a href="#pricing" className="nav-link">Pricing</a>
               <a href="#features" className="nav-link">Features</a>
               <a href="#about" className="nav-link">About</a>
-              <Button onClick={handleLogin} variant="gradient" className="ml-4">
+              <Button 
+                onClick={() => navigate("/login")} 
+                variant="gradient" 
+                className="ml-4"
+              >
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -99,7 +103,7 @@ export const LandingPage = () => {
             The central hub for logging, tracking, and automating your marketing optimization workflow. 
             Turn insights into impact with AI-powered suggestions.
           </p>
-          <Button onClick={handleLogin} variant="gradient">
+          <Button onClick={() => navigate("/login")} variant="gradient">
             Start 7 Days Trial <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
@@ -153,7 +157,7 @@ export const LandingPage = () => {
             Join leading marketers who are already using OptiLog Pro to drive better results.
           </p>
           <Button 
-            onClick={handleLogin} 
+            onClick={() => navigate("/login")} 
             variant="gradient"
           >
             Get Started Now <Zap className="ml-2 h-5 w-5" />
