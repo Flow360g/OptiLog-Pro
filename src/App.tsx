@@ -21,24 +21,23 @@ import { supabase } from "@/integrations/supabase/client";
 
 function AppRoutes({ isAuthenticated, isLoading }: { isAuthenticated: boolean, isLoading: boolean }) {
   const routes = useRoutes([
+    // Public routes - accessible without authentication
     {
       path: "/",
-      element: isLoading ? (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      ) : isAuthenticated ? (
-        <Index />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
+      element: isAuthenticated ? <Navigate to="/dashboard" replace /> : <Index />,
       errorElement: <ErrorBoundary />,
     },
     {
       path: "/login",
-      element: isAuthenticated ? <Navigate to="/" replace /> : <Login />,
+      element: isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />,
       errorElement: <ErrorBoundary />,
     },
+    {
+      path: "/pricing",
+      element: <Pricing />,
+      errorElement: <ErrorBoundary />,
+    },
+    // Protected routes - require authentication
     {
       path: "/dashboard",
       element: isLoading ? (
@@ -117,11 +116,6 @@ function AppRoutes({ isAuthenticated, isLoading }: { isAuthenticated: boolean, i
       ),
       errorElement: <ErrorBoundary />,
     },
-    {
-      path: "/pricing",
-      element: <Pricing />,
-      errorElement: <ErrorBoundary />,
-    },
   ]);
 
   return routes;
@@ -132,14 +126,30 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let mounted = true;
+
     // Clear any stale session data on mount
     const clearStaleSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error || !session) {
-        console.log("Clearing session due to error or no session");
-        await supabase.auth.signOut();
-        localStorage.removeItem('supabase.auth.token');
-        setIsAuthenticated(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session) {
+          console.log("Clearing session due to error or no session");
+          await supabase.auth.signOut();
+          localStorage.removeItem('supabase.auth.token');
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsLoading(false);
+          }
+        } else if (mounted) {
+          setIsAuthenticated(true);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+        }
       }
     };
 
@@ -147,6 +157,8 @@ function App() {
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
       console.log("Auth state changed:", event, !!session);
       
       if (event === 'SIGNED_OUT') {
@@ -171,6 +183,7 @@ function App() {
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
