@@ -38,7 +38,7 @@ export const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-10 md:pt-20 pb-32 px-4">
+      <section className="pt-8 md:pt-20 pb-32 px-4">
         <div className="max-w-5xl mx-auto text-center relative">
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 blur-3xl" />
