@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Brain, GitBranch, BarChart2, LineChart, FileText, Settings, Zap } from "lucide-react";
+import { ArrowRight, Brain, GitBranch, BarChart2, LineChart, FileText, Settings, Zap, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export const LandingPage = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   const handleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -33,7 +36,47 @@ export const LandingPage = () => {
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
           </nav>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden absolute top-24 left-4 right-4 glass-nav px-4 py-4 flex flex-col gap-2 z-50">
+              <a 
+                href="#pricing" 
+                className="nav-link text-center py-3"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Pricing
+              </a>
+              <a 
+                href="#features" 
+                className="nav-link text-center py-3"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Features
+              </a>
+              <Button 
+                onClick={() => {
+                  handleLogin();
+                  setIsMobileMenuOpen(false);
+                }} 
+                variant="gradient" 
+                className="w-full mt-2"
+              >
+                Login
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
