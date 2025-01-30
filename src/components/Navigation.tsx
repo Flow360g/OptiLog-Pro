@@ -10,6 +10,7 @@ export function Navigation() {
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -17,6 +18,7 @@ export function Navigation() {
 
     const checkSession = async () => {
       try {
+        setIsLoading(true);
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -50,6 +52,10 @@ export function Navigation() {
           await supabase.auth.signOut();
           localStorage.removeItem('supabase.auth.token');
           navigate("/login");
+        }
+      } finally {
+        if (isSubscribed) {
+          setIsLoading(false);
         }
       }
     };
@@ -94,6 +100,23 @@ export function Navigation() {
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
+              alt="OptiLog Pro Logo" 
+              className="h-16 w-auto object-contain"
+            />
+          </Link>
+          <div className="animate-pulse h-8 w-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <nav className="w-full bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
