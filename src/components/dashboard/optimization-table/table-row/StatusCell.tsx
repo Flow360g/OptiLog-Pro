@@ -6,8 +6,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Check, X, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Confetti from 'react-confetti';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 interface StatusCellProps {
   status: string;
@@ -17,13 +26,28 @@ interface StatusCellProps {
 
 export function StatusCell({ status, optimizationId, onStatusChange }: StatusCellProps) {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === 'Completed') {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000); // Hide confetti after 3 seconds
+      setPendingStatus(newStatus);
+      setShowSuccessDialog(true);
+    } else {
+      onStatusChange(optimizationId, newStatus);
     }
-    onStatusChange(optimizationId, newStatus);
+  };
+
+  const handleSuccessConfirm = (wasSuccessful: boolean) => {
+    setShowSuccessDialog(false);
+    if (pendingStatus) {
+      onStatusChange(optimizationId, pendingStatus);
+      if (wasSuccessful) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }
+    }
+    setPendingStatus(null);
   };
 
   const getStatusStyles = (status: string) => {
@@ -63,6 +87,31 @@ export function StatusCell({ status, optimizationId, onStatusChange }: StatusCel
           gravity={0.3}
         />
       )}
+      
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Was this optimization successful?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your response helps us improve our optimization suggestions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => handleSuccessConfirm(false)}
+            >
+              No
+            </Button>
+            <Button
+              onClick={() => handleSuccessConfirm(true)}
+            >
+              Yes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Select
         value={status || "Pending"}
         onValueChange={handleStatusChange}

@@ -1,5 +1,5 @@
 import React from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Percent } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -19,6 +19,9 @@ export function OptimizationSuggestion({
   isSelected,
   onClick,
 }: OptimizationSuggestionProps) {
+  // Placeholder success rate (random between 75-95%)
+  const successRate = Math.floor(Math.random() * (95 - 75 + 1)) + 75;
+
   return (
     <div
       className={`p-4 mb-2 rounded-lg border-2 transition-all cursor-pointer
@@ -30,7 +33,15 @@ export function OptimizationSuggestion({
       onClick={onClick}
     >
       <div className="flex justify-between items-start gap-2">
-        <p className="text-sm">{suggestion}</p>
+        <div className="space-y-2">
+          <p className="text-sm">{suggestion}</p>
+          <div className="flex items-center gap-1">
+            <Percent className="h-4 w-4 text-green-500" />
+            <span className="text-sm text-green-500 font-medium">
+              Success Rate: {successRate}%
+            </span>
+          </div>
+        </div>
         <HoverCard>
           <HoverCardTrigger asChild>
             <button className="p-1 hover:text-primary">
