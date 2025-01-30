@@ -22,7 +22,7 @@ export const LandingPage = () => {
               <img 
                 src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
                 alt="OptiLog Pro Logo" 
-                className="h-12 w-auto"
+                className="h-36 md:h-12 w-auto"
               />
             </div>
             <div className="hidden md:flex items-center space-x-2">
