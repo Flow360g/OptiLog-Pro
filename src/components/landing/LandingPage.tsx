@@ -20,7 +20,7 @@ export const LandingPage = () => {
           <nav className="glass-nav px-4 py-2 flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/002f77c4-0d62-47cc-bd9e-b50a29e372af.png" 
+                src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
                 alt="OptiLog Pro Logo" 
                 className="h-8 w-auto"
               />
