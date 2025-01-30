@@ -12,24 +12,28 @@ const Index = () => {
 
   useEffect(() => {
     // Check if we have an existing session
-    const existingSession = supabase.auth.session();
-    if (!existingSession) {
-      setIsAuthChecking(false);
-      return;
-    }
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-      } catch (error) {
-        console.error("Error checking session:", error);
-      } finally {
+    const checkInitialSession = async () => {
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      if (!initialSession) {
         setIsAuthChecking(false);
+        return;
       }
+
+      const initializeAuth = async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          setSession(session);
+        } catch (error) {
+          console.error("Error checking session:", error);
+        } finally {
+          setIsAuthChecking(false);
+        }
+      };
+
+      initializeAuth();
     };
 
-    initializeAuth();
+    checkInitialSession();
 
     const {
       data: { subscription },
