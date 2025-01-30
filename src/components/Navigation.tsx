@@ -14,18 +14,16 @@ export function Navigation() {
   const { toast } = useToast();
   
   useEffect(() => {
-    let isSubscribed = true;
+    let mounted = true;
 
     const checkSession = async () => {
       try {
-        setIsLoading(true);
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Session error:", error);
-          if (isSubscribed) {
+          if (mounted) {
             setUserEmail(null);
-            // Clear any stale auth data
             await supabase.auth.signOut();
             localStorage.removeItem('supabase.auth.token');
             navigate("/login");
@@ -34,69 +32,60 @@ export function Navigation() {
         }
         
         if (!session) {
-          if (isSubscribed) {
+          if (mounted) {
             setUserEmail(null);
             navigate("/login");
           }
           return;
         }
 
-        if (isSubscribed) {
+        if (mounted) {
           setUserEmail(session.user.email);
         }
       } catch (error) {
         console.error("Session check error:", error);
-        if (isSubscribed) {
+        if (mounted) {
           setUserEmail(null);
-          // Clear any stale auth data
           await supabase.auth.signOut();
           localStorage.removeItem('supabase.auth.token');
           navigate("/login");
         }
       } finally {
-        if (isSubscribed) {
+        if (mounted) {
           setIsLoading(false);
         }
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!isSubscribed) return;
+    // Initial session check
+    checkSession();
 
-      if (event === 'TOKEN_REFRESHED') {
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
+      if (event === 'SIGNED_OUT') {
+        setUserEmail(null);
+        setIsLoading(false);
+        navigate("/login");
+        return;
+      }
+
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session) {
           setUserEmail(session.user.email);
+          setIsLoading(false);
         } else {
-          // If token refresh failed, clear session and redirect
           setUserEmail(null);
           await supabase.auth.signOut();
           localStorage.removeItem('supabase.auth.token');
           navigate("/login");
-          toast({
-            title: "Session Expired",
-            description: "Please sign in again to continue.",
-            variant: "destructive",
-          });
         }
-        return;
-      }
-
-      if (event === 'SIGNED_OUT' || !session) {
-        setUserEmail(null);
-        localStorage.removeItem('supabase.auth.token');
-        navigate("/login");
-        return;
-      }
-      
-      if (session) {
-        setUserEmail(session.user.email);
       }
     });
 
-    checkSession();
-
     return () => {
-      isSubscribed = false;
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, toast]);

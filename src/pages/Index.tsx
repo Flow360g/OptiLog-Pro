@@ -11,38 +11,49 @@ const Index = () => {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   useEffect(() => {
-    // Check if we have an existing session
-    const checkInitialSession = async () => {
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      if (!initialSession) {
-        setIsAuthChecking(false);
-        return;
-      }
+    let mounted = true;
 
-      const initializeAuth = async () => {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          setSession(session);
-        } catch (error) {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
           console.error("Error checking session:", error);
-        } finally {
+          if (mounted) {
+            setSession(null);
+            setIsAuthChecking(false);
+          }
+          return;
+        }
+
+        if (mounted) {
+          setSession(initialSession);
           setIsAuthChecking(false);
         }
-      };
-
-      initializeAuth();
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        if (mounted) {
+          setSession(null);
+          setIsAuthChecking(false);
+        }
+      }
     };
 
-    checkInitialSession();
+    initializeAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setIsAuthChecking(false);
+      if (mounted) {
+        setSession(session);
+        setIsAuthChecking(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -71,12 +82,6 @@ const Index = () => {
     }
   }, [session]);
 
-  // If we're not checking auth and there's no session, show landing page immediately
-  if (!isAuthChecking && !session) {
-    return <LandingPage />;
-  }
-
-  // Show loading state only when checking auth for a potential existing session
   if (isAuthChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -85,7 +90,10 @@ const Index = () => {
     );
   }
 
-  // Show authenticated content
+  if (!session) {
+    return <LandingPage />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <Navigation />
