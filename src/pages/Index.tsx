@@ -8,9 +8,16 @@ import { LandingPage } from "@/components/landing/LandingPage";
 const Index = () => {
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   const [session, setSession] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   useEffect(() => {
+    // Check if we have an existing session
+    const existingSession = supabase.auth.session();
+    if (!existingSession) {
+      setIsAuthChecking(false);
+      return;
+    }
+
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -18,7 +25,7 @@ const Index = () => {
       } catch (error) {
         console.error("Error checking session:", error);
       } finally {
-        setIsLoading(false);
+        setIsAuthChecking(false);
       }
     };
 
@@ -28,7 +35,7 @@ const Index = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setIsLoading(false);
+      setIsAuthChecking(false);
     });
 
     return () => subscription.unsubscribe();
@@ -60,18 +67,18 @@ const Index = () => {
     }
   }, [session]);
 
-  // Show loading state
-  if (isLoading) {
+  // If we're not checking auth and there's no session, show landing page immediately
+  if (!isAuthChecking && !session) {
+    return <LandingPage />;
+  }
+
+  // Show loading state only when checking auth for a potential existing session
+  if (isAuthChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
-  }
-
-  // Show landing page for non-authenticated users
-  if (!session) {
-    return <LandingPage />;
   }
 
   // Show authenticated content
