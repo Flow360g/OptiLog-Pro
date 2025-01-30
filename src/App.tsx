@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createClient } from '@supabase/supabase-js';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -17,25 +17,56 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 // Create a client
 const queryClient = new QueryClient();
 
+// Create router configuration
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Index />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/settings",
+    element: <UserSettings />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/testing-schedule",
+    element: <TestingSchedule />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/create-test",
+    element: <CreateTest />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/insights",
+    element: <Insights />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/rsa-optimiser",
+    element: <GoogleRsaOptimiser />,
+    errorElement: <ErrorBoundary />,
+  },
+]);
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SessionContextProvider supabaseClient={supabase}>
-        <ErrorBoundary>
-          <Router>
-            <Routes>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Index />} />
-              <Route path="/settings" element={<UserSettings />} />
-              <Route path="/testing-schedule" element={<TestingSchedule />} />
-              <Route path="/create-test" element={<CreateTest />} />
-              <Route path="/insights" element={<Insights />} />
-              <Route path="/rsa-optimiser" element={<GoogleRsaOptimiser />} />
-            </Routes>
-          </Router>
-          <Toaster />
-        </ErrorBoundary>
+        <RouterProvider router={router} />
+        <Toaster />
       </SessionContextProvider>
     </QueryClientProvider>
   );
