@@ -29,7 +29,7 @@ export const LandingPage = () => {
               <a href="#pricing" className="nav-link">Pricing</a>
               <a href="#features" className="nav-link">Features</a>
               <a href="#about" className="nav-link">About</a>
-              <Button onClick={handleLogin} className="hero-button ml-4">
+              <Button onClick={handleLogin} variant="gradient" className="ml-4">
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -38,7 +38,7 @@ export const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-12 md:pt-20 pb-32 px-4">
+      <section className="pt-10 md:pt-20 pb-32 px-4">
         <div className="max-w-5xl mx-auto text-center relative">
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 blur-3xl" />
@@ -54,14 +54,14 @@ export const LandingPage = () => {
             The central hub for logging, tracking, and automating your marketing optimization workflow. 
             Turn insights into impact with AI-powered suggestions.
           </p>
-          <Button onClick={handleLogin} className="hero-button">
+          <Button onClick={handleLogin} variant="gradient">
             Start 7 Days Trial <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-gradient-to-r from-primary/10 to-secondary/10">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
@@ -109,7 +109,7 @@ export const LandingPage = () => {
           </p>
           <Button 
             onClick={handleLogin} 
-            className="hero-button"
+            variant="gradient"
           >
             Get Started Now <Zap className="ml-2 h-5 w-5" />
           </Button>
