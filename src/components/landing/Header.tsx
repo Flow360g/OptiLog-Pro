@@ -13,7 +13,7 @@ export function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   return (
     <header className="py-2 md:py-4 px-6">
       <div className="max-w-7xl mx-auto">
-        <nav className="glass-nav px-4 py-2 flex justify-between items-center">
+        <nav className="px-4 py-2 flex justify-between items-center">
           <div className="flex-1 flex justify-center">
             <img 
               src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
