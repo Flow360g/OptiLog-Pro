@@ -18,13 +18,12 @@ export const LandingPage = () => {
       <header className="py-4 px-6">
         <div className="max-w-7xl mx-auto">
           <nav className="glass-nav px-4 py-2 flex justify-between items-center">
-            <div className="flex items-center space-x-2">
+            <div className="flex-1 flex justify-center">
               <img 
                 src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
                 alt="OptiLog Pro Logo" 
-                className="h-8 w-auto"
+                className="h-12 w-auto"
               />
-              <span className="text-xl font-semibold gradient-text">OptiLog Pro</span>
             </div>
             <div className="hidden md:flex items-center space-x-2">
               <a href="#pricing" className="nav-link">Pricing</a>
