@@ -132,29 +132,41 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error("Session error:", error);
-          setIsAuthenticated(false);
-          return;
-        }
-        setIsAuthenticated(!!session);
-      } catch (error) {
-        console.error("Session check error:", error);
+    // Clear any stale session data on mount
+    const clearStaleSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.log("Clearing session due to error or no session");
+        await supabase.auth.signOut();
+        localStorage.removeItem('supabase.auth.token');
         setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    // Initial session check
-    checkSession();
+    clearStaleSession();
 
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, !!session);
+      
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        // Handle sign out
+        setIsAuthenticated(false);
+        localStorage.removeItem('supabase.auth.token');
+        console.log("User signed out");
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session) {
+          setIsAuthenticated(true);
+          console.log("User signed in");
+        } else {
+          // If we get a sign in event but no session, something's wrong
+          console.log("Sign in event but no session");
+          await supabase.auth.signOut();
+          setIsAuthenticated(false);
+          localStorage.removeItem('supabase.auth.token');
+        }
+      }
+      
       setIsLoading(false);
     });
 
