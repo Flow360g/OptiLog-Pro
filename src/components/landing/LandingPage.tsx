@@ -15,14 +15,14 @@ export const LandingPage = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="py-4 px-6">
+      <header className="py-2 md:py-4 px-6">
         <div className="max-w-7xl mx-auto">
           <nav className="glass-nav px-4 py-2 flex justify-between items-center">
             <div className="flex-1 flex justify-center">
               <img 
                 src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
                 alt="OptiLog Pro Logo" 
-                className="h-36 md:h-12 w-auto"
+                className="h-28 md:h-12 w-auto"
               />
             </div>
             <div className="hidden md:flex items-center space-x-2">
@@ -38,7 +38,7 @@ export const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-20 pb-32 px-4">
+      <section className="pt-12 md:pt-20 pb-32 px-4">
         <div className="max-w-5xl mx-auto text-center relative">
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 blur-3xl" />
@@ -46,7 +46,7 @@ export const LandingPage = () => {
           <div className="inline-block px-6 py-2 rounded-full bg-primary/10 text-primary mb-6">
             Unlock Your Marketing Potential
           </div>
-          <h1 className="text-6xl font-bold mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Fastest & Easiest Way to
             <span className="gradient-text block">Optimize Marketing</span>
           </h1>
