@@ -3,9 +3,25 @@ import { OptimizationForm } from "@/components/OptimizationForm";
 import { Navigation } from "@/components/Navigation";
 import { WelcomeDialog } from "@/components/WelcomeDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 const Index = () => {
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const checkFirstTimeUser = async () => {
@@ -19,7 +35,6 @@ const Index = () => {
             .eq('id', user.id)
             .single();
 
-          // Only show dialog if required fields are empty AND user hasn't seen the welcome dialog
           if (profile && (!profile.first_name || !profile.last_name || !profile.position) && !profile.has_seen_welcome) {
             setShowWelcomeDialog(true);
           }
@@ -30,7 +45,11 @@ const Index = () => {
     };
 
     checkFirstTimeUser();
-  }, []); // Only run once when component mounts
+  }, []);
+
+  if (!session) {
+    return <LandingPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
