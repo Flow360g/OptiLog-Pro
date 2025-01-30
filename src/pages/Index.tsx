@@ -3,7 +3,7 @@ import { OptimizationForm } from "@/components/OptimizationForm";
 import { Navigation } from "@/components/Navigation";
 import { WelcomeDialog } from "@/components/WelcomeDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { HeroSection } from "@/components/ui/hero-section";
+import { LandingPage } from "@/components/landing/LandingPage";
 
 const Index = () => {
   const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
@@ -23,30 +23,32 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const checkFirstTimeUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, position, has_seen_welcome')
+            .eq('id', user.id)
+            .single();
+
+          if (profile && (!profile.first_name || !profile.last_name || !profile.position) && !profile.has_seen_welcome) {
+            setShowWelcomeDialog(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user profile:", error);
+      }
+    };
+
+    checkFirstTimeUser();
+  }, []);
+
   if (!session) {
-    return (
-      <HeroSection
-        title="Unlock Your Marketing Potential"
-        subtitle={{
-          regular: "The fastest way to ",
-          gradient: "optimize marketing",
-        }}
-        description="The central hub for logging, tracking, and automating your marketing optimization workflow. Turn insights into impact with AI-powered suggestions."
-        ctaText="Start 7 Days Trial"
-        ctaHref="#"
-        bottomImage={{
-          light: "/lovable-uploads/002f77c4-0d62-47cc-bd9e-b50a29e372af.png",
-          dark: "/lovable-uploads/002f77c4-0d62-47cc-bd9e-b50a29e372af.png"
-        }}
-        gridOptions={{
-          angle: 65,
-          opacity: 0.3,
-          cellSize: 50,
-          lightLineColor: "#9b87f5",
-          darkLineColor: "#7E69AB",
-        }}
-      />
-    );
+    return <LandingPage />;
   }
 
   return (
