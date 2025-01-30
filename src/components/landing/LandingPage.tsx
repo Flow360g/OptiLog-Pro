@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowRight, Brain, GitBranch, BarChart2, LineChart, FileText, Settings, Zap, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const LandingPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   
   const handleLogin = async () => {
     await supabase.auth.signInWithOAuth({
@@ -52,7 +54,7 @@ export const LandingPage = () => {
           {isMobileMenuOpen && (
             <div className="md:hidden absolute top-24 left-4 right-4 glass-nav px-4 py-4 flex flex-col gap-2 z-50">
               <a 
-                href="#pricing" 
+                href="/pricing"
                 className="nav-link text-center py-3"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -67,7 +69,7 @@ export const LandingPage = () => {
               </a>
               <Button 
                 onClick={() => {
-                  handleLogin();
+                  navigate("/login");
                   setIsMobileMenuOpen(false);
                 }} 
                 variant="gradient" 
