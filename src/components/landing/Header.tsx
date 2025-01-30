@@ -11,9 +11,9 @@ export function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="py-2 md:py-4 px-6">
+    <header className="bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-7xl mx-auto">
-        <nav className="px-4 py-2 flex justify-between items-center">
+        <nav className="px-6 py-4 flex justify-between items-center">
           <div className="flex-1 flex justify-center">
             <img 
               src="/lovable-uploads/9c68987a-3471-45f2-aba3-7030c96833a8.png" 
@@ -47,7 +47,7 @@ export function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-24 left-4 right-4 glass-nav px-4 py-4 flex flex-col gap-2 z-50">
+          <div className="md:hidden absolute top-24 left-4 right-4 bg-white shadow-lg rounded-lg border border-gray-100 px-4 py-4 flex flex-col gap-2 z-50">
             <a 
               href="/pricing"
               className="nav-link text-center py-3"
