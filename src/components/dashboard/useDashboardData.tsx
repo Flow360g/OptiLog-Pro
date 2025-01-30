@@ -18,6 +18,12 @@ export function useDashboardData(
   const fetchOptimizations = async () => {
     try {
       if (!session) return;
+      
+      // If there are no clients, set empty optimization state
+      if (userClients.length === 0) {
+        setOptimizationsByClient({});
+        return;
+      }
 
       const { data: optimizations, error: optimizationsError } = await supabase
         .from('optimizations')
@@ -74,7 +80,8 @@ export function useDashboardData(
   };
 
   useEffect(() => {
-    if (userClients.length > 0) {
+    // Only fetch if we have a session
+    if (session) {
       fetchOptimizations();
     }
   }, [userClients, selectedClient, selectedPlatform, selectedCategory, selectedStatus, session]);

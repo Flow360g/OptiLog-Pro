@@ -35,11 +35,7 @@ const Dashboard = () => {
 
   // Session check effect
   useEffect(() => {
-    console.log("Session check effect running");
-    console.log("Current session:", session);
-    
     if (!isSessionLoading && !session) {
-      console.log("No session found, redirecting to login");
       navigate("/login");
     }
   }, [session, isSessionLoading, navigate]);
@@ -84,13 +80,8 @@ const Dashboard = () => {
           variant: "default",
           duration: 2000,
         });
-        
-        setTimeout(() => {
-          fetchOptimizations();
-        }, 1000);
-      } else {
-        fetchOptimizations();
       }
+      fetchOptimizations();
     } catch (error) {
       console.error('Error updating optimization status:', error);
       toast({
@@ -101,24 +92,16 @@ const Dashboard = () => {
     }
   };
 
-  // Show loading state while checking session or loading clients
-  if (isSessionLoading || isClientsLoading) {
-    console.log("Loading state shown");
+  // Only show loading state while checking session
+  if (isSessionLoading) {
     return <LoadingState />;
   }
 
-  // If no session, redirect to login (this is a backup check)
+  // If no session, redirect to login
   if (!session) {
-    console.log("No session found in render, redirecting to login");
     navigate("/login");
     return null;
   }
-
-  console.log("Dashboard rendering with data:", {
-    userClients,
-    optimizationsByClient,
-    session: !!session
-  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
@@ -143,15 +126,26 @@ const Dashboard = () => {
           />
         </div>
 
-        {Object.entries(optimizationsByClient).map(([client, optimizations]) => (
-          <ClientSection
-            key={client}
-            client={client}
-            optimizations={optimizations}
-            onStatusChange={handleStatusChange}
-            visibleColumns={visibleColumns}
-          />
-        ))}
+        {isClientsLoading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading client data...</p>
+          </div>
+        ) : userClients.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No clients assigned. Please update your settings.</p>
+          </div>
+        ) : (
+          Object.entries(optimizationsByClient).map(([client, optimizations]) => (
+            <ClientSection
+              key={client}
+              client={client}
+              optimizations={optimizations}
+              onStatusChange={handleStatusChange}
+              visibleColumns={visibleColumns}
+            />
+          ))
+        )}
       </main>
     </div>
   );
