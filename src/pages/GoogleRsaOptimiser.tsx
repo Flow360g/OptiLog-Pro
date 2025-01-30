@@ -1,96 +1,53 @@
+import { useEffect } from 'react';
 import { Navigation } from "@/components/Navigation";
-import { useNavigate } from "react-router-dom";
-import { useSessionContext } from '@supabase/auth-helpers-react';
 import { FileUploadForm } from "@/components/rsa/FileUploadForm";
 import { SuccessDialog } from "@/components/rsa/SuccessDialog";
 import { useRsaOptimizer } from "@/hooks/useRsaOptimizer";
-import { useUserClients } from "@/hooks/useUserClients";
 
 const GoogleRsaOptimiser = () => {
   const {
-    keywordsFile,
-    adsFile,
-    additionalInstructions,
-    isUploading,
-    isProcessing,
-    showSuccessDialog,
-    setKeywordsFile,
-    setAdsFile,
-    setAdditionalInstructions,
-    setShowSuccessDialog,
-    handleSubmit,
-    handleDownload,
+    isLoading,
+    isError,
+    success,
+    resetSuccess,
   } = useRsaOptimizer();
 
-  const navigate = useNavigate();
-  const { session, isLoading: isSessionLoading } = useSessionContext();
-  const { data: userClients = [], isLoading: isClientsLoading } = useUserClients();
-
-  // Check session and redirect if not logged in
   useEffect(() => {
-    if (!isSessionLoading && !session) {
-      navigate("/login");
-      return;
+    if (success) {
+      const timer = setTimeout(() => {
+        resetSuccess();
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [session, isSessionLoading, navigate]);
-
-  // Only show loading state while checking session
-  if (isSessionLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
-        <Navigation />
-        <div className="flex justify-center items-center h-[calc(100vh-80px)]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // If no session, redirect to login
-  if (!session) {
-    navigate("/login");
-    return null;
-  }
+  }, [success, resetSuccess]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20">
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8 text-gray-900 text-center">
-          Google RSA Optimiser
-        </h1>
-        
-        {isClientsLoading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading client data...</p>
-          </div>
-        ) : userClients.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">No clients assigned. Please update your settings.</p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-            <FileUploadForm
-              isUploading={isUploading}
-              isProcessing={isProcessing}
-              onSubmit={handleSubmit}
-              onKeywordsFileChange={setKeywordsFile}
-              onAdsFileChange={setAdsFile}
-              onInstructionsChange={setAdditionalInstructions}
-              additionalInstructions={additionalInstructions}
-              keywordsFile={keywordsFile}
-              adsFile={adsFile}
-            />
-          </div>
-        )}
-      </main>
-
-      <SuccessDialog
-        open={showSuccessDialog}
-        onClose={() => setShowSuccessDialog(false)}
-        onDownload={handleDownload}
-      />
+      <div className="py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-2 text-center text-gray-900">
+            Google RSA Optimiser
+          </h1>
+          <p className="text-lg text-gray-600 mb-8 text-center">
+            Upload your RSA files to optimize your campaigns.
+          </p>
+          {isLoading && (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          )}
+          {isError && (
+            <div className="text-red-600 text-center">
+              There was an error processing your request. Please try again.
+            </div>
+          )}
+          {success && (
+            <SuccessDialog />
+          )}
+          <FileUploadForm />
+        </div>
+      </div>
     </div>
   );
 };
