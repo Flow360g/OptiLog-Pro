@@ -45,6 +45,11 @@ const router = createBrowserRouter([
     errorElement: <ErrorBoundary />,
   },
   {
+    path: "/testing-schedule/new",
+    element: <CreateTest />,
+    errorElement: <ErrorBoundary />,
+  },
+  {
     path: "/create-test",
     element: <CreateTest />,
     errorElement: <ErrorBoundary />,
