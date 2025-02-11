@@ -1,74 +1,122 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { createClient } from '@supabase/supabase-js';
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from "@/components/ui/toaster";
-import { supabase } from "./integrations/supabase/client";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useState, useEffect } from "react";
 import Index from "./pages/Index";
-import UserSettings from "./pages/UserSettings";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Insights from "./pages/Insights";
 import TestingSchedule from "./pages/TestingSchedule";
 import CreateTest from "./pages/CreateTest";
-import Insights from "./pages/Insights";
+import UserSettings from "./pages/UserSettings";
 import GoogleRsaOptimiser from "./pages/GoogleRsaOptimiser";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import Pricing from "./pages/Pricing";
+import { Toaster } from "@/components/ui/toaster";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { supabase } from "@/integrations/supabase/client";
 
-// Create a client
-const queryClient = new QueryClient();
+// Protected Route wrapper component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-// Create router configuration
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Index />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/settings",
-    element: <UserSettings />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/testing-schedule",
-    element: <TestingSchedule />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/create-test",
-    element: <CreateTest />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/insights",
-    element: <Insights />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: "/rsa-optimiser",
-    element: <GoogleRsaOptimiser />,
-    errorElement: <ErrorBoundary />,
-  },
-]);
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Show loading spinner while checking auth
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionContextProvider supabaseClient={supabase}>
-        <RouterProvider router={router} />
-        <Toaster />
-      </SessionContextProvider>
-    </QueryClientProvider>
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Index />} errorElement={<ErrorBoundary />} />
+        <Route path="/login" element={<Login />} errorElement={<ErrorBoundary />} />
+        <Route path="/pricing" element={<Pricing />} errorElement={<ErrorBoundary />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorBoundary />}
+        />
+        <Route
+          path="/insights"
+          element={
+            <ProtectedRoute>
+              <Insights />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorBoundary />}
+        />
+        <Route
+          path="/testing-schedule"
+          element={
+            <ProtectedRoute>
+              <TestingSchedule />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorBoundary />}
+        />
+        <Route
+          path="/testing-schedule/new"
+          element={
+            <ProtectedRoute>
+              <CreateTest />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorBoundary />}
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <UserSettings />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorBoundary />}
+        />
+        <Route
+          path="/tools/rsa-optimiser"
+          element={
+            <ProtectedRoute>
+              <GoogleRsaOptimiser />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorBoundary />}
+        />
+      </Routes>
+      <Toaster />
+    </Router>
   );
 }
 

@@ -27,11 +27,6 @@ const Index = () => {
             setSession(null);
             setError("Failed to check authentication status");
             setIsAuthChecking(false);
-            toast({
-              title: "Authentication Error",
-              description: "There was a problem checking your login status. Please try refreshing the page.",
-              variant: "destructive",
-            });
           }
           return;
         }
@@ -74,31 +69,33 @@ const Index = () => {
 
   useEffect(() => {
     const checkFirstTimeUser = async () => {
-      if (!session?.user?.id) return;
-      
       setIsProfileLoading(true);
       setError(null);
       
       try {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('first_name, last_name, position, has_seen_welcome')
-          .eq('id', session.user.id)
-          .single();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, position, has_seen_welcome')
+            .eq('id', user.id)
+            .single();
 
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          setError("Failed to load user profile");
-          toast({
-            title: "Profile Error",
-            description: "There was a problem loading your profile. Please try refreshing the page.",
-            variant: "destructive",
-          });
-          return;
-        }
+          if (profileError) {
+            console.error("Error fetching profile:", profileError);
+            setError("Failed to load user profile");
+            toast({
+              title: "Profile Error",
+              description: "There was a problem loading your profile. Please try refreshing the page.",
+              variant: "destructive",
+            });
+            return;
+          }
 
-        if (profile && (!profile.first_name || !profile.last_name || !profile.position) && !profile.has_seen_welcome) {
-          setShowWelcomeDialog(true);
+          if (profile && (!profile.first_name || !profile.last_name || !profile.position) && !profile.has_seen_welcome) {
+            setShowWelcomeDialog(true);
+          }
         }
       } catch (error) {
         console.error("Error checking user profile:", error);

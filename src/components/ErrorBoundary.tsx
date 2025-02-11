@@ -2,7 +2,7 @@ import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 
-export function ErrorBoundary() {
+export default function ErrorBoundary() {
   const error = useRouteError();
   const navigate = useNavigate();
 
